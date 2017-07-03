@@ -6,12 +6,12 @@ Assessment Markup Language is a concise and flexible declarative language for ed
 
 ### Variable
 
-Example:
+[Click to see live example]()
 
 #### Text
 
 ```
-{{var1}} + {{var2}} = ?
+[var] + [var] = ?
 ```
 
 #### Code
@@ -28,7 +28,7 @@ answer = var1 + var2;
 
 ### Multiple Choice
 
-Example:
+[Click to see live example]()
 
 #### Text
 
@@ -52,7 +52,7 @@ answer.radio4 = false;
 
 ### Multiple Select
 
-Example:
+[Click to see live example]()
 
 #### Text
 
@@ -76,14 +76,14 @@ answer.check4 = true;
 
 ### Multiple Input
 
-Example:
+[Click to see live example]()
 
 #### Text
 
 ```
 Fill in the blanks:
 
-Sally was [[input]] across the field when she realized that she [[input]] into a stream of [[input]] water.
+Sally was [input] across the field when she realized that she [input] into a stream of [input] water.
 ```
 
 #### Code
@@ -95,6 +95,40 @@ answer.input3 = 'running';
 ```
 
 ### Drag and Drop
+
+Click to see live example (not yet implemented)
+
+#### Text
+
+```
+Match the numbers with the words:
+
+[drag]1[drag]
+[drag]2[drag]
+[drag]3[drag]
+[drag]4[drag]
+
+[drop]four[drop]
+[drop]one[drop]
+[drop]two[drop]
+[drop]three[drop]
+```
+
+#### Code
+
+```
+answer.drop1 = drag4;
+answer.drop2 = drag1;
+answer.drop3 = drag2;
+answer.drop4 = drag3;
+
+// or
+
+answer.drag1 = drop2;
+answer.drag2 = drop3;
+answer.drag3 = drop4;
+answer.drag4 = drop1;
+```
 
 ## BNF
 
