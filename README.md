@@ -28,7 +28,7 @@ answer = var1 + var2;
 
 ### Multiple Choice
 
-[Click to see live example]()
+[Click to see live example](https://prendus.com/question/cj4osc9bh6lnc017201owg73u/view)
 
 #### Text
 
