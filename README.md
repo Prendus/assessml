@@ -10,7 +10,9 @@ Example:
 
 #### Text
 
+```
 {{var1}} + {{var2}} = ?
+```
 
 #### Code
 
@@ -51,18 +53,21 @@ answer.radio4 = false;
 ### Multiple Select
 
 Example:
-```
-// Text
 
+#### Text
+
+```
 Who were presidents of the United States of America?
 
 [x] Bing Crosby
 [x] Bill Cosby
 [x] Thomas Jefferson
 [x] George Washington
+```
 
-// Code
+#### Code
 
+```
 answer.check1 = false;
 answer.check2 = false;
 answer.check3 = true;
@@ -72,10 +77,21 @@ answer.check4 = true;
 ### Multiple Input
 
 Example:
+
+#### Text
+
 ```
-// Text
+Fill in the blanks:
 
+Sally was [[input]] across the field when she realized that she [[input]] into a stream of [[input]] water.
+```
 
+#### Code
+
+```
+answer.input0 = 'running';
+answer.input1 = 'ran';
+answer.input2 = 'running';
 ```
 
 ### Drag and Drop
