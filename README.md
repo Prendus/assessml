@@ -9,11 +9,15 @@ Assessment Markup Language is a concise and flexible declarative language for ed
 Example:
 ```
 // Text
+```
 
 {{var1}} + {{var2}} = ?
 
+```
 // Code
+```
 
+```javascript
 var1.min = 0;
 var1.max = 25;
 
