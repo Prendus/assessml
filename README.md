@@ -9,9 +9,11 @@ Assessment Markup Language is a concise and flexible declarative language for ed
 Example:
 ```
 // Text
+
 {{var1}} + {{var2}} = ?
 
 // Code
+
 var1.min = 0;
 var1.max = 25;
 
@@ -26,6 +28,7 @@ answer = var1 + var2;
 Example:
 ```
 // Text
+
 What color is the sky?
 
 [*] Red
@@ -34,15 +37,42 @@ What color is the sky?
 [*] Yellow
 
 // Code
-answer.check1 = false;
-answer.check2 = true;
-answer.check3 = false;
-answer.check4 = false;
+
+answer.radio1 = false;
+answer.radio2 = true;
+answer.radio3 = false;
+answer.radio4 = false;
 ```
 
 ### Multiple Select
 
+Example:
+```
+// Text
+
+Who were presidents of the United States of America?
+
+[x] Bing Crosby
+[x] Bill Cosby
+[x] Thomas Jefferson
+[x] George Washington
+
+// Code
+
+answer.check1 = false;
+answer.check2 = false;
+answer.check3 = true;
+answer.check4 = true;
+```
+
 ### Multiple Input
+
+Example:
+```
+// Text
+
+
+```
 
 ### Drag and Drop
 
