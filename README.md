@@ -6,7 +6,7 @@ Assessment Markup Language is a concise and flexible declarative language for ed
 
 ### Variable
 
-[Click to see live example]()
+[Click to see live example](https://prendus.com/question/cj4os7mld6kq4017073x00cjt/view)
 
 #### Text
 
