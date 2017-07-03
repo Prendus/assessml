@@ -89,9 +89,9 @@ Sally was [[input]] across the field when she realized that she [[input]] into a
 #### Code
 
 ```
-answer.input0 = 'running';
-answer.input1 = 'ran';
-answer.input2 = 'running';
+answer.input1 = 'running';
+answer.input2 = 'ran';
+answer.input3 = 'running';
 ```
 
 ### Drag and Drop
