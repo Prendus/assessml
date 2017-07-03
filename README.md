@@ -27,8 +27,8 @@ answer = var1 + var2;
 ### Multiple Choice
 
 Example:
-```
-// Text
+
+#### Text
 
 What color is the sky?
 
@@ -37,8 +37,9 @@ What color is the sky?
 [*] Green
 [*] Yellow
 
-// Code
+#### Code
 
+```javascript
 answer.radio1 = false;
 answer.radio2 = true;
 answer.radio3 = false;
