@@ -76,7 +76,7 @@ answer.check4 = true;
 
 ### Multiple Input
 
-[Click to see live example]()
+[Click to see live example](https://prendus.com/question/cj4ot1nlv6x630170jhxz2u9e/view)
 
 #### Text
 
