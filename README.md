@@ -32,10 +32,13 @@ Example:
 
 What color is the sky?
 
-[*] Red
-[*] Blue
-[*] Green
-[*] Yellow
+[\*] Red
+
+[\*] Blue
+
+[\*] Green
+
+[\*] Yellow
 
 #### Code
 
