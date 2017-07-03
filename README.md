@@ -52,7 +52,7 @@ answer.radio4 = false;
 
 ### Multiple Select
 
-[Click to see live example]()
+[Click to see live example](https://prendus.com/question/cj4osxzcl6vj90170h9ix6tdj/view)
 
 #### Text
 
