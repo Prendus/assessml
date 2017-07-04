@@ -44,6 +44,12 @@ aml.compileToHTML(`
 aml.compileToHTML(ast);
 ```
 
+## Language Specification
+
+* [Basic Syntax]()
+* [BNF]()
+* [AST]()
+
 ## Basic Syntax
 
 ### Short Answer
@@ -190,9 +196,40 @@ answer.drag3 = drop4;
 answer.drag4 = drop1;
 ```
 
-## BNF
+## BNF (Backus normal form) Grammar
 
-## AST
+<Document> ::= 
+
+## AST (Abstract Syntax Tree)
+
+### Document
+
+```typescript
+interface Document {
+  document: [];
+}
+```
+
+### Content
+
+```typescipt
+interface Content {
+  type: 'CONTENT';
+  content: string;
+}
+```
+
+### Variable
+
+### Input
+
+### Check
+
+### Radio
+
+### Drag
+
+### Drop
 
 ## Output
 
