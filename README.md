@@ -15,13 +15,13 @@ npm install assessml
 ### Node.js
 
 ```javascript
-const aml = require('assessml');
+import {generateAST, compileToHTML} from './node_modules/assessml/assessml';
 
 // generate AST
 
-const ast = aml.generateAST(`
+const ast = generateAST(`
   What time is it?
-  
+
   [*] 1:00pm
   [*] 2:00pm
   [*] 3:00pm
@@ -30,9 +30,9 @@ const ast = aml.generateAST(`
 
 // compile to HTML from source code
 
-aml.compileToHTML(`
+compileToHTML(`
   What time is it?
-  
+
   [*] 1:00pm
   [*] 2:00pm
   [*] 3:00pm
@@ -41,7 +41,42 @@ aml.compileToHTML(`
 
 // compile to HTML from AST
 
-aml.compileToHTML(ast);
+compileToHTML(ast);
+```
+
+## Development
+
+Clone the repository:
+
+SSH:
+
+```bash
+git clone git@github.com:Prendus/assessml.git
+```
+
+HTTPS:
+
+```bash
+git clone https://github.com/Prendus/assessml.git
+```
+
+Install all dependencies:
+
+```bash
+cd assessml
+npm install
+```
+
+Run test cases in terminal:
+
+```bash
+npm run test
+```
+
+Run test cases with debug window:
+
+```bash
+npm run test-window
 ```
 
 ## Language Specification
