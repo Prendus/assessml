@@ -21,7 +21,7 @@ function buildAST(source: string, ast: AST, numInputs: number, numChecks: number
     const radioRegex: RegExp = /\[\*\](.+?)\[\*\]/;
     const dragRegex: RegExp = /\[drag\](.+?)\[drag\]/;
     const dropRegex: RegExp = /\[drop\](.+?)\[drop\]/;
-    const contentRegex: RegExp = new RegExp(`((.|\n)+?)((${variableRegex.source}|${inputRegex.source}|${checkRegex.source}|${radioRegex.source})|$)`);
+    const contentRegex: RegExp = new RegExp(`((.|\n)+?)((${variableRegex.source}|${inputRegex.source}|${checkRegex.source}|${radioRegex.source}|${dragRegex.source}|${dropRegex.source})|$)`);
 
     if (source.search(variableRegex) === 0) {
         const match = source.match(variableRegex) || [];
