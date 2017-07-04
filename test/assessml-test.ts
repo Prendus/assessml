@@ -1,5 +1,7 @@
 import {generateAST} from '../assessml';
 
-generateAST(`
-    What is [var1]?
+const ast = generateAST(`
+    What is [var1] + [var2]?
 `);
+
+console.log(ast);
