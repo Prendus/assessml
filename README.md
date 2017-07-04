@@ -208,7 +208,8 @@ answer.drag4 = drop1;
 
 ```typescript
 interface Document {
-  document: [];
+  type: 'DOCUMENT';
+  content: [];
 }
 ```
 
