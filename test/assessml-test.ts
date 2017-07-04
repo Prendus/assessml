@@ -1,7 +1,7 @@
 import {generateAST} from '../assessml';
 
 const ast = generateAST(`
-    What is [var1] + [var2]?
+    What [input] is [var1] + [var2] [input] [input] [input]?
 `);
 
 console.log(ast);
