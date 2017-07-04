@@ -221,16 +221,59 @@ interface Content {
 
 ### Variable
 
+```typescript
+interface Variable {
+  type: 'VARIABLE';
+  varName: string;
+  value: number;
+}
+```
+
 ### Input
+
+```typescript
+interface Input {
+  type: 'INPUT';
+  varName: string;
+}
+```
 
 ### Check
 
+```typescript
+interface Check {
+  type: 'CHECK';
+  varName: string;
+  content: Document;
+}
+```
+
 ### Radio
+
+```typescript
+interface Radio {
+  type: 'RADIO';
+  varName: string;
+  content: Document;
+}
+```
 
 ### Drag
 
+```typescript
+interface Drag {
+  type: 'DRAG';
+  varName: string;
+  content: Document;
+}
+```
+
 ### Drop
 
-## Output
-
-The compiler will output a combination of HTML and JavaScript.
+```typescript
+interface Drop {
+  type: 'DROP';
+  varName: string;
+  content: Document;
+}
+```
