@@ -78,7 +78,7 @@ npm run test-window
 ## Language Specification
 
 * [Basic Syntax](#basic-syntax)
-* [BNF](#bnf-backus-normal-form-grammar)
+* [BNF](#bnf-backus-naur-form-grammar)
 * [AST](#ast-abstract-syntax-tree)
 
 ### Basic Syntax
@@ -227,7 +227,7 @@ answer.drag3 = drop4;
 answer.drag4 = drop1;
 ```
 
-### BNF (Backus normal form) Grammar
+### BNF (Backus-Naur form) Grammar
 
 ```
 <Document> := <Document><Content><Document> | <Document><Variable><Document> | <Document><Input><Document> | <Document><Check><Document> | <Document><Radio><Document> | <Document><Drag><Document> | <Document><Drop><Document> | <Empty>
