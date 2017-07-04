@@ -50,37 +50,37 @@ aml.compileToHTML(ast);
 * [BNF]()
 * [AST]()
 
-## Basic Syntax
+### Basic Syntax
 
-### Short Answer
+#### Short Answer
 
 Click to see live example (not yet implemented)
 
-#### Text
+##### Text
 
 ```
 What is the year of the Unix epoch?
 ```
 
-#### Code
+##### Code
 
 ```javascript
 answer = '1970';
 ```
 
-### Variable
+#### Variable
 
 Variable names must be prefixed with `var`. Any string can come after the `var` prefix.
 
 [Click to see live example](https://prendus.com/question/cj4os7mld6kq4017073x00cjt/view)
 
-#### Text
+##### Text
 
 ```
 [var1] + [var2] = ?
 ```
 
-#### Code
+##### Code
 
 ```javascript
 var1.min = 0;
@@ -92,11 +92,11 @@ var2.max = 50;
 answer = var1 + var2;
 ```
 
-### Multiple Choice
+#### Multiple Choice
 
 [Click to see live example](https://prendus.com/question/cj4osc9bh6lnc017201owg73u/view)
 
-#### Text
+##### Text
 
 ```
 What color is the sky?
@@ -107,7 +107,7 @@ What color is the sky?
 [*] Yellow
 ```
 
-#### Code
+##### Code
 
 ```javascript
 answer.radio1 = false;
@@ -116,11 +116,11 @@ answer.radio3 = false;
 answer.radio4 = false;
 ```
 
-### Multiple Select
+#### Multiple Select
 
 [Click to see live example](https://prendus.com/question/cj4osxzcl6vj90170h9ix6tdj/view)
 
-#### Text
+##### Text
 
 ```
 Who were presidents of the United States of America?
@@ -131,7 +131,7 @@ Who were presidents of the United States of America?
 [x] George Washington
 ```
 
-#### Code
+##### Code
 
 ```
 answer.check1 = false;
@@ -140,11 +140,11 @@ answer.check3 = true;
 answer.check4 = true;
 ```
 
-### Multiple Input
+#### Multiple Input
 
 [Click to see live example](https://prendus.com/question/cj4ot1nlv6x630170jhxz2u9e/view)
 
-#### Text
+##### Text
 
 ```
 Fill in the blanks:
@@ -152,7 +152,7 @@ Fill in the blanks:
 Sally was [input] across the field when she realized that she [input] into a stream of [input] water.
 ```
 
-#### Code
+##### Code
 
 ```
 answer.input1 = 'running';
@@ -160,11 +160,11 @@ answer.input2 = 'ran';
 answer.input3 = 'running';
 ```
 
-### Drag and Drop
+#### Drag and Drop
 
 Click to see live example (not yet implemented)
 
-#### Text
+##### Text
 
 ```
 Match the numbers with the words:
@@ -180,7 +180,7 @@ Match the numbers with the words:
 [drop]three[drop]
 ```
 
-#### Code
+##### Code
 
 ```
 answer.drop1 = drag4;
@@ -196,13 +196,15 @@ answer.drag3 = drop4;
 answer.drag4 = drop1;
 ```
 
-## BNF (Backus normal form) Grammar
+### BNF (Backus normal form) Grammar
 
+```
 <Document> ::= 
+```
 
-## AST (Abstract Syntax Tree)
+### AST (Abstract Syntax Tree)
 
-### Document
+#### Document
 
 ```typescript
 interface Document {
@@ -210,7 +212,7 @@ interface Document {
 }
 ```
 
-### Content
+#### Content
 
 ```typescipt
 interface Content {
@@ -219,7 +221,7 @@ interface Content {
 }
 ```
 
-### Variable
+#### Variable
 
 ```typescript
 interface Variable {
@@ -229,7 +231,7 @@ interface Variable {
 }
 ```
 
-### Input
+#### Input
 
 ```typescript
 interface Input {
@@ -238,7 +240,7 @@ interface Input {
 }
 ```
 
-### Check
+#### Check
 
 ```typescript
 interface Check {
@@ -248,7 +250,7 @@ interface Check {
 }
 ```
 
-### Radio
+#### Radio
 
 ```typescript
 interface Radio {
@@ -258,7 +260,7 @@ interface Radio {
 }
 ```
 
-### Drag
+#### Drag
 
 ```typescript
 interface Drag {
@@ -268,7 +270,7 @@ interface Drag {
 }
 ```
 
-### Drop
+#### Drop
 
 ```typescript
 interface Drop {
