@@ -4,6 +4,22 @@ Assessment Markup Language is a concise and flexible declarative language for ed
 
 ## Basic Syntax
 
+### Short Answer
+
+Click to see live example (not yet implemented)
+
+#### Text
+
+```
+What is the year of the Unix epoch?
+```
+
+#### Code
+
+```javascript
+answer = '1970';
+```
+
 ### Variable
 
 [Click to see live example](https://prendus.com/question/cj4os7mld6kq4017073x00cjt/view)
