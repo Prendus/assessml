@@ -214,7 +214,7 @@ interface Document {
 
 #### Content
 
-```typescipt
+```typescript
 interface Content {
   type: 'CONTENT';
   content: string;
