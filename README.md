@@ -22,10 +22,10 @@ import {generateAST, compileToHTML} from './node_modules/assessml/assessml';
 const ast = generateAST(`
   What time is it?
 
-  [*] 1:00pm
-  [*] 2:00pm
-  [*] 3:00pm
-  [*] 4:00pm
+  [*] 1:00pm [*]
+  [*] 2:00pm [*]
+  [*] 3:00pm [*]
+  [*] 4:00pm [*]
 `);
 
 // compile to HTML from source code
@@ -33,10 +33,10 @@ const ast = generateAST(`
 compileToHTML(`
   What time is it?
 
-  [*] 1:00pm
-  [*] 2:00pm
-  [*] 3:00pm
-  [*] 4:00pm
+  [*] 1:00pm [*]
+  [*] 2:00pm [*]
+  [*] 3:00pm [*]
+  [*] 4:00pm [*]
 `);
 
 // compile to HTML from AST
