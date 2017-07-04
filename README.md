@@ -248,12 +248,12 @@ answer.drag4 = drop1;
 
 ### AST (Abstract Syntax Tree)
 
-#### Document
+#### AST
 
 ```typescript
-interface Document {
-  type: 'DOCUMENT';
-  content: [];
+interface AST {
+  type: 'AST';
+  ast: ()[];
 }
 ```
 
