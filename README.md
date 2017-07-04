@@ -253,7 +253,7 @@ answer.drag4 = drop1;
 ```typescript
 interface AST {
   type: 'AST';
-  ast: ()[];
+  ast: (Content | Variable | Input | Check | Radio | Drag | Drop)[];
 }
 ```
 
@@ -291,7 +291,7 @@ interface Input {
 interface Check {
   type: 'CHECK';
   varName: string;
-  content: Document;
+  content: (Variable | Content)[];
 }
 ```
 
@@ -301,7 +301,7 @@ interface Check {
 interface Radio {
   type: 'RADIO';
   varName: string;
-  content: Document;
+  content: (Variable | Content)[];
 }
 ```
 
@@ -311,7 +311,7 @@ interface Radio {
 interface Drag {
   type: 'DRAG';
   varName: string;
-  content: Document;
+  content: (Variable | Content)[];
 }
 ```
 
@@ -321,6 +321,6 @@ interface Drag {
 interface Drop {
   type: 'DROP';
   varName: string;
-  content: Document;
+  content: (Variable | Content)[];
 }
 ```
