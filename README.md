@@ -148,3 +148,8 @@ answer.drag4 = drop1;
 
 ## BNF
 
+## AST
+
+## Output
+
+The compiler will output a combination of HTML and JavaScript.
