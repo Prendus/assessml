@@ -46,8 +46,8 @@ aml.compileToHTML(ast);
 
 ## Language Specification
 
-* [Basic Syntax]()
-* [BNF]()
+* [Basic Syntax](#basic-syntax)
+* [BNF](#)
 * [AST]()
 
 ### Basic Syntax
