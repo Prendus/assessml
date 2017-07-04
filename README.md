@@ -101,10 +101,10 @@ answer = var1 + var2;
 ```
 What color is the sky?
 
-[*] Red
-[*] Blue
-[*] Green
-[*] Yellow
+[*] Red [*]
+[*] Blue [*]
+[*] Green [*]
+[*] Yellow [*]
 ```
 
 ##### Code
@@ -125,10 +125,10 @@ answer.radio4 = false;
 ```
 Who were presidents of the United States of America?
 
-[x] Bing Crosby
-[x] Bill Cosby
-[x] Thomas Jefferson
-[x] George Washington
+[x] Bing Crosby [x]
+[x] Bill Cosby [x]
+[x] Thomas Jefferson [x]
+[x] George Washington [x]
 ```
 
 ##### Code
@@ -199,7 +199,16 @@ answer.drag4 = drop1;
 ### BNF (Backus normal form) Grammar
 
 ```
-<Document> ::= 
+<Document> := <Document><Content><Document> | <Document><Variable><Document> | <Document><Input><Document> | <Document><Check><Document> | <Document><Radio><Document> | <Document><Drag><Document> | <Document><Drop><Document> | <Empty>
+<Content> := string
+<Variable> := [var<Content>]
+<Input> := [input]
+<Check> := [x]<ArbitraryVariableOrContent>[x]
+<Radio> := [*]<ArbitraryVariableOrContent>[*]
+<Drag> := [drag]<ArbitraryVariableOrContent>[drag]
+<Drop> := [drop]<ArbitraryVariableOrContent>[drop]
+<ArbitraryVariableOrContent> := <ArbitraryVariableOrContent><Variable><ArbitraryVariableOrContent> | <ArbitraryVariableOrContent><Content><ArbitraryVariableOrContent> | <Empty>
+<Empty> := '' (the empty string)
 ```
 
 ### AST (Abstract Syntax Tree)
