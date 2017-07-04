@@ -10,10 +10,6 @@ npm install assessml
 
 ## Use
 
-### Browser
-
-### Node.js
-
 ```javascript
 import {generateAST, compileToHTML} from './node_modules/assessml/assessml';
 
