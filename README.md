@@ -22,10 +22,10 @@ import {generateAST, compileToHTML} from './node_modules/assessml/assessml';
 const ast = generateAST(`
   What time is it?
 
-  [*] 1:00pm
-  [*] 2:00pm
-  [*] 3:00pm
-  [*] 4:00pm
+  [*] 1:00pm [*]
+  [*] 2:00pm [*]
+  [*] 3:00pm [*]
+  [*] 4:00pm [*]
 `);
 
 // compile to HTML from source code
@@ -33,10 +33,10 @@ const ast = generateAST(`
 compileToHTML(`
   What time is it?
 
-  [*] 1:00pm
-  [*] 2:00pm
-  [*] 3:00pm
-  [*] 4:00pm
+  [*] 1:00pm [*]
+  [*] 2:00pm [*]
+  [*] 3:00pm [*]
+  [*] 4:00pm [*]
 `);
 
 // compile to HTML from AST
@@ -253,7 +253,7 @@ answer.drag4 = drop1;
 ```typescript
 interface AST {
   type: 'AST';
-  ast: ()[];
+  ast: (Content | Variable | Input | Check | Radio | Drag | Drop)[];
 }
 ```
 
@@ -291,7 +291,7 @@ interface Input {
 interface Check {
   type: 'CHECK';
   varName: string;
-  content: Document;
+  content: (Variable | Content)[];
 }
 ```
 
@@ -301,7 +301,7 @@ interface Check {
 interface Radio {
   type: 'RADIO';
   varName: string;
-  content: Document;
+  content: (Variable | Content)[];
 }
 ```
 
@@ -311,7 +311,7 @@ interface Radio {
 interface Drag {
   type: 'DRAG';
   varName: string;
-  content: Document;
+  content: (Variable | Content)[];
 }
 ```
 
@@ -321,6 +321,6 @@ interface Drag {
 interface Drop {
   type: 'DROP';
   varName: string;
-  content: Document;
+  content: (Variable | Content)[];
 }
 ```
