@@ -8,6 +8,42 @@ AssessML (Assessment Markup Language) is a concise and flexible declarative lang
 npm install assessml
 ```
 
+## Use
+
+### Browser
+
+### Node.js
+
+```javascript
+const aml = require('assessml');
+
+// generate AST
+
+const ast = aml.generateAST(`
+  What time is it?
+  
+  [*] 1:00pm
+  [*] 2:00pm
+  [*] 3:00pm
+  [*] 4:00pm
+`);
+
+// compile to HTML from source code
+
+aml.compileToHTML(`
+  What time is it?
+  
+  [*] 1:00pm
+  [*] 2:00pm
+  [*] 3:00pm
+  [*] 4:00pm
+`);
+
+// compile to HTML from AST
+
+aml.compileToHTML(ast);
+```
+
 ## Basic Syntax
 
 ### Short Answer
