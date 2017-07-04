@@ -1,6 +1,12 @@
 # AssessML (Assessment Markup Language)
 
-Assessment Markup Language is a concise and flexible declarative language for educational assessments.
+AssessML (Assessment Markup Language) is a concise and flexible declarative language for educational assessments. This repository contains the language specification and JavaScript implementations of various language tools (AST generator, compilers, etc).
+
+## Installation
+
+```bash
+npm install assessml
+```
 
 ## Basic Syntax
 
