@@ -22,12 +22,14 @@ answer = '1970';
 
 ### Variable
 
+Variable names must be prefixed with `var`. Any string can come after the `var` prefix.
+
 [Click to see live example](https://prendus.com/question/cj4os7mld6kq4017073x00cjt/view)
 
 #### Text
 
 ```
-[var] + [var] = ?
+[var1] + [var2] = ?
 ```
 
 #### Code
