@@ -47,8 +47,8 @@ aml.compileToHTML(ast);
 ## Language Specification
 
 * [Basic Syntax](#basic-syntax)
-* [BNF](#bnf-(backus-normal-form)-grammar)
-* [AST]()
+* [BNF](#bnf-backus-normal-form-grammar)
+* [AST](#ast-abstract-syntax-tree)
 
 ### Basic Syntax
 
