@@ -1,6 +1,7 @@
 import {AST} from './typings/ast';
 import {Variable} from './typings/variable';
 import {Input} from './typings/input';
+import {Essay} from './typings/essay';
 import {Content} from './typings/content';
 import {Check} from './typings/check';
 import {Radio} from './typings/radio';
@@ -11,7 +12,7 @@ export function compileToHTML(source: AST | string): string {
     const ast: AST = typeof source === 'string' ? generateAST(source) : source;
     const radioGroupName: string = createUUID();
 
-    return ast.ast.reduce((result: string, astObject: AST | Variable | Input | Content | Check | Radio | Drag | Drop) => {
+    return ast.ast.reduce((result: string, astObject: AST | Variable | Input | Essay | Content | Check | Radio | Drag | Drop) => {
 
         if (astObject.type === 'CONTENT') {
             return `${result}${astObject.content}`;
@@ -23,6 +24,10 @@ export function compileToHTML(source: AST | string): string {
 
         if (astObject.type === 'INPUT') {
             return `${result}<span id="${astObject.varName}" contenteditable="true" style="display: inline-block; min-width: 25px; padding: 5px; box-shadow: 0px 0px 1px black;"></span>`
+        }
+
+        if (astObject.type === 'ESSAY') {
+            return `${result}<textarea id="${astObject.varName}" style="width: 50%; height: 250px"></textarea>`
         }
 
         if (astObject.type === 'CHECK') {
@@ -55,17 +60,18 @@ export function generateAST(source: string) {
     return buildAST(source, {
         type: 'AST',
         ast: []
-    }, 0, 0, 0, 0, 0);
+    }, 0, 0, 0, 0, 0, 0);
 }
 
-function buildAST(source: string, ast: AST, numInputs: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AST {
+function buildAST(source: string, ast: AST, numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AST {
     const variableRegex: RegExp = /\[var(.+?)\]/;
     const inputRegex: RegExp = /\[input\]/;
+    const essayRegex: RegExp = /\[essay\]/;
     const checkRegex: RegExp = /\[x\](.+?)\[x\]/;
     const radioRegex: RegExp = /\[\*\](.+?)\[\*\]/;
     const dragRegex: RegExp = /\[drag\](.+?)\[drag\]/;
     const dropRegex: RegExp = /\[drop\](.+?)\[drop\]/;
-    const contentRegex: RegExp = new RegExp(`((.|\n)+?)((${variableRegex.source}|${inputRegex.source}|${checkRegex.source}|${radioRegex.source}|${dragRegex.source}|${dropRegex.source})|$)`);
+    const contentRegex: RegExp = new RegExp(`((.|\n)+?)((${variableRegex.source}|${inputRegex.source}|${essayRegex.source}|${checkRegex.source}|${radioRegex.source}|${dragRegex.source}|${dropRegex.source})|$)`);
 
     if (source.search(variableRegex) === 0) {
         const match = source.match(variableRegex) || [];
@@ -79,7 +85,7 @@ function buildAST(source: string, ast: AST, numInputs: number, numChecks: number
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, variable]
-        }, numInputs, numChecks, numRadios, numDrags, numDrops);
+        }, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops);
     }
 
     if (source.search(inputRegex) === 0) {
@@ -93,7 +99,21 @@ function buildAST(source: string, ast: AST, numInputs: number, numChecks: number
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, input]
-        }, numInputs + 1, numChecks, numRadios, numDrags, numDrops);
+        }, numInputs + 1, numEssays, numChecks, numRadios, numDrags, numDrops);
+    }
+
+    if (source.search(essayRegex) === 0) {
+        const match = source.match(essayRegex) || [];
+        const matchedContent = match[0];
+        const essay: Essay = {
+            type: 'ESSAY',
+            varName: `essay${numEssays + 1}`
+        };
+
+        return buildAST(source.replace(matchedContent, ''), {
+            ...ast,
+            ast: [...ast.ast, essay]
+        }, numInputs, numEssays + 1, numChecks, numRadios, numDrags, numDrops);
     }
 
     if (source.search(checkRegex) === 0) {
@@ -106,13 +126,13 @@ function buildAST(source: string, ast: AST, numInputs: number, numChecks: number
             content: <(Content | Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
-            }, 0, 0, 0, 0, 0).ast
+            }, 0, 0, 0, 0, 0, 0).ast
         };
 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, check]
-        }, numInputs, numChecks + 1, numRadios, numDrags, numDrops);
+        }, numInputs, numEssays, numChecks + 1, numRadios, numDrags, numDrops);
     }
 
     if (source.search(radioRegex) === 0) {
@@ -125,13 +145,13 @@ function buildAST(source: string, ast: AST, numInputs: number, numChecks: number
             content: <(Content | Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
-            }, 0, 0, 0, 0, 0).ast
+            }, 0, 0, 0, 0, 0, 0).ast
         };
 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, radio]
-        }, numInputs, numChecks, numRadios + 1, numDrags, numDrops);
+        }, numInputs, numEssays, numChecks, numRadios + 1, numDrags, numDrops);
     }
 
     if (source.search(dragRegex) === 0) {
@@ -144,13 +164,13 @@ function buildAST(source: string, ast: AST, numInputs: number, numChecks: number
             content: <(Content | Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
-            }, 0, 0, 0, 0, 0).ast
+            }, 0, 0, 0, 0, 0, 0).ast
         };
 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, drag]
-        }, numInputs, numChecks, numRadios, numDrags + 1, numDrops);
+        }, numInputs, numEssays, numChecks, numRadios, numDrags + 1, numDrops);
     }
 
     if (source.search(dropRegex) === 0) {
@@ -163,13 +183,13 @@ function buildAST(source: string, ast: AST, numInputs: number, numChecks: number
             content: <(Content | Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
-            }, 0, 0, 0, 0, 0).ast
+            }, 0, 0, 0, 0, 0, 0).ast
         };
 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, drop]
-        }, numInputs, numChecks, numRadios, numDrags, numDrops + 1);
+        }, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops + 1);
     }
 
     if (source.search(contentRegex) === 0) {
@@ -183,7 +203,7 @@ function buildAST(source: string, ast: AST, numInputs: number, numChecks: number
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, content]
-        }, numInputs, numChecks, numRadios, numDrags, numDrops);
+        }, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops);
     }
 
     return ast;

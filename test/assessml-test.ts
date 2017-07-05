@@ -21,6 +21,10 @@ const html = compileToHTML(`
 
     [drag]puppy[drag]
     [drop]puppy[drop]
+
+    <p>[essay]</p>
+    <p>[essay]</p>
+    <p>[essay]</p>
 `);
 
 document.body.innerHTML = html;
