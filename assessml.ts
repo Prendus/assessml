@@ -9,7 +9,7 @@ import {Drag} from './typings/drag';
 import {Drop} from './typings/drop';
 
 export function compileToHTML(source: AST | string): string {
-    const ast: AST = typeof source === 'string' ? generateAST(source) : source;
+    const ast: AST = typeof source === 'string' ? parse(source) : source;
     const radioGroupName: string = createUUID();
 
     return ast.ast.reduce((result: string, astObject: AST | Variable | Input | Essay | Content | Check | Radio | Drag | Drop) => {
@@ -56,11 +56,22 @@ export function compileToHTML(source: AST | string): string {
     }, '');
 }
 
-export function generateAST(source: string) {
+export function parse(source: string) {
     return buildAST(source, {
         type: 'AST',
         ast: []
     }, 0, 0, 0, 0, 0, 0);
+}
+
+//TODO make sure that the nested variables and inputs are found
+export function getAstObjects(ast: AST, type: 'VARIABLE' | 'INPUT' | 'ESSAY' | 'CONTENT' | 'CHECK' | 'RADIO' | 'DRAG' | 'DROP'): (Variable | Input | Essay | Content | Check | Radio | Drag | Drop)[] {
+    // const nestedAstObjects: (Check | Radio | Drag | Drop)[] = <(Check | Radio | Drag | Drop)[]> ast.ast.filter((astObject: Variable | Input | Essay | Content | Check | Radio | Drag | Drop) => {
+    //     return astObject.type === 'CHECK' || astObject.type === 'RADIO' || astObject.type === 'DRAG' || astObject.type === 'DROP';
+    // });
+
+    return ast.ast.filter((astObject) => {
+        return astObject.type === type;
+    });
 }
 
 function buildAST(source: string, ast: AST, numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AST {
@@ -79,7 +90,7 @@ function buildAST(source: string, ast: AST, numInputs: number, numEssays: number
         const variable: Variable = {
             type: 'VARIABLE',
             varName: matchedContent.replace('[', '').replace(']', ''),
-            value: 0
+            value: generateRandomInteger(0, 100)
         };
 
         return buildAST(source.replace(matchedContent, ''), {
@@ -221,4 +232,9 @@ function createUUID() {
 
 	var uuid = s.join("");
 	return uuid;
+}
+
+function generateRandomInteger(min: number, max: number) {
+    //returns a random integer between min (included) and max (included)
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }

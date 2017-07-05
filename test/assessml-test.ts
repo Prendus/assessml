@@ -1,4 +1,4 @@
-import {generateAST, compileToHTML} from '../assessml';
+import {parse, compileToHTML} from '../assessml';
 
 const html = compileToHTML(`
     <p>What is the color of the sky?</p>
