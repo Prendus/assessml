@@ -83,20 +83,22 @@ npm run test-window
 
 ### Basic Syntax
 
-#### Short Answer
+#### Essay Answer
 
 Click to see live example (not yet implemented)
 
 ##### Text
 
 ```
-What is the year of the Unix epoch?
+Tell me about your feelings:
+
+[essay]
 ```
 
 ##### Code
 
 ```javascript
-answer = '1970';
+answer = essay1.contains('happy');
 ```
 
 #### Variable
@@ -230,10 +232,11 @@ answer.drag4 = drop1;
 ### BNF (Backus-Naur form) Grammar
 
 ```
-<Document> := <Document><Content><Document> | <Document><Variable><Document> | <Document><Input><Document> | <Document><Check><Document> | <Document><Radio><Document> | <Document><Drag><Document> | <Document><Drop><Document> | <Empty>
+<Document> := <Document><Content><Document> | <Document><Variable><Document> | <Document><Input><Document> | <Document><Essay><Document> | <Document><Check><Document> | <Document><Radio><Document> | <Document><Drag><Document> | <Document><Drop><Document> | <Empty>
 <Content> := string
 <Variable> := [var<Content>]
 <Input> := [input]
+<Essay> := [essay]
 <Check> := [x]<ArbitraryVariableOrContent>[x]
 <Radio> := [*]<ArbitraryVariableOrContent>[*]
 <Drag> := [drag]<ArbitraryVariableOrContent>[drag]
@@ -249,7 +252,7 @@ answer.drag4 = drop1;
 ```typescript
 interface AST {
   type: 'AST';
-  ast: (Content | Variable | Input | Check | Radio | Drag | Drop)[];
+  ast: (Content | Variable | Input | Essay | Check | Radio | Drag | Drop)[];
 }
 ```
 
@@ -277,6 +280,15 @@ interface Variable {
 ```typescript
 interface Input {
   type: 'INPUT';
+  varName: string;
+}
+```
+
+#### Essay
+
+```typescript
+interface Essay {
+  type: 'ESSAY';
   varName: string;
 }
 ```
