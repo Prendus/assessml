@@ -10,10 +10,6 @@ npm install assessml
 
 ## Use
 
-### Browser
-
-### Node.js
-
 ```javascript
 import {generateAST, compileToHTML} from './node_modules/assessml/assessml';
 
@@ -22,10 +18,10 @@ import {generateAST, compileToHTML} from './node_modules/assessml/assessml';
 const ast = generateAST(`
   What time is it?
 
-  [*] 1:00pm [*]
-  [*] 2:00pm [*]
-  [*] 3:00pm [*]
-  [*] 4:00pm [*]
+  [*]1:00pm[*]
+  [*]2:00pm[*]
+  [*]3:00pm[*]
+  [*]4:00pm[*]
 `);
 
 // compile to HTML from source code
@@ -33,10 +29,10 @@ const ast = generateAST(`
 compileToHTML(`
   What time is it?
 
-  [*] 1:00pm [*]
-  [*] 2:00pm [*]
-  [*] 3:00pm [*]
-  [*] 4:00pm [*]
+  [*]1:00pm[*]
+  [*]2:00pm[*]
+  [*]3:00pm[*]
+  [*]4:00pm[*]
 `);
 
 // compile to HTML from AST
@@ -82,7 +78,7 @@ npm run test-window
 ## Language Specification
 
 * [Basic Syntax](#basic-syntax)
-* [BNF](#bnf-backus-normal-form-grammar)
+* [BNF](#bnf-backus-naur-form-grammar)
 * [AST](#ast-abstract-syntax-tree)
 
 ### Basic Syntax
@@ -136,10 +132,10 @@ answer = var1 + var2;
 ```
 What color is the sky?
 
-[*] Red [*]
-[*] Blue [*]
-[*] Green [*]
-[*] Yellow [*]
+[*]Red[*]
+[*]Blue[*]
+[*]Green[*]
+[*]Yellow[*]
 ```
 
 ##### Code
@@ -160,10 +156,10 @@ answer.radio4 = false;
 ```
 Who were presidents of the United States of America?
 
-[x] Bing Crosby [x]
-[x] Bill Cosby [x]
-[x] Thomas Jefferson [x]
-[x] George Washington [x]
+[x]Bing Crosby[x]
+[x]Bill Cosby[x]
+[x]Thomas Jefferson[x]
+[x]George Washington[x]
 ```
 
 ##### Code
@@ -231,7 +227,7 @@ answer.drag3 = drop4;
 answer.drag4 = drop1;
 ```
 
-### BNF (Backus normal form) Grammar
+### BNF (Backus-Naur form) Grammar
 
 ```
 <Document> := <Document><Content><Document> | <Document><Variable><Document> | <Document><Input><Document> | <Document><Check><Document> | <Document><Radio><Document> | <Document><Drag><Document> | <Document><Drop><Document> | <Empty>
