@@ -1,14 +1,26 @@
 import {generateAST, compileToHTML} from '../assessml';
 
 const html = compileToHTML(`
-    What is [var1] + [var2]?
+    <p>What is the color of the sky?</p>
 
-    [x]Hello[x]
+    <p>[*]Blue[*]</p>
+    <p>[*]Green[*]</p>
+    <p>[*]Red[*]</p>
+    <p>[*]Yellow[*]</p>
 
-    [*]Hi[*]
-    [*]Sir[*]
+    <p>Which are dogs?</p>
 
-    [input]
+    <p>[x]Shasta[x]</p>
+    <p>[x]Monkey[x]</p>
+    <p>[x]Brodey[x]</p>
+    <p>[x]Puppy[x]</p>
+
+    <p>What is [var1] + [var2] + [var3]?</p>
+
+    <p>Sally was [input] through the forest and [input] a tree!</p>
+
+    [drag]puppy[drag]
+    [drop]puppy[drop]
 `);
 
-console.log(html);
+document.body.innerHTML = html;
