@@ -1,30 +1,14 @@
-import {generateAST} from '../assessml';
+import {generateAST, compileToHTML} from '../assessml';
 
-const ast = generateAST(`
-    What color is the sky?
+const html = compileToHTML(`
+    What is [var1] + [var2]?
 
-    [*] Blue [*]
-    [*] Red [*]
-    [*] Green [*]
-    [*] Yellow [*]
+    [x]Hello[x]
 
-
-    What is the best part of the 4th of July?
-
-    [x] Fireworks [x]
-    [x] Parade [x]
-    [x] Hot Dogs [x]
-    [x] Pondering Freedom [x]
-
-    Is [var1] the same as [var2]?
+    [*]Hi[*]
+    [*]Sir[*]
 
     [input]
-
-    [drag]Hello[drag]
-    [drag]Hello there[drag]
-
-    [drop]Hello[drop]
-    [drop]There my friend[drop]
 `);
 
-console.log(ast);
+console.log(html);
