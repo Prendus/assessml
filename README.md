@@ -98,7 +98,7 @@ Tell me about your feelings:
 ##### Code
 
 ```javascript
-answer = essay1.contains('happy');
+answer = essay1.includes('happy');
 ```
 
 #### Variable
@@ -110,7 +110,7 @@ Variable names must be prefixed with `var`. Any string can come after the `var` 
 ##### Text
 
 ```
-[var1] + [var2] = ?
+[var1] + [var2] = [input]
 ```
 
 ##### Code
@@ -122,7 +122,7 @@ var1.max = 25;
 var2.min = 26;
 var2.max = 50;
 
-answer = var1 + var2;
+answer = input1 == var1 + var2;
 ```
 
 #### Multiple Choice
@@ -143,10 +143,7 @@ What color is the sky?
 ##### Code
 
 ```javascript
-answer.radio1 = false;
-answer.radio2 = true;
-answer.radio3 = false;
-answer.radio4 = false;
+answer = radio2 === true;
 ```
 
 #### Multiple Select
@@ -167,10 +164,12 @@ Who were presidents of the United States of America?
 ##### Code
 
 ```
-answer.check1 = false;
-answer.check2 = false;
-answer.check3 = true;
-answer.check4 = true;
+answer = (
+  check1 === false && 
+  check2 === false && 
+  check3 === true && 
+  check4 == true
+);
 ```
 
 #### Multiple Input
@@ -188,9 +187,11 @@ Sally was [input] across the field when she realized that she [input] into a str
 ##### Code
 
 ```
-answer.input1 = 'running';
-answer.input2 = 'ran';
-answer.input3 = 'running';
+answer = (
+  input1 === 'running' &&
+  input2 === 'ran' &&
+  input3 === 'running'
+);
 ```
 
 #### Drag and Drop
@@ -216,17 +217,12 @@ Match the numbers with the words:
 ##### Code
 
 ```
-answer.drop1 = drag4;
-answer.drop2 = drag1;
-answer.drop3 = drag2;
-answer.drop4 = drag3;
-
-// or
-
-answer.drag1 = drop2;
-answer.drag2 = drop3;
-answer.drag3 = drop4;
-answer.drag4 = drop1;
+answer = (
+  drop1 === drag4 &&
+  drop2 === drag1 &&
+  drop3 === drag2 &&
+  drop4 === drag3
+);
 ```
 
 ### BNF (Backus-Naur form) Grammar
