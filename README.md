@@ -87,7 +87,7 @@ npm run test-window
 
 Click to see live example (not yet implemented)
 
-##### Text
+##### Question
 
 ```
 Tell me about your feelings:
@@ -95,7 +95,7 @@ Tell me about your feelings:
 [essay]
 ```
 
-##### Code
+##### Answer
 
 ```javascript
 answer = essay1.includes('happy');
@@ -107,13 +107,13 @@ Variable names must be prefixed with `var`. Any string can come after the `var` 
 
 [Click to see live example](https://prendus.com/question/cj4os7mld6kq4017073x00cjt/view)
 
-##### Text
+##### Question
 
 ```
 [var1] + [var2] = [input]
 ```
 
-##### Code
+##### Answer
 
 ```javascript
 var1.min = 0;
@@ -129,7 +129,7 @@ answer = input1 == var1 + var2;
 
 [Click to see live example](https://prendus.com/question/cj4osc9bh6lnc017201owg73u/view)
 
-##### Text
+##### Question
 
 ```
 What color is the sky?
@@ -140,7 +140,7 @@ What color is the sky?
 [*]Yellow[*]
 ```
 
-##### Code
+##### Answer
 
 ```javascript
 answer = radio2 === true;
@@ -150,7 +150,7 @@ answer = radio2 === true;
 
 [Click to see live example](https://prendus.com/question/cj4osxzcl6vj90170h9ix6tdj/view)
 
-##### Text
+##### Question
 
 ```
 Who were presidents of the United States of America?
@@ -161,7 +161,7 @@ Who were presidents of the United States of America?
 [x]George Washington[x]
 ```
 
-##### Code
+##### Answer
 
 ```
 answer = (
@@ -176,7 +176,7 @@ answer = (
 
 [Click to see live example](https://prendus.com/question/cj4ot1nlv6x630170jhxz2u9e/view)
 
-##### Text
+##### Question
 
 ```
 Fill in the blanks:
@@ -184,7 +184,7 @@ Fill in the blanks:
 Sally was [input] across the field when she realized that she [input] into a stream of [input] water.
 ```
 
-##### Code
+##### Answer
 
 ```
 answer = (
@@ -198,7 +198,7 @@ answer = (
 
 Click to see live example (not yet implemented)
 
-##### Text
+##### Question
 
 ```
 Match the numbers with the words:
@@ -214,7 +214,7 @@ Match the numbers with the words:
 [drop]three[drop]
 ```
 
-##### Code
+##### Answer
 
 ```
 answer = (
