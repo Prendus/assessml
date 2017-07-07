@@ -85,7 +85,7 @@ npm run test-window
 
 #### Essay Answer
 
-Click to see live example (not yet implemented)
+[Click to see live example](https://prendus.com/question/cj4u618ht6y4c0151n6okiofg/view)
 
 ##### Question
 
