@@ -26,7 +26,7 @@ const ast = generateAST(`
 
 // compile to HTML from source code
 
-compileToHTML(`
+const html = compileToHTML(`
   What time is it?
 
   [*]1:00pm[*]
@@ -37,7 +37,7 @@ compileToHTML(`
 
 // compile to HTML from AST
 
-compileToHTML(ast);
+const html = compileToHTML(ast);
 ```
 
 ## Development
@@ -77,11 +77,11 @@ npm run test-window
 
 ## Language Specification
 
-* [Basic Syntax](#basic-syntax)
+* [Syntax](#syntax)
 * [BNF](#bnf-backus-naur-form-grammar)
 * [AST](#ast-abstract-syntax-tree)
 
-### Basic Syntax
+### Syntax
 
 #### Essay Answer
 
@@ -101,7 +101,7 @@ Tell me about your feelings:
 answer = essay1.includes('happy');
 ```
 
-Essay answers provide a large textarea for users to write essay responses. Any JavaScript functionality can be used in the answer code to determine if the question is answered correctly. In this example, we use a simple string function to check if the user has mentioned the word `happy` anywhere in the response.
+Essay answers provide a large textarea for users to write essay responses. Any JavaScript functionality can be used in the answer code to determine if the question is answered correctly. In this example, we use a simple string function to check if the user has mentioned the word `happy` anywhere in the response. String variables corresponding to essay inputs are available in the answer code. Each variable represents the string entered by the user into the essay input, and has a name that starts with `essay` and ends with a number corresponding to the order of the essay input relative to other essay inputs in the question text. The first variable will be `essay1`, the second will be `essay2`, etc.
 
 #### Variable
 
@@ -148,7 +148,7 @@ What color is the sky?
 answer = radio2 === true;
 ```
 
-Any text or variable can go between the `[*]` tags. Boolean variables corresponding to radio buttons are available in the answer code. Each variable represents the checked state of the radio button, and has a name that starts with `radio` and ends with a number corresponding to the order of the radio button in the question text. The first variable will be `radio1`, the second will be `radio2`, etc.
+Any text or variable can go between the `[*]` tags. Boolean variables corresponding to radio buttons are available in the answer code. Each variable represents the checked state of the radio button, and has a name that starts with `radio` and ends with a number corresponding to the order of the radio button relative to other radio buttons in the question text. The first variable will be `radio1`, the second will be `radio2`, etc.
 
 #### Multiple Choice (Multiple, checkboxes)
 
@@ -176,7 +176,7 @@ answer = (
 );
 ```
 
-Any text or variable can go between the `[x]` tags. Boolean variables corresponding to checkboxes are available in the answer code. Each variable represents the checked state of the checkbox, and has a name that starts with `check` and ends with a number corresponding to the order of the checkbox in the question text. The first variable will be `check1`, the second will be `check2`, etc.
+Any text or variable can go between the `[x]` tags. Boolean variables corresponding to checkboxes are available in the answer code. Each variable represents the checked state of the checkbox, and has a name that starts with `check` and ends with a number corresponding to the order of the checkbox relative to other checkboxes in the question text. The first variable will be `check1`, the second will be `check2`, etc.
 
 #### Multiple Input
 
@@ -200,7 +200,7 @@ answer = (
 );
 ```
 
-String variables corresponding to inputs are available in the answer code. Each variable represents the string entered by the user into the input, and has a name that starts with `input` and ends with a number corresponding to the order of the input in the question text. The first variable will be `input1`, the second will be `input2`, etc.
+String variables corresponding to inputs are available in the answer code. Each variable represents the string entered by the user into the input, and has a name that starts with `input` and ends with a number corresponding to the order of the input relative to other inputs in the question text. The first variable will be `input1`, the second will be `input2`, etc.
 
 #### Drag and Drop
 
