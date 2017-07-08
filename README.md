@@ -101,9 +101,9 @@ Tell me about your feelings:
 answer = essay1.includes('happy');
 ```
 
-#### Variable
+Essay answers provide a large textarea for users to write essay responses. Any JavaScript functionality can be used in the answer code to determine if the question is answered correctly. In this example, we use a simple string function to check if the user has mentioned the word `happy` anywhere in the response.
 
-Variable names must be prefixed with `var`. Any string can come after the `var` prefix.
+#### Variable
 
 [Click to see live example](https://prendus.com/question/cj4os7mld6kq4017073x00cjt/view)
 
@@ -125,7 +125,9 @@ var2.max = 50;
 answer = input1 == var1 + var2;
 ```
 
-#### Multiple Choice
+Variable names must be prefixed with `var`. Any string can come after the `var` prefix.
+
+#### Multiple Choice (Single, radio buttons)
 
 [Click to see live example](https://prendus.com/question/cj4osc9bh6lnc017201owg73u/view)
 
@@ -146,7 +148,9 @@ What color is the sky?
 answer = radio2 === true;
 ```
 
-#### Multiple Select
+Any text or variable can go between the `[*]` tags. Boolean variables corresponding to radio buttons are available in the answer code. Each variable represents the checked state of the radio button, and has a name that starts with `radio` and ends with a number corresponding to the order of the radio button in the question text. The first variable will be `radio1`, the second will be `radio2`, etc.
+
+#### Multiple Choice (Multiple, checkboxes)
 
 [Click to see live example](https://prendus.com/question/cj4osxzcl6vj90170h9ix6tdj/view)
 
@@ -172,6 +176,8 @@ answer = (
 );
 ```
 
+Any text or variable can go between the `[x]` tags. Boolean variables corresponding to checkboxes are available in the answer code. Each variable represents the checked state of the checkbox, and has a name that starts with `check` and ends with a number corresponding to the order of the checkbox in the question text. The first variable will be `check1`, the second will be `check2`, etc.
+
 #### Multiple Input
 
 [Click to see live example](https://prendus.com/question/cj4ot1nlv6x630170jhxz2u9e/view)
@@ -193,6 +199,8 @@ answer = (
   input3 === 'running'
 );
 ```
+
+String variables corresponding to inputs are available in the answer code. Each variable represents the string entered by the user into the input, and has a name that starts with `input` and ends with a number corresponding to the order of the input in the question text. The first variable will be `input1`, the second will be `input2`, etc.
 
 #### Drag and Drop
 
