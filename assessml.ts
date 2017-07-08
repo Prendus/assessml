@@ -23,11 +23,11 @@ export function compileToHTML(source: AST | string): string {
         }
 
         if (astObject.type === 'INPUT') {
-            return `${result}<span id="${astObject.varName}" contenteditable="true" style="display: inline-block; min-width: 25px; padding: 5px; box-shadow: 0px 0px 1px black;"></span>`
+            return `${result}<span id="${astObject.varName}" contenteditable="true"></span>`
         }
 
         if (astObject.type === 'ESSAY') {
-            return `${result}<textarea id="${astObject.varName}" style="width: 100%; height: 50vh;"></textarea>`
+            return `${result}<textarea id="${astObject.varName}"></textarea>`
         }
 
         if (astObject.type === 'CHECK') {
