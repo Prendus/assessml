@@ -85,9 +85,9 @@ npm run test-window
 
 #### Essay Answer
 
-Click to see live example (not yet implemented)
+[Click to see live example](https://prendus.com/question/cj4u618ht6y4c0151n6okiofg/view)
 
-##### Text
+##### Question
 
 ```
 Tell me about your feelings:
@@ -95,10 +95,10 @@ Tell me about your feelings:
 [essay]
 ```
 
-##### Code
+##### Answer
 
 ```javascript
-answer = essay1.contains('happy');
+answer = essay1.includes('happy');
 ```
 
 #### Variable
@@ -107,13 +107,13 @@ Variable names must be prefixed with `var`. Any string can come after the `var` 
 
 [Click to see live example](https://prendus.com/question/cj4os7mld6kq4017073x00cjt/view)
 
-##### Text
+##### Question
 
 ```
-[var1] + [var2] = ?
+[var1] + [var2] = [input]
 ```
 
-##### Code
+##### Answer
 
 ```javascript
 var1.min = 0;
@@ -122,14 +122,14 @@ var1.max = 25;
 var2.min = 26;
 var2.max = 50;
 
-answer = var1 + var2;
+answer = input1 == var1 + var2;
 ```
 
 #### Multiple Choice
 
 [Click to see live example](https://prendus.com/question/cj4osc9bh6lnc017201owg73u/view)
 
-##### Text
+##### Question
 
 ```
 What color is the sky?
@@ -140,20 +140,17 @@ What color is the sky?
 [*]Yellow[*]
 ```
 
-##### Code
+##### Answer
 
 ```javascript
-answer.radio1 = false;
-answer.radio2 = true;
-answer.radio3 = false;
-answer.radio4 = false;
+answer = radio2 === true;
 ```
 
 #### Multiple Select
 
 [Click to see live example](https://prendus.com/question/cj4osxzcl6vj90170h9ix6tdj/view)
 
-##### Text
+##### Question
 
 ```
 Who were presidents of the United States of America?
@@ -164,20 +161,22 @@ Who were presidents of the United States of America?
 [x]George Washington[x]
 ```
 
-##### Code
+##### Answer
 
 ```
-answer.check1 = false;
-answer.check2 = false;
-answer.check3 = true;
-answer.check4 = true;
+answer = (
+  check1 === false && 
+  check2 === false && 
+  check3 === true && 
+  check4 == true
+);
 ```
 
 #### Multiple Input
 
 [Click to see live example](https://prendus.com/question/cj4ot1nlv6x630170jhxz2u9e/view)
 
-##### Text
+##### Question
 
 ```
 Fill in the blanks:
@@ -185,19 +184,21 @@ Fill in the blanks:
 Sally was [input] across the field when she realized that she [input] into a stream of [input] water.
 ```
 
-##### Code
+##### Answer
 
 ```
-answer.input1 = 'running';
-answer.input2 = 'ran';
-answer.input3 = 'running';
+answer = (
+  input1 === 'running' &&
+  input2 === 'ran' &&
+  input3 === 'running'
+);
 ```
 
 #### Drag and Drop
 
 Click to see live example (not yet implemented)
 
-##### Text
+##### Question
 
 ```
 Match the numbers with the words:
@@ -213,20 +214,15 @@ Match the numbers with the words:
 [drop]three[drop]
 ```
 
-##### Code
+##### Answer
 
 ```
-answer.drop1 = drag4;
-answer.drop2 = drag1;
-answer.drop3 = drag2;
-answer.drop4 = drag3;
-
-// or
-
-answer.drag1 = drop2;
-answer.drag2 = drop3;
-answer.drag3 = drop4;
-answer.drag4 = drop1;
+answer = (
+  drop1 === drag4 &&
+  drop2 === drag1 &&
+  drop3 === drag2 &&
+  drop4 === drag3
+);
 ```
 
 ### BNF (Backus-Naur form) Grammar
