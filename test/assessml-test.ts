@@ -7,7 +7,7 @@ const html = compileToHTML(`
 
     <p>Describe more of your feelings about the number [var1]:</p>
 
-    
+    [input]
 
     <p>[essay]</p>
 `);
