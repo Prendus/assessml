@@ -27,7 +27,7 @@ export function compileToHTML(source: AST | string): string {
         }
 
         if (astObject.type === 'ESSAY') {
-            return `${result}<textarea id="${astObject.varName}" style="width: 50%; height: 250px"></textarea>`
+            return `${result}<textarea id="${astObject.varName}" style="width: 100%; height: 50vh;"></textarea>`
         }
 
         if (astObject.type === 'CHECK') {
