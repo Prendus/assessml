@@ -172,7 +172,7 @@ answer = (
   check1 === false && 
   check2 === false && 
   check3 === true && 
-  check4 == true
+  check4 === true
 );
 ```
 
