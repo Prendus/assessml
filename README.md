@@ -118,14 +118,16 @@ Essay answers provide a large textarea for users to write essay responses. Any J
 ```javascript
 var1.min = 0;
 var1.max = 25;
+var1.precision = 5;
 
 var2.min = 26;
 var2.max = 50;
+var2.precision = 5;
 
 answer = input1 == var1 + var2;
 ```
 
-Variable names must be prefixed with `var`. Any string can come after the `var` prefix.
+Variable names must be prefixed with `var` and followed by any non-empty string. All variables declared in the question text will be available as number variables in the answer code. Setting a min and max on a variable restricts the variable to that range inclusive. Setting a precision between 1 and 21 on a variable restricts that variable to the specified number of significant digits.
 
 #### Multiple Choice (Single, radio buttons)
 
