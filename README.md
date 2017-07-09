@@ -26,7 +26,7 @@ const ast = generateAST(`
 
 // compile to HTML from source code
 
-compileToHTML(`
+const html = compileToHTML(`
   What time is it?
 
   [*]1:00pm[*]
@@ -37,7 +37,7 @@ compileToHTML(`
 
 // compile to HTML from AST
 
-compileToHTML(ast);
+const html = compileToHTML(ast);
 ```
 
 ## Development
@@ -77,11 +77,11 @@ npm run test-window
 
 ## Language Specification
 
-* [Basic Syntax](#basic-syntax)
+* [Syntax](#syntax)
 * [BNF](#bnf-backus-naur-form-grammar)
 * [AST](#ast-abstract-syntax-tree)
 
-### Basic Syntax
+### Syntax
 
 #### Essay Answer
 
@@ -101,9 +101,9 @@ Tell me about your feelings:
 answer = essay1.includes('happy');
 ```
 
-#### Variable
+Essay answers provide a large textarea for users to write essay responses. Any JavaScript functionality can be used in the answer code to determine if the question is answered correctly. In this example, we use a simple string function to check if the user has mentioned the word `happy` anywhere in the response. String variables corresponding to essay inputs are available in the answer code. Each variable represents the string entered by the user into the essay input, and has a name that starts with `essay` and ends with a number corresponding to the order of the essay input relative to other essay inputs in the question text. The first variable will be `essay1`, the second will be `essay2`, etc.
 
-Variable names must be prefixed with `var`. Any string can come after the `var` prefix.
+#### Variable
 
 [Click to see live example](https://prendus.com/question/cj4os7mld6kq4017073x00cjt/view)
 
@@ -118,14 +118,18 @@ Variable names must be prefixed with `var`. Any string can come after the `var` 
 ```javascript
 var1.min = 0;
 var1.max = 25;
+var1.precision = 5;
 
 var2.min = 26;
 var2.max = 50;
+var2.precision = 5;
 
 answer = input1 == var1 + var2;
 ```
 
-#### Multiple Choice
+Variable names must be prefixed with `var` and followed by any non-empty string. All variables declared in the question text will be available as number variables in the answer code. Setting a min and max on a variable restricts the variable to that range inclusive. Setting a precision between 1 and 21 on a variable restricts that variable to the specified number of significant digits.
+
+#### Multiple Choice (Single, radio buttons)
 
 [Click to see live example](https://prendus.com/question/cj4osc9bh6lnc017201owg73u/view)
 
@@ -146,7 +150,9 @@ What color is the sky?
 answer = radio2 === true;
 ```
 
-#### Multiple Select
+Any text or variable can go between the `[*]` tags. Boolean variables corresponding to radio buttons are available in the answer code. Each variable represents the checked state of the radio button, and has a name that starts with `radio` and ends with a number corresponding to the order of the radio button relative to other radio buttons in the question text. The first variable will be `radio1`, the second will be `radio2`, etc.
+
+#### Multiple Choice (Multiple, checkboxes)
 
 [Click to see live example](https://prendus.com/question/cj4osxzcl6vj90170h9ix6tdj/view)
 
@@ -168,9 +174,11 @@ answer = (
   check1 === false && 
   check2 === false && 
   check3 === true && 
-  check4 == true
+  check4 === true
 );
 ```
+
+Any text or variable can go between the `[x]` tags. Boolean variables corresponding to checkboxes are available in the answer code. Each variable represents the checked state of the checkbox, and has a name that starts with `check` and ends with a number corresponding to the order of the checkbox relative to other checkboxes in the question text. The first variable will be `check1`, the second will be `check2`, etc.
 
 #### Multiple Input
 
@@ -193,6 +201,8 @@ answer = (
   input3 === 'running'
 );
 ```
+
+String variables corresponding to inputs are available in the answer code. Each variable represents the string entered by the user into the input, and has a name that starts with `input` and ends with a number corresponding to the order of the input relative to other inputs in the question text. The first variable will be `input1`, the second will be `input2`, etc.
 
 #### Drag and Drop
 
