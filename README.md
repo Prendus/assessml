@@ -40,6 +40,12 @@ const html = compileToHTML(`
 const html = compileToHTML(ast);
 ```
 
+If you use TypeScript, you can import the typings:
+
+```typescript
+import {AST, Check, Content, Drag, Drop, Essay, Input, Radio, Variable} from 'assessml'; //if you use TypeScript
+```
+
 ## Development
 
 Clone the repository:
@@ -171,9 +177,9 @@ Who were presidents of the United States of America?
 
 ```
 answer = (
-  check1 === false && 
-  check2 === false && 
-  check3 === true && 
+  check1 === false &&
+  check2 === false &&
+  check3 === true &&
   check4 === true
 );
 ```

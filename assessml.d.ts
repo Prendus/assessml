@@ -3,6 +3,8 @@ export interface AST {
     ast: (Content | Variable | Input | Essay | Check | Radio | Drag | Drop)[];
 }
 
+export type ASTObject = Content | Variable | Input | Essay | Check | Radio | Drag | Drop;
+
 export interface Check {
     type: 'CHECK';
     varName: string;

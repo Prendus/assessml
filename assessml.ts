@@ -1,10 +1,10 @@
-/// <reference path="assessml.d.ts" />
+import {AST, ASTObject, Variable, Input, Essay, Content, Check, Radio, Drag, Drop} from './assessml.d';
 
-export function compileToHTML(source: AssessML.AST | string): string {
-    const ast: AssessML.AST = typeof source === 'string' ? parse(source) : source;
+export function compileToHTML(source: AST | string): string {
+    const ast: AST = typeof source === 'string' ? parse(source) : source;
     const radioGroupName: string = createUUID();
 
-    return ast.ast.reduce((result: string, astObject: AssessML.AST | AssessML.Variable | AssessML.Input | AssessML.Essay | AssessML.Content | AssessML.Check | AssessML.Radio | AssessML.Drag | AssessML.Drop) => {
+    return ast.ast.reduce((result: string, astObject: ASTObject) => {
 
         if (astObject.type === 'CONTENT') {
             return `${result}${astObject.content}`;
@@ -56,7 +56,7 @@ export function parse(source: string) {
 }
 
 //TODO make sure that the nested variables and inputs are found
-export function getAstObjects(ast: AssessML.AST, type: 'VARIABLE' | 'INPUT' | 'ESSAY' | 'CONTENT' | 'CHECK' | 'RADIO' | 'DRAG' | 'DROP'): (AssessML.Variable | AssessML.Input | AssessML.Essay | AssessML.Content | AssessML.Check | AssessML.Radio | AssessML.Drag | AssessML.Drop)[] {
+export function getAstObjects(ast: AST, type: 'VARIABLE' | 'INPUT' | 'ESSAY' | 'CONTENT' | 'CHECK' | 'RADIO' | 'DRAG' | 'DROP'): ASTObject[] {
     // const nestedAstObjects: (Check | Radio | Drag | Drop)[] = <(Check | Radio | Drag | Drop)[]> ast.ast.filter((astObject: Variable | Input | Essay | Content | Check | Radio | Drag | Drop) => {
     //     return astObject.type === 'CHECK' || astObject.type === 'RADIO' || astObject.type === 'DRAG' || astObject.type === 'DROP';
     // });
@@ -66,7 +66,7 @@ export function getAstObjects(ast: AssessML.AST, type: 'VARIABLE' | 'INPUT' | 'E
     });
 }
 
-function buildAST(source: string, ast: AssessML.AST, numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AssessML.AST {
+function buildAST(source: string, ast: AST, numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AST {
     const variableRegex: RegExp = /\[var(.+?)\]/;
     const inputRegex: RegExp = /\[input\]/;
     const essayRegex: RegExp = /\[essay\]/;
@@ -79,7 +79,7 @@ function buildAST(source: string, ast: AssessML.AST, numInputs: number, numEssay
     if (source.search(variableRegex) === 0) {
         const match = source.match(variableRegex) || [];
         const matchedContent = match[0];
-        const variable: AssessML.Variable = {
+        const variable: Variable = {
             type: 'VARIABLE',
             varName: matchedContent.replace('[', '').replace(']', ''),
             value: generateRandomInteger(0, 100)
@@ -94,7 +94,7 @@ function buildAST(source: string, ast: AssessML.AST, numInputs: number, numEssay
     if (source.search(inputRegex) === 0) {
         const match = source.match(inputRegex) || [];
         const matchedContent = match[0];
-        const input: AssessML.Input = {
+        const input: Input = {
             type: 'INPUT',
             varName: `input${numInputs + 1}`
         };
@@ -108,7 +108,7 @@ function buildAST(source: string, ast: AssessML.AST, numInputs: number, numEssay
     if (source.search(essayRegex) === 0) {
         const match = source.match(essayRegex) || [];
         const matchedContent = match[0];
-        const essay: AssessML.Essay = {
+        const essay: Essay = {
             type: 'ESSAY',
             varName: `essay${numEssays + 1}`
         };
@@ -123,10 +123,10 @@ function buildAST(source: string, ast: AssessML.AST, numInputs: number, numEssay
         const match = source.match(checkRegex) || [];
         const matchedContent = match[0];
         const insideContent = match[1];
-        const check: AssessML.Check = {
+        const check: Check = {
             type: 'CHECK',
             varName: `check${numChecks + 1}`,
-            content: <(AssessML.Content | AssessML.Variable)[]> buildAST(insideContent, {
+            content: <(Content | Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
             }, 0, 0, 0, 0, 0, 0).ast
@@ -142,10 +142,10 @@ function buildAST(source: string, ast: AssessML.AST, numInputs: number, numEssay
         const match = source.match(radioRegex) || [];
         const matchedContent = match[0];
         const insideContent = match[1];
-        const radio: AssessML.Radio = {
+        const radio: Radio = {
             type: 'RADIO',
             varName: `radio${numRadios + 1}`,
-            content: <(AssessML.Content | AssessML.Variable)[]> buildAST(insideContent, {
+            content: <(Content | Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
             }, 0, 0, 0, 0, 0, 0).ast
@@ -161,10 +161,10 @@ function buildAST(source: string, ast: AssessML.AST, numInputs: number, numEssay
         const match = source.match(dragRegex) || [];
         const matchedContent = match[0];
         const insideContent = match[1];
-        const drag: AssessML.Drag = {
+        const drag: Drag = {
             type: 'DRAG',
             varName: `drag${numDrags + 1}`,
-            content: <(AssessML.Content | AssessML.Variable)[]> buildAST(insideContent, {
+            content: <(Content | Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
             }, 0, 0, 0, 0, 0, 0).ast
@@ -180,10 +180,10 @@ function buildAST(source: string, ast: AssessML.AST, numInputs: number, numEssay
         const match = source.match(dropRegex) || [];
         const matchedContent = match[0];
         const insideContent = match[1];
-        const drop: AssessML.Drop = {
+        const drop: Drop = {
             type: 'DROP',
             varName: `drop${numDrops + 1}`,
-            content: <(AssessML.Content | AssessML.Variable)[]> buildAST(insideContent, {
+            content: <(Content | Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
             }, 0, 0, 0, 0, 0, 0).ast
@@ -198,7 +198,7 @@ function buildAST(source: string, ast: AssessML.AST, numInputs: number, numEssay
     if (source.search(contentRegex) === 0) {
         const match = source.match(contentRegex) || [];
         const matchedContent = match[1];
-        const content: AssessML.Content = {
+        const content: Content = {
             type: 'CONTENT',
             content: matchedContent
         };
@@ -212,7 +212,7 @@ function buildAST(source: string, ast: AssessML.AST, numInputs: number, numEssay
     return ast;
 }
 
-function createUUID() {
+function createUUID(): string {
     //From persistence.js; Copyright (c) 2010 Zef Hemel <zef@zef.me> * * Permission is hereby granted, free of charge, to any person * obtaining a copy of this software and associated documentation * files (the "Software"), to deal in the Software without * restriction, including without limitation the rights to use, * copy, modify, merge, publish, distribute, sublicense, and/or sell * copies of the Software, and to permit persons to whom the * Software is furnished to do so, subject to the following * conditions: * * The above copyright notice and this permission notice shall be * included in all copies or substantial portions of the Software. * * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR * OTHER DEALINGS IN THE SOFTWARE.
 	var s: any[] = [];
 	var hexDigits = "0123456789ABCDEF";
@@ -226,7 +226,7 @@ function createUUID() {
 	return uuid;
 }
 
-function generateRandomInteger(min: number, max: number) {
+function generateRandomInteger(min: number, max: number): number {
     //returns a random integer between min (included) and max (included)
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
