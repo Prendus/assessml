@@ -1,18 +1,8 @@
-import {AST} from './typings/ast';
-import {Variable} from './typings/variable';
-import {Input} from './typings/input';
-import {Essay} from './typings/essay';
-import {Content} from './typings/content';
-import {Check} from './typings/check';
-import {Radio} from './typings/radio';
-import {Drag} from './typings/drag';
-import {Drop} from './typings/drop';
-
-export function compileToHTML(source: AST | string): string {
-    const ast: AST = typeof source === 'string' ? parse(source) : source;
+export function compileToHTML(source: AssessML.AST | string): string {
+    const ast: AssessML.AST = typeof source === 'string' ? parse(source) : source;
     const radioGroupName: string = createUUID();
 
-    return ast.ast.reduce((result: string, astObject: AST | Variable | Input | Essay | Content | Check | Radio | Drag | Drop) => {
+    return ast.ast.reduce((result: string, astObject: AssessML.AST | AssessML.Variable | AssessML.Input | AssessML.Essay | AssessML.Content | AssessML.Check | AssessML.Radio | AssessML.Drag | AssessML.Drop) => {
 
         if (astObject.type === 'CONTENT') {
             return `${result}${astObject.content}`;
@@ -64,7 +54,7 @@ export function parse(source: string) {
 }
 
 //TODO make sure that the nested variables and inputs are found
-export function getAstObjects(ast: AST, type: 'VARIABLE' | 'INPUT' | 'ESSAY' | 'CONTENT' | 'CHECK' | 'RADIO' | 'DRAG' | 'DROP'): (Variable | Input | Essay | Content | Check | Radio | Drag | Drop)[] {
+export function getAstObjects(ast: AssessML.AST, type: 'VARIABLE' | 'INPUT' | 'ESSAY' | 'CONTENT' | 'CHECK' | 'RADIO' | 'DRAG' | 'DROP'): (AssessML.Variable | AssessML.Input | AssessML.Essay | AssessML.Content | AssessML.Check | AssessML.Radio | AssessML.Drag | AssessML.Drop)[] {
     // const nestedAstObjects: (Check | Radio | Drag | Drop)[] = <(Check | Radio | Drag | Drop)[]> ast.ast.filter((astObject: Variable | Input | Essay | Content | Check | Radio | Drag | Drop) => {
     //     return astObject.type === 'CHECK' || astObject.type === 'RADIO' || astObject.type === 'DRAG' || astObject.type === 'DROP';
     // });
@@ -74,7 +64,7 @@ export function getAstObjects(ast: AST, type: 'VARIABLE' | 'INPUT' | 'ESSAY' | '
     });
 }
 
-function buildAST(source: string, ast: AST, numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AST {
+function buildAST(source: string, ast: AssessML.AST, numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AssessML.AST {
     const variableRegex: RegExp = /\[var(.+?)\]/;
     const inputRegex: RegExp = /\[input\]/;
     const essayRegex: RegExp = /\[essay\]/;
@@ -87,7 +77,7 @@ function buildAST(source: string, ast: AST, numInputs: number, numEssays: number
     if (source.search(variableRegex) === 0) {
         const match = source.match(variableRegex) || [];
         const matchedContent = match[0];
-        const variable: Variable = {
+        const variable: AssessML.Variable = {
             type: 'VARIABLE',
             varName: matchedContent.replace('[', '').replace(']', ''),
             value: generateRandomInteger(0, 100)
@@ -102,7 +92,7 @@ function buildAST(source: string, ast: AST, numInputs: number, numEssays: number
     if (source.search(inputRegex) === 0) {
         const match = source.match(inputRegex) || [];
         const matchedContent = match[0];
-        const input: Input = {
+        const input: AssessML.Input = {
             type: 'INPUT',
             varName: `input${numInputs + 1}`
         };
@@ -116,7 +106,7 @@ function buildAST(source: string, ast: AST, numInputs: number, numEssays: number
     if (source.search(essayRegex) === 0) {
         const match = source.match(essayRegex) || [];
         const matchedContent = match[0];
-        const essay: Essay = {
+        const essay: AssessML.Essay = {
             type: 'ESSAY',
             varName: `essay${numEssays + 1}`
         };
@@ -131,10 +121,10 @@ function buildAST(source: string, ast: AST, numInputs: number, numEssays: number
         const match = source.match(checkRegex) || [];
         const matchedContent = match[0];
         const insideContent = match[1];
-        const check: Check = {
+        const check: AssessML.Check = {
             type: 'CHECK',
             varName: `check${numChecks + 1}`,
-            content: <(Content | Variable)[]> buildAST(insideContent, {
+            content: <(AssessML.Content | AssessML.Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
             }, 0, 0, 0, 0, 0, 0).ast
@@ -150,10 +140,10 @@ function buildAST(source: string, ast: AST, numInputs: number, numEssays: number
         const match = source.match(radioRegex) || [];
         const matchedContent = match[0];
         const insideContent = match[1];
-        const radio: Radio = {
+        const radio: AssessML.Radio = {
             type: 'RADIO',
             varName: `radio${numRadios + 1}`,
-            content: <(Content | Variable)[]> buildAST(insideContent, {
+            content: <(AssessML.Content | AssessML.Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
             }, 0, 0, 0, 0, 0, 0).ast
@@ -169,10 +159,10 @@ function buildAST(source: string, ast: AST, numInputs: number, numEssays: number
         const match = source.match(dragRegex) || [];
         const matchedContent = match[0];
         const insideContent = match[1];
-        const drag: Drag = {
+        const drag: AssessML.Drag = {
             type: 'DRAG',
             varName: `drag${numDrags + 1}`,
-            content: <(Content | Variable)[]> buildAST(insideContent, {
+            content: <(AssessML.Content | AssessML.Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
             }, 0, 0, 0, 0, 0, 0).ast
@@ -188,10 +178,10 @@ function buildAST(source: string, ast: AST, numInputs: number, numEssays: number
         const match = source.match(dropRegex) || [];
         const matchedContent = match[0];
         const insideContent = match[1];
-        const drop: Drop = {
+        const drop: AssessML.Drop = {
             type: 'DROP',
             varName: `drop${numDrops + 1}`,
-            content: <(Content | Variable)[]> buildAST(insideContent, {
+            content: <(AssessML.Content | AssessML.Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
             }, 0, 0, 0, 0, 0, 0).ast
@@ -206,7 +196,7 @@ function buildAST(source: string, ast: AST, numInputs: number, numEssays: number
     if (source.search(contentRegex) === 0) {
         const match = source.match(contentRegex) || [];
         const matchedContent = match[1];
-        const content: Content = {
+        const content: AssessML.Content = {
             type: 'CONTENT',
             content: matchedContent
         };
