@@ -1,3 +1,5 @@
+/// <reference path="assessml.d.ts" />
+
 export function compileToHTML(source: AssessML.AST | string): string {
     const ast: AssessML.AST = typeof source === 'string' ? parse(source) : source;
     const radioGroupName: string = createUUID();

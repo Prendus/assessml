@@ -1,12 +1,12 @@
 {
   "name": "assessml",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "AssessML (Assessment Markup Language) is a concise and flexible declarative language for educational assessments. This repository contains the language specification and JavaScript implementations of various language tools (AST generator, compilers, etc).",
   "scripts": {
     "test": "electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --auto-run",
     "test-window": "electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --window"
   },
-  "typings": "assessml.d.ts",
+  "typings": "./assessml.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Prendus/assessml.git"
