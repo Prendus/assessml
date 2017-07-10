@@ -1,4 +1,4 @@
-[![npm version](https://img.shields.io/npm/v/assessml.svg?style=flat)](https://www.npmjs.com/package/assessml) [![dependency Status](https://david-dm.org/prendus/assessml/status.svg)](https://david-dm.org/prendus/assessml) [![devDependency Status](https://david-dm.org/prendus/assessml/dev-status.svg)](https://david-dm.org/prendus/assessml?type=dev) [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/prendus/assessml)
+[![npm version](https://img.shields.io/npm/v/assessml.svg?style=flat)](https://www.npmjs.com/package/assessml) [![dependency Status](https://david-dm.org/prendus/assessml/status.svg)](https://david-dm.org/prendus/assessml) [![devDependency Status](https://david-dm.org/prendus/assessml/dev-status.svg)](https://david-dm.org/prendus/assessml?type=dev)
 
 # AssessML (Assessment Markup Language)
 
