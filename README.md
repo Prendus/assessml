@@ -1,3 +1,5 @@
+[![npm version](https://img.shields.io/npm/v/assessml.svg?style=flat)](https://www.npmjs.com/package/assessml) [![dependency Status](https://david-dm.org/prendus/assessml/status.svg)](https://david-dm.org/prendus/assessml) [![devDependency Status](https://david-dm.org/prendus/assessml/dev-status.svg)](https://david-dm.org/prendus/assessml?type=dev) [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/prendus/assessml)
+
 # AssessML (Assessment Markup Language)
 
 AssessML (Assessment Markup Language) is a concise and flexible declarative language for educational assessments. It is meant to be used with projects such as the [Prendus Question Elements](https://github.com/Prendus/prendus-question-elements).This repository contains the language specification and JavaScript implementations of various language tools (AST generator, compilers, etc).
