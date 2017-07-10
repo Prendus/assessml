@@ -1,6 +1,6 @@
 # AssessML (Assessment Markup Language)
 
-AssessML (Assessment Markup Language) is a concise and flexible declarative language for educational assessments. This repository contains the language specification and JavaScript implementations of various language tools (AST generator, compilers, etc).
+AssessML (Assessment Markup Language) is a concise and flexible declarative language for educational assessments. It is meant to be used with projects such as the [Prendus Question Elements](https://github.com/Prendus/prendus-question-elements).This repository contains the language specification and JavaScript implementations of various language tools (AST generator, compilers, etc).
 
 ## Installation
 
