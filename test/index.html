@@ -4,9 +4,21 @@
     <head>
         <base href="../">
         <script src="zwitterion-config.js"></script>
-        <script src="test/assessml-test.ts"></script>
+        <link rel="import" href="node_modules/guesswork/test-runner.html">
+        <link rel="import" href="test/prendus-assessml-test/prendus-assessml-test.html">
     </head>
 
     <body>
+        <test-runner id="testRunner">
+            <prendus-assessml-test></prendus-assessml-test>
+        </test-runner>
+
+        <script>
+            if (window.ELECTRON_CONSOLE_ARGUMENTS.autoRun) {
+                setTimeout(() => {
+                    document.getElementById('testRunner').autoRun = true;
+                }, 5000);
+            }
+        </script>
     </body>
 </html>
