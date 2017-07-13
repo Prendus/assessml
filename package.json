@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Prendus/assessml#readme",
   "devDependencies": {
+    "deep-equal": "^1.0.1",
     "guesswork": "^0.1.1",
     "scram-engine": "^0.6.1"
   },

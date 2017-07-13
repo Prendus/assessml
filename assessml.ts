@@ -48,6 +48,53 @@ export function compileToHTML(source: AST | string): string {
     }, '');
 }
 
+export function compileToAssessML(source: AST | string): string {
+    const ast: AST = typeof source === 'string' ? parse(source) : source;
+
+    return ast.ast.reduce((result: string, astObject: ASTObject) => {
+
+        if (astObject.type === 'CONTENT') {
+            return `${result}${astObject.content}`;
+        }
+
+        if (astObject.type === 'VARIABLE') {
+            return `${result}[${astObject.varName}]`;
+        }
+
+        if (astObject.type === 'INPUT') {
+            return `${result}[input]`
+        }
+
+        if (astObject.type === 'ESSAY') {
+            return `${result}[essay]`
+        }
+
+        if (astObject.type === 'CHECK') {
+            return `${result}[x]${compileToAssessML({
+                type: 'AST',
+                ast: astObject.content
+            })}[x]`;
+        }
+
+        if (astObject.type === 'RADIO') {
+            return `${result}[*]${compileToAssessML({
+                type: 'AST',
+                ast: astObject.content
+            })}[*]`;
+        }
+
+        if (astObject.type === 'DRAG') {
+            return `${result}DRAG NOT IMPLEMENTED`;
+        }
+
+        if (astObject.type === 'DROP') {
+            return `${result}DROP NOT IMPLEMENTED`;
+        }
+
+        return result;
+    }, '');
+}
+
 export function parse(source: string) {
     return buildAST(source, {
         type: 'AST',
@@ -67,14 +114,14 @@ export function getAstObjects(ast: AST, type: 'VARIABLE' | 'INPUT' | 'ESSAY' | '
 }
 
 function buildAST(source: string, ast: AST, numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AST {
-    const variableRegex: RegExp = /\[var(.+?)\]/;
+    const variableRegex: RegExp = /\[var((.|\n|\r)+?)\]/;
     const inputRegex: RegExp = /\[input\]/;
     const essayRegex: RegExp = /\[essay\]/;
-    const checkRegex: RegExp = /\[x\](.+?)\[x\]/;
-    const radioRegex: RegExp = /\[\*\](.+?)\[\*\]/;
-    const dragRegex: RegExp = /\[drag\](.+?)\[drag\]/;
-    const dropRegex: RegExp = /\[drop\](.+?)\[drop\]/;
-    const contentRegex: RegExp = new RegExp(`((.|\n)+?)((${variableRegex.source}|${inputRegex.source}|${essayRegex.source}|${checkRegex.source}|${radioRegex.source}|${dragRegex.source}|${dropRegex.source})|$)`);
+    const checkRegex: RegExp = /\[x\]((.|\n|\r)+?)\[x\]/;
+    const radioRegex: RegExp = /\[\*\]((.|\n|\r)+?)\[\*\]/;
+    const dragRegex: RegExp = /\[drag\]((.|\n|\r)+?)\[drag\]/;
+    const dropRegex: RegExp = /\[drop\]((.|\n|\r)+?)\[drop\]/;
+    const contentRegex: RegExp = new RegExp(`((.|\n|\r)+?)((${variableRegex.source}|${inputRegex.source}|${essayRegex.source}|${checkRegex.source}|${radioRegex.source}|${dragRegex.source}|${dropRegex.source})|$)`);
 
     if (source.search(variableRegex) === 0) {
         const match = source.match(variableRegex) || [];
