@@ -5,13 +5,15 @@ const deepEqual = require('deep-equal');
 
 const arbContent = jsc.record({
     type: jsc.constant('CONTENT'),
-    content: jsc.nestring
+    content: jsc.pair(jsc.nestring, jsc.nestring).smap((x) => {
+        return x[0].replace(/\[/g, 'd').replace(/\]/g, 'd'); //do not allow ast types to be created in arbitrary content, otherwise it isn't content
+    })
 });
 
 const arbVariable = jsc.record({
     type: jsc.constant('VARIABLE'),
     varName: jsc.pair(jsc.constant('var'), jsc.nestring).smap((x) => { //TODO Figure out the correct way to use smap. I need to make the second function the inverse of the first
-        return `${x[0]}${x[1].replace(/\]/g, '')}`; //the variable will never have a ] in it because of the Regex
+        return `${x[0]}${x[1].replace(/\]/g, 'd')}`; //the variable will never have a ] in it because of the Regex...make sure to replace it with something or you could get an empty string
     }, (x) => {
         return x;
     }),
@@ -76,48 +78,55 @@ class PrendusAssessMLTest extends Polymer.Element {
     }
 
     prepareTests(test) {
-        test('The parse function should take an arbitrary AssessML document string and return a correct AssessML AST', [arbAST], (arbAST) => {
+        test('The parse function should take an arbitrary AssessML string and return a correct AssessML AST', [arbAST], (arbAST) => {
             this.beforeTest();
-
-            // combine any content elements that are adjacent. Look at the previous astObject, if it is of type CONTENT and the current element is of type CONTENT, then remove the previous one and put yourself in, combinging your values
-            //TODO this function does not work perfectly
-            const combinedContentArbAST = {
-                ...arbAST,
-                ast: arbAST.ast.reduce((result, astObject, index) => {
-                    if (astObject.type === 'CONTENT') {
-                        const previousAstObject = result[index - 1];
-                        if (previousAstObject && previousAstObject.type === 'CONTENT') {
-                            return [...result.slice(0, -1), {
-                                ...astObject,
-                                content: `${result[index - 1].content}${astObject.content}`
-                            }];
-                        }
-                    }
-
-                    return [...result, astObject];
-                }, [])
-            };
-
-            console.log('combinedContentArbAST', combinedContentArbAST);
-            console.log('parsed AST', parse(compileToAssessML(combinedContentArbAST)));
-
-            console.log('astsAreEqual', astsAreEqual(combinedContentArbAST, parse(compileToAssessML(combinedContentArbAST))));
-
-            return astsAreEqual(combinedContentArbAST, parse(compileToAssessML(combinedContentArbAST)));
+            const flattenedAst = flattenContentObjects(arbAST);
+            return astsAreEqual(flattenedAst, parse(compileToAssessML(flattenedAst)));
         });
 
-        // test('The compileToHTML function should take an arbitrary AssessML document string and return a correct HTML string', [], );
+         test('The compileToAssessML function should take an arbitrary AssessML string and return a correct AssessML string', [arbAST], (arbAST) => {
+             this.beforeTest();
+             const flattenedAst = flattenContentObjects(arbAST);
+             const assessMLString = compileToAssessML(flattenedAst);
+             return assessMLString === compileToAssessML(assessMLString);
+         });
+
+         test('The compileToAssessML function should take an arbitrary AssessML AST and return a correct AssessML string', [arbAST], (arbAST) => {
+            this.beforeTest();
+            const flattenedAst = flattenContentObjects(arbAST);
+            const assessMLString = compileToAssessML(flattenedAst);
+            return assessMLString === compileToAssessML(flattenedAst);
+         });
+
+        // test('The compileToHTML function should take an arbitrary AssessML string and return a correct HTML string', [], );
         //
         // test('The compileToHTML function should take an arbitrary AssessML AST and return a correct HTML string', [], );
-
-        // test('The compileToAssessML function should take an arbitrary AssessML document string and return a correct AsessML string')
-        // test('Teh compileToAssessML function should take an arbitrary AssessML AST and return a correct AssessML string')
 
         //TODO once getAstObjects gets more complicated, then you can test it
     }
 }
 
 window.customElements.define(PrendusAssessMLTest.is, PrendusAssessMLTest);
+
+// combine any content elements that are adjacent. Look at the previous astObject, if it is of type CONTENT and the current element is of type CONTENT, then remove the previous one and put yourself in, combinging your values
+function flattenContentObjects(ast) {
+    return {
+        ...ast,
+        ast: ast.ast.reduce((result, astObject, index) => {
+            if (astObject.type === 'CONTENT') {
+                const previousAstObject = ast.ast[index - 1];
+                if (previousAstObject && previousAstObject.type === 'CONTENT') {
+                    return [...result.slice(0, -1), {
+                        ...astObject,
+                        content: `${previousAstObject.content}${astObject.content}`
+                    }];
+                }
+            }
+
+            return [...result, astObject];
+        }, [])
+    };
+}
 
 function astsAreEqual(ast1, ast2) {
     return ast1.type === ast2.type && ast1.type === 'AST' && ast1.ast.reduce((result: boolean, astObject, index) => {
