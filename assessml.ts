@@ -1,7 +1,7 @@
 import {AST, ASTObject, Variable, Input, Essay, Content, Check, Radio, Drag, Drop} from './assessml.d';
 
-export function compileToHTML(source: AST | string): string {
-    const ast: AST = typeof source === 'string' ? parse(source) : source;
+export function compileToHTML(source: AST | string, generateVarValue: (varName: string) => any): string {
+    const ast: AST = typeof source === 'string' ? parse(source, generateVarValue) : source;
     const radioGroupName: string = createUUID();
 
     return ast.ast.reduce((result: string, astObject: ASTObject) => {
@@ -26,14 +26,14 @@ export function compileToHTML(source: AST | string): string {
             return `${result}<input id="${astObject.varName}" type="checkbox" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
                 type: 'AST',
                 ast: astObject.content
-            })}`;
+            }, generateVarValue)}`;
         }
 
         if (astObject.type === 'RADIO') {
             return `${result}<input id="${astObject.varName}" type="radio" name="${radioGroupName}" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
                 type: 'AST',
                 ast: astObject.content
-            })}`;
+            }, generateVarValue)}`;
         }
 
         if (astObject.type === 'DRAG') {
@@ -48,8 +48,8 @@ export function compileToHTML(source: AST | string): string {
     }, '');
 }
 
-export function compileToAssessML(source: AST | string): string {
-    const ast: AST = typeof source === 'string' ? parse(source) : source;
+export function compileToAssessML(source: AST | string, generateVarValue: (varName: string) => any): string {
+    const ast: AST = typeof source === 'string' ? parse(source, generateVarValue) : source;
 
     return ast.ast.reduce((result: string, astObject: ASTObject) => {
 
@@ -73,14 +73,14 @@ export function compileToAssessML(source: AST | string): string {
             return `${result}[x]${compileToAssessML({
                 type: 'AST',
                 ast: astObject.content
-            })}[x]`;
+            }, generateVarValue)}[x]`;
         }
 
         if (astObject.type === 'RADIO') {
             return `${result}[*]${compileToAssessML({
                 type: 'AST',
                 ast: astObject.content
-            })}[*]`;
+            }, generateVarValue)}[*]`;
         }
 
         if (astObject.type === 'DRAG') {
@@ -95,11 +95,11 @@ export function compileToAssessML(source: AST | string): string {
     }, '');
 }
 
-export function parse(source: string) {
+export function parse(source: string, generateVarValue: (varName: string) => any) {
     return buildAST(source, {
         type: 'AST',
         ast: []
-    }, 0, 0, 0, 0, 0, 0);
+    }, generateVarValue, 0, 0, 0, 0, 0, 0);
 }
 
 //TODO make sure that the nested variables and inputs are found
@@ -113,7 +113,7 @@ export function getAstObjects(ast: AST, type: 'VARIABLE' | 'INPUT' | 'ESSAY' | '
     });
 }
 
-function buildAST(source: string, ast: AST, numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AST {
+function buildAST(source: string, ast: AST, generateVarValue: (varName: string) => any, numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AST {
     const variableRegex: RegExp = /\[var((.|\n|\r)+?)\]/;
     const inputRegex: RegExp = /\[input\]/;
     const essayRegex: RegExp = /\[essay\]/;
@@ -126,16 +126,18 @@ function buildAST(source: string, ast: AST, numInputs: number, numEssays: number
     if (source.search(variableRegex) === 0) {
         const match = source.match(variableRegex) || [];
         const matchedContent = match[0];
+        const varName = matchedContent.replace('[', '').replace(']', '');
+        const existingVarValue = getVariableValue(ast, varName);
         const variable: Variable = {
             type: 'VARIABLE',
-            varName: matchedContent.replace('[', '').replace(']', ''),
-            value: generateRandomInteger(0, 100)
+            varName,
+            value: existingVarValue === NaN ? generateVarValue(varName) : existingVarValue
         };
 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, variable]
-        }, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops);
+        }, generateVarValue, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops);
     }
 
     if (source.search(inputRegex) === 0) {
@@ -149,7 +151,7 @@ function buildAST(source: string, ast: AST, numInputs: number, numEssays: number
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, input]
-        }, numInputs + 1, numEssays, numChecks, numRadios, numDrags, numDrops);
+        }, generateVarValue, numInputs + 1, numEssays, numChecks, numRadios, numDrags, numDrops);
     }
 
     if (source.search(essayRegex) === 0) {
@@ -163,7 +165,7 @@ function buildAST(source: string, ast: AST, numInputs: number, numEssays: number
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, essay]
-        }, numInputs, numEssays + 1, numChecks, numRadios, numDrags, numDrops);
+        }, generateVarValue, numInputs, numEssays + 1, numChecks, numRadios, numDrags, numDrops);
     }
 
     if (source.search(checkRegex) === 0) {
@@ -176,13 +178,13 @@ function buildAST(source: string, ast: AST, numInputs: number, numEssays: number
             content: <(Content | Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
-            }, 0, 0, 0, 0, 0, 0).ast
+            }, generateVarValue, 0, 0, 0, 0, 0, 0).ast
         };
 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, check]
-        }, numInputs, numEssays, numChecks + 1, numRadios, numDrags, numDrops);
+        }, generateVarValue, numInputs, numEssays, numChecks + 1, numRadios, numDrags, numDrops);
     }
 
     if (source.search(radioRegex) === 0) {
@@ -195,13 +197,13 @@ function buildAST(source: string, ast: AST, numInputs: number, numEssays: number
             content: <(Content | Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
-            }, 0, 0, 0, 0, 0, 0).ast
+            }, generateVarValue, 0, 0, 0, 0, 0, 0).ast
         };
 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, radio]
-        }, numInputs, numEssays, numChecks, numRadios + 1, numDrags, numDrops);
+        }, generateVarValue, numInputs, numEssays, numChecks, numRadios + 1, numDrags, numDrops);
     }
 
     if (source.search(dragRegex) === 0) {
@@ -214,13 +216,13 @@ function buildAST(source: string, ast: AST, numInputs: number, numEssays: number
             content: <(Content | Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
-            }, 0, 0, 0, 0, 0, 0).ast
+            }, generateVarValue, 0, 0, 0, 0, 0, 0).ast
         };
 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, drag]
-        }, numInputs, numEssays, numChecks, numRadios, numDrags + 1, numDrops);
+        }, generateVarValue, numInputs, numEssays, numChecks, numRadios, numDrags + 1, numDrops);
     }
 
     if (source.search(dropRegex) === 0) {
@@ -233,13 +235,13 @@ function buildAST(source: string, ast: AST, numInputs: number, numEssays: number
             content: <(Content | Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
-            }, 0, 0, 0, 0, 0, 0).ast
+            }, generateVarValue, 0, 0, 0, 0, 0, 0).ast
         };
 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, drop]
-        }, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops + 1);
+        }, generateVarValue, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops + 1);
     }
 
     if (source.search(contentRegex) === 0) {
@@ -253,7 +255,7 @@ function buildAST(source: string, ast: AST, numInputs: number, numEssays: number
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, content]
-        }, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops);
+        }, generateVarValue, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops);
     }
 
     return ast;
@@ -276,4 +278,9 @@ function createUUID(): string {
 function generateRandomInteger(min: number, max: number): number {
     //returns a random integer between min (included) and max (included)
     return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getVariableValue(ast: AST, varName: string): number {
+    const variables: Variable[] = <Variable[]> ast.ast.filter((astObject: ASTObject) => astObject.type === 'VARIABLE' && astObject.varName === varName);
+    return variables.length > 0 ? variables[0].value : NaN;
 }

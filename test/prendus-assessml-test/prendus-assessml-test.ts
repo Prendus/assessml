@@ -1,20 +1,21 @@
-import {compileToAssessML, parse} from '../../assessml';
+import {compileToAssessML, compileToHTML, parse} from '../../assessml';
+import {AST, ASTObject, Variable} from '../../assessml.d';
 
 const jsc = require('jsverify');
 const deepEqual = require('deep-equal');
 
 const arbContent = jsc.record({
     type: jsc.constant('CONTENT'),
-    content: jsc.pair(jsc.nestring, jsc.nestring).smap((x) => {
+    content: jsc.pair(jsc.nestring, jsc.nestring).smap((x: any) => {
         return x[0].replace(/\[/g, 'd').replace(/\]/g, 'd'); //do not allow ast types to be created in arbitrary content, otherwise it isn't content
     })
 });
 
 const arbVariable = jsc.record({
     type: jsc.constant('VARIABLE'),
-    varName: jsc.pair(jsc.constant('var'), jsc.nestring).smap((x) => { //TODO Figure out the correct way to use smap. I need to make the second function the inverse of the first
+    varName: jsc.pair(jsc.constant('var'), jsc.nestring).smap((x: any) => { //TODO Figure out the correct way to use smap. I need to make the second function the inverse of the first
         return `${x[0]}${x[1].replace(/\]/g, 'd')}`; //the variable will never have a ] in it because of the Regex...make sure to replace it with something or you could get an empty string
-    }, (x) => {
+    }, (x: any) => {
         return x;
     }),
     value: jsc.number
@@ -67,6 +68,8 @@ const arbAST = jsc.record({
     ast: jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbCheck, arbRadio]))
 });
 
+declare var Polymer: any;
+
 class PrendusAssessMLTest extends Polymer.Element {
     static get is() { return 'prendus-assessml-test'; }
 
@@ -77,30 +80,43 @@ class PrendusAssessMLTest extends Polymer.Element {
         numRadios = 1;
     }
 
-    prepareTests(test) {
-        test('The parse function should take an arbitrary AssessML string and return a correct AssessML AST', [arbAST], (arbAST) => {
+    prepareTests(test: any) {
+        test('The parse function should take an arbitrary AssessML string and return a correct AssessML AST', [arbAST], (arbAST: AST) => {
             this.beforeTest();
             const flattenedAst = flattenContentObjects(arbAST);
-            return astsAreEqual(flattenedAst, parse(compileToAssessML(flattenedAst)));
+            return deepEqual(flattenedAst, parse(compileToAssessML(flattenedAst, (varName) => getVariableValue(flattenedAst, varName)), (varName) => getVariableValue(flattenedAst, varName)), {
+                strict: true
+            });
         });
 
-         test('The compileToAssessML function should take an arbitrary AssessML string and return a correct AssessML string', [arbAST], (arbAST) => {
+         test('The compileToAssessML function should take an arbitrary AssessML string and return a correct AssessML string', [arbAST], (arbAST: AST) => {
              this.beforeTest();
              const flattenedAst = flattenContentObjects(arbAST);
-             const assessMLString = compileToAssessML(flattenedAst);
-             return assessMLString === compileToAssessML(assessMLString);
+             const assessMLString = compileToAssessML(flattenedAst, (varName) => getVariableValue(flattenedAst, varName));
+             return assessMLString === compileToAssessML(assessMLString, (varName) => getVariableValue(flattenedAst, varName));
          });
 
-         test('The compileToAssessML function should take an arbitrary AssessML AST and return a correct AssessML string', [arbAST], (arbAST) => {
+         test('The compileToAssessML function should take an arbitrary AssessML AST and return a correct AssessML string', [arbAST], (arbAST: AST) => {
             this.beforeTest();
             const flattenedAst = flattenContentObjects(arbAST);
-            const assessMLString = compileToAssessML(flattenedAst);
-            return assessMLString === compileToAssessML(flattenedAst);
+            const assessMLString = compileToAssessML(flattenedAst, (varName) => getVariableValue(flattenedAst, varName));
+            return assessMLString === compileToAssessML(flattenedAst, (varName) => getVariableValue(flattenedAst, varName));
          });
 
-        // test('The compileToHTML function should take an arbitrary AssessML string and return a correct HTML string', [], );
-        //
-        // test('The compileToHTML function should take an arbitrary AssessML AST and return a correct HTML string', [], );
+        test('The compileToHTML function should take an arbitrary AssessML AST and return a correct HTML string', [arbAST], (arbAST: AST) => {
+            this.beforeTest();
+            const flattenedAst = flattenContentObjects(arbAST);
+            const htmlString = compileToHTML(flattenedAst, (varName) => getVariableValue(flattenedAst, varName));
+            return verifyHTML(flattenedAst, htmlString);
+        });
+
+        test('The compileToHTML function should take an arbitrary AssessML string and return a correct HTML string', [arbAST], (arbAST: AST) => {
+            this.beforeTest();
+            const flattenedAst = flattenContentObjects(arbAST);
+            const assessMLString = compileToAssessML(flattenedAst, (varName) => getVariableValue(flattenedAst, varName));
+            const htmlString = compileToHTML(assessMLString, (varName) => getVariableValue(flattenedAst, varName));
+            return verifyHTML(flattenedAst, htmlString);
+        });
 
         //TODO once getAstObjects gets more complicated, then you can test it
     }
@@ -109,10 +125,10 @@ class PrendusAssessMLTest extends Polymer.Element {
 window.customElements.define(PrendusAssessMLTest.is, PrendusAssessMLTest);
 
 // combine any content elements that are adjacent. Look at the previous astObject, if it is of type CONTENT and the current element is of type CONTENT, then remove the previous one and put yourself in, combinging your values
-function flattenContentObjects(ast) {
+function flattenContentObjects(ast: AST) {
     return {
         ...ast,
-        ast: ast.ast.reduce((result, astObject, index) => {
+        ast: ast.ast.reduce((result, astObject: ASTObject, index: number) => {
             if (astObject.type === 'CONTENT') {
                 const previousAstObject = ast.ast[index - 1];
                 if (previousAstObject && previousAstObject.type === 'CONTENT') {
@@ -128,45 +144,65 @@ function flattenContentObjects(ast) {
     };
 }
 
-function astsAreEqual(ast1, ast2) {
-    return ast1.type === ast2.type && ast1.type === 'AST' && ast1.ast.reduce((result: boolean, astObject, index) => {
-        if (result === false) {
-            return false;
-        }
+// Go through the htmlString and match based on the current astObject. If there is a match, remove it from the string and keep going. You should end up with an empty string at the end
+function verifyHTML(ast: AST, htmlString: string) {
+    return '' === ast.ast.reduce((result: string, astObject) => {
 
         if (astObject.type === 'CONTENT') {
-            return (
-                ast1.ast[index].type === ast2.ast[index].type &&
-                ast1.ast[index].content === ast2.ast[index].content
-            );
+            if (result.indexOf(astObject.content) === 0) {
+                return result.replace(astObject.content, '');
+            }
         }
 
         if (astObject.type === 'VARIABLE') {
-            return (
-                ast1.ast[index].type === ast2.ast[index].type &&
-                ast1.ast[index].varName === ast2.ast[index].varName &&
-                typeof ast1.ast[index].value === 'number' &&
-                typeof ast2.ast[index].value === 'number'
-            );
+            if (result.indexOf(astObject.value.toString()) === 0) {
+                return result.replace(astObject.value.toString(), '');
+            }
         }
 
-        if (astObject.type === 'INPUT' || astObject.type === 'ESSAY') {
-            return (
-                ast1.ast[index].type === ast2.ast[index].type &&
-                ast1.ast[index].varName === ast2.ast[index].varName
-            );
+        if (astObject.type === 'INPUT') {
+            const inputString = `<span id="${astObject.varName}" contenteditable="true" style="display: inline-block; min-width: 25px; min-height: 25px; padding: 5px; box-shadow: 0px 0px 1px black;"></span>`;
+            if (result.indexOf(inputString) === 0) {
+                return result.replace(inputString, '');
+            }
         }
 
-        if (astObject.type === 'CHECK' || astObject.type === 'RADIO') {
-            return (
-                ast1.ast[index].type === ast2.ast[index].type &&
-                ast1.ast[index].varName === ast2.ast[index].varName &&
-                deepEqual(ast1.ast[index].content, ast2.ast[index].content, {
-                    strict: true
-                }) //TODO this must change once we allow variables inside of checkboxes and radios
-            );
+        if (astObject.type === 'ESSAY') {
+            const essayString = `<textarea id="${astObject.varName}" style="width: 100%; height: 50vh;"></textarea>`;
+            if (result.indexOf(essayString) === 0) {
+                return result.replace(essayString, '');
+            }
         }
 
-        return false;
-    }, true);
+        if (astObject.type === 'CHECK') {
+            const checkString = `<input id="${astObject.varName}" type="checkbox" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
+                type: 'AST',
+                ast: astObject.content
+            }, (varName) => getVariableValue(ast, astObject.varName))}`
+
+            if (result.indexOf(checkString) === 0) {
+                return result.replace(checkString, '');
+            }
+        }
+
+        if (astObject.type === 'RADIO') {
+            const radioGroupNameMatch = result.match(/name="((.|\n|\r)+?)"/);
+            const radioGroupName = radioGroupNameMatch ? radioGroupNameMatch[1] : '';
+            const radioString = `<input id="${astObject.varName}" type="radio" name="${radioGroupName}" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
+                type: 'AST',
+                ast: astObject.content
+            }, (varName) => getVariableValue(ast, astObject.varName))}`;
+
+            if (result.indexOf(radioString) === 0) {
+                return result.replace(radioString, '');
+            }
+        }
+
+        return result;
+    }, htmlString);
+}
+
+function getVariableValue(ast: AST, varName: string): number {
+    const variables: Variable[] = <Variable[]> ast.ast.filter((astObject: ASTObject) => astObject.type === 'VARIABLE' && astObject.varName === varName);
+    return variables.length > 0 ? variables[0].value : 0;
 }
