@@ -83,7 +83,7 @@ class PrendusAssessMLTest extends Polymer.Element {
     prepareTests(test: any) {
         test('The parse function should take an arbitrary AssessML string and return a correct AssessML AST', [arbAST], (arbAST: AST) => {
             this.beforeTest();
-            const flattenedAst = flattenContentObjects(arbAST);
+            const flattenedAst = normalizeVariables(flattenContentObjects(arbAST));
             const parsedAst = parse(compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName)), (varName) => generateVarValue(flattenedAst, varName));
             return deepEqual(flattenedAst, parsedAst, {
                 strict: true
@@ -92,28 +92,28 @@ class PrendusAssessMLTest extends Polymer.Element {
 
          test('The compileToAssessML function should take an arbitrary AssessML string and return a correct AssessML string', [arbAST], (arbAST: AST) => {
              this.beforeTest();
-             const flattenedAst = flattenContentObjects(arbAST);
+             const flattenedAst = normalizeVariables(flattenContentObjects(arbAST));
              const assessMLString = compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName));
              return assessMLString === compileToAssessML(assessMLString, (varName) => generateVarValue(flattenedAst, varName));
          });
 
          test('The compileToAssessML function should take an arbitrary AssessML AST and return a correct AssessML string', [arbAST], (arbAST: AST) => {
             this.beforeTest();
-            const flattenedAst = flattenContentObjects(arbAST);
+            const flattenedAst = normalizeVariables(flattenContentObjects(arbAST));
             const assessMLString = compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName));
             return assessMLString === compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName));
          });
 
         test('The compileToHTML function should take an arbitrary AssessML AST and return a correct HTML string', [arbAST], (arbAST: AST) => {
             this.beforeTest();
-            const flattenedAst = flattenContentObjects(arbAST);
+            const flattenedAst = normalizeVariables(flattenContentObjects(arbAST));
             const htmlString = compileToHTML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName));
             return verifyHTML(flattenedAst, htmlString);
         });
 
         test('The compileToHTML function should take an arbitrary AssessML string and return a correct HTML string', [arbAST], (arbAST: AST) => {
             this.beforeTest();
-            const flattenedAst = flattenContentObjects(arbAST);
+            const flattenedAst = normalizeVariables(flattenContentObjects(arbAST));
             const assessMLString = compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName));
             const htmlString = compileToHTML(assessMLString, (varName) => generateVarValue(flattenedAst, varName));
             return verifyHTML(flattenedAst, htmlString);
@@ -142,6 +142,27 @@ function flattenContentObjects(ast: AST) {
 
             return [...result, astObject];
         }, [])
+    };
+}
+
+// the arbitrary variables need to have the same values if they have the same name. The arbitraries will not do this on their own
+function normalizeVariables(ast: AST): AST {
+    return {
+        ...ast,
+        ast: ast.ast.map((astObject: ASTObject, index: number) => {
+            if (astObject.type === 'VARIABLE') {
+                const arrayToSearch = ast.ast.slice(0, index);
+                const identicalVariables: Variable[] = <Variable[]> arrayToSearch.filter((innerAstObject: ASTObject) => {
+                    return innerAstObject.type === 'VARIABLE' && innerAstObject.varName === astObject.varName;
+                });
+                return identicalVariables.length > 0 ? {
+                    ...astObject,
+                    value: identicalVariables[0].value
+                } : astObject;
+            }
+
+            return astObject;
+        })
     };
 }
 
