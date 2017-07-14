@@ -13,7 +13,7 @@ npm install assessml
 ## Use
 
 ```javascript
-import {generateAST, compileToHTML} from './node_modules/assessml/assessml';
+import {generateAST, compileToHTML, compileToAssessML} from './node_modules/assessml/assessml';
 
 // generate AST
 
@@ -40,6 +40,21 @@ const html = compileToHTML(`
 // compile to HTML from AST
 
 const html = compileToHTML(ast);
+
+// compile to AssessML from source code
+
+const assessML = compileToAssessML(`
+  What time is it?
+
+  [*]1:00pm[*]
+  [*]2:00pm[*]
+  [*]3:00pm[*]
+  [*]4:00pm[*]
+`);
+
+// compile to AssessML from AST
+
+const assessML = compileToAssessML(ast);
 ```
 
 If you use TypeScript, you can import the typings:
