@@ -84,7 +84,8 @@ class PrendusAssessMLTest extends Polymer.Element {
         test('The parse function should take an arbitrary AssessML string and return a correct AssessML AST', [arbAST], (arbAST: AST) => {
             this.beforeTest();
             const flattenedAst = flattenContentObjects(arbAST);
-            return deepEqual(flattenedAst, parse(compileToAssessML(flattenedAst, (varName) => getVariableValue(flattenedAst, varName)), (varName) => getVariableValue(flattenedAst, varName)), {
+            const parsedAst = parse(compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName)), (varName) => generateVarValue(flattenedAst, varName));
+            return deepEqual(flattenedAst, parsedAst, {
                 strict: true
             });
         });
@@ -92,29 +93,29 @@ class PrendusAssessMLTest extends Polymer.Element {
          test('The compileToAssessML function should take an arbitrary AssessML string and return a correct AssessML string', [arbAST], (arbAST: AST) => {
              this.beforeTest();
              const flattenedAst = flattenContentObjects(arbAST);
-             const assessMLString = compileToAssessML(flattenedAst, (varName) => getVariableValue(flattenedAst, varName));
-             return assessMLString === compileToAssessML(assessMLString, (varName) => getVariableValue(flattenedAst, varName));
+             const assessMLString = compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName));
+             return assessMLString === compileToAssessML(assessMLString, (varName) => generateVarValue(flattenedAst, varName));
          });
 
          test('The compileToAssessML function should take an arbitrary AssessML AST and return a correct AssessML string', [arbAST], (arbAST: AST) => {
             this.beforeTest();
             const flattenedAst = flattenContentObjects(arbAST);
-            const assessMLString = compileToAssessML(flattenedAst, (varName) => getVariableValue(flattenedAst, varName));
-            return assessMLString === compileToAssessML(flattenedAst, (varName) => getVariableValue(flattenedAst, varName));
+            const assessMLString = compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName));
+            return assessMLString === compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName));
          });
 
         test('The compileToHTML function should take an arbitrary AssessML AST and return a correct HTML string', [arbAST], (arbAST: AST) => {
             this.beforeTest();
             const flattenedAst = flattenContentObjects(arbAST);
-            const htmlString = compileToHTML(flattenedAst, (varName) => getVariableValue(flattenedAst, varName));
+            const htmlString = compileToHTML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName));
             return verifyHTML(flattenedAst, htmlString);
         });
 
         test('The compileToHTML function should take an arbitrary AssessML string and return a correct HTML string', [arbAST], (arbAST: AST) => {
             this.beforeTest();
             const flattenedAst = flattenContentObjects(arbAST);
-            const assessMLString = compileToAssessML(flattenedAst, (varName) => getVariableValue(flattenedAst, varName));
-            const htmlString = compileToHTML(assessMLString, (varName) => getVariableValue(flattenedAst, varName));
+            const assessMLString = compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName));
+            const htmlString = compileToHTML(assessMLString, (varName) => generateVarValue(flattenedAst, varName));
             return verifyHTML(flattenedAst, htmlString);
         });
 
@@ -178,7 +179,7 @@ function verifyHTML(ast: AST, htmlString: string) {
             const checkString = `<input id="${astObject.varName}" type="checkbox" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
                 type: 'AST',
                 ast: astObject.content
-            }, (varName) => getVariableValue(ast, astObject.varName))}`
+            }, (varName) => generateVarValue(ast, varName))}`
 
             if (result.indexOf(checkString) === 0) {
                 return result.replace(checkString, '');
@@ -191,7 +192,7 @@ function verifyHTML(ast: AST, htmlString: string) {
             const radioString = `<input id="${astObject.varName}" type="radio" name="${radioGroupName}" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
                 type: 'AST',
                 ast: astObject.content
-            }, (varName) => getVariableValue(ast, astObject.varName))}`;
+            }, (varName) => generateVarValue(ast, varName))}`;
 
             if (result.indexOf(radioString) === 0) {
                 return result.replace(radioString, '');
@@ -202,7 +203,17 @@ function verifyHTML(ast: AST, htmlString: string) {
     }, htmlString);
 }
 
+function generateRandomInteger(min: number, max: number): number {
+    //returns a random integer between min (included) and max (included)
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function generateVarValue(ast: AST, varName: string) {
+    const existingVarValue = getVariableValue(ast, varName);
+    return existingVarValue === NaN ? generateRandomInteger(0, 100) : existingVarValue;
+}
+
 function getVariableValue(ast: AST, varName: string): number {
     const variables: Variable[] = <Variable[]> ast.ast.filter((astObject: ASTObject) => astObject.type === 'VARIABLE' && astObject.varName === varName);
-    return variables.length > 0 ? variables[0].value : 0;
+    return variables.length > 0 ? variables[0].value : NaN;
 }

@@ -1,6 +1,6 @@
 import {AST, ASTObject, Variable, Input, Essay, Content, Check, Radio, Drag, Drop} from './assessml.d';
 
-export function compileToHTML(source: AST | string, generateVarValue: (varName: string) => any): string {
+export function compileToHTML(source: AST | string, generateVarValue: (varName: string) => number): string {
     const ast: AST = typeof source === 'string' ? parse(source, generateVarValue) : source;
     const radioGroupName: string = createUUID();
 
@@ -102,7 +102,7 @@ export function parse(source: string, generateVarValue: (varName: string) => any
     }, generateVarValue, 0, 0, 0, 0, 0, 0);
 }
 
-//TODO make sure that the nested variables and inputs are found
+//TODO make sure that the nested variables are found
 export function getAstObjects(ast: AST, type: 'VARIABLE' | 'INPUT' | 'ESSAY' | 'CONTENT' | 'CHECK' | 'RADIO' | 'DRAG' | 'DROP'): ASTObject[] {
     // const nestedAstObjects: (Check | Radio | Drag | Drop)[] = <(Check | Radio | Drag | Drop)[]> ast.ast.filter((astObject: Variable | Input | Essay | Content | Check | Radio | Drag | Drop) => {
     //     return astObject.type === 'CHECK' || astObject.type === 'RADIO' || astObject.type === 'DRAG' || astObject.type === 'DROP';
@@ -113,7 +113,7 @@ export function getAstObjects(ast: AST, type: 'VARIABLE' | 'INPUT' | 'ESSAY' | '
     });
 }
 
-function buildAST(source: string, ast: AST, generateVarValue: (varName: string) => any, numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AST {
+function buildAST(source: string, ast: AST, generateVarValue: (varName: string) => number, numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AST {
     const variableRegex: RegExp = /\[var((.|\n|\r)+?)\]/;
     const inputRegex: RegExp = /\[input\]/;
     const essayRegex: RegExp = /\[essay\]/;
@@ -128,10 +128,12 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         const matchedContent = match[0];
         const varName = matchedContent.replace('[', '').replace(']', '');
         const existingVarValue = getVariableValue(ast, varName);
+        const generatedVarValue = generateVarValue(varName);
+        const newVarValue = isNaN(existingVarValue) ? generatedVarValue : existingVarValue;
         const variable: Variable = {
             type: 'VARIABLE',
             varName,
-            value: existingVarValue === NaN ? generateVarValue(varName) : existingVarValue
+            value: newVarValue
         };
 
         return buildAST(source.replace(matchedContent, ''), {
@@ -273,11 +275,6 @@ function createUUID(): string {
 
 	var uuid = s.join("");
 	return uuid;
-}
-
-function generateRandomInteger(min: number, max: number): number {
-    //returns a random integer between min (included) and max (included)
-    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function getVariableValue(ast: AST, varName: string): number {
