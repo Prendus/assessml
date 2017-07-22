@@ -5,7 +5,7 @@
   "scripts": {
     "test": "xvfb-run electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --auto-run",
     "test-window": "electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --window",
-    "build-static": "node_modules/.bin/zwitterion --port 8000 --build-static",
+    "build-static": "../.bin/zwitterion --port 8000 --build-static",
     "postinstall": "npm run build-static"
   },
   "typings": "./assessml.d.ts",
