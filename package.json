@@ -1,11 +1,11 @@
 {
   "name": "assessml",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "AssessML (Assessment Markup Language) is a concise and flexible declarative language for educational assessments. This repository contains the language specification and JavaScript implementations of various language tools (AST generator, compilers, etc).",
   "scripts": {
     "test": "xvfb-run electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --auto-run",
     "test-window": "electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --window",
-    "build-static": "cd ../.. && node_modules/.bin/zwitterion --port 8000 --build-static",
+    "build-static": "zwitterion --port 8000 --build-static",
     "postinstall": "npm run build-static"
   },
   "typings": "./assessml.d.ts",
@@ -22,9 +22,9 @@
   "devDependencies": {
     "deep-equal": "^1.0.1",
     "guesswork": "^0.1.3",
-    "scram-engine": "^0.6.3"
+    "scram-engine": "^0.6.5"
   },
   "dependencies": {
-    "zwitterion": "^0.11.2"
+    "zwitterion": "^0.12.0"
   }
 }
