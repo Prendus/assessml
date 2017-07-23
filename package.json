@@ -6,7 +6,8 @@
     "test": "xvfb-run electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --auto-run",
     "test-window": "electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --window",
     "build-static": "zwitterion --build-static",
-    "prepublishOnly": "npm run build-static"
+    "prepublishOnly": "npm run build-static",
+    "postpublish": "rm -rf dist"
   },
   "typings": "./assessml.d.ts",
   "repository": {
