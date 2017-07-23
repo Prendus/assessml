@@ -1,6 +1,6 @@
 {
   "name": "assessml",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "AssessML (Assessment Markup Language) is a concise and flexible declarative language for educational assessments. This repository contains the language specification and JavaScript implementations of various language tools (AST generator, compilers, etc).",
   "scripts": {
     "test": "xvfb-run electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --auto-run",
