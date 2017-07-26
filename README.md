@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/Prendus/assessml.svg?style=shield)](https://circleci.com/gh/prendus/assessml) [![npm version](https://img.shields.io/npm/v/assessml.svg?style=flat)](https://www.npmjs.com/package/assessml) [![dependency Status](https://david-dm.org/prendus/assessml/status.svg)](https://david-dm.org/prendus/assessml) [![devDependency Status](https://david-dm.org/prendus/assessml/dev-status.svg)](https://david-dm.org/prendus/assessml?type=dev)
+[![CircleCI](https://circleci.com/gh/Prendus/assessml.svg?style=shield)](https://circleci.com/gh/Prendus/assessml) [![npm version](https://img.shields.io/npm/v/assessml.svg?style=flat)](https://www.npmjs.com/package/assessml) [![dependency Status](https://david-dm.org/prendus/assessml/status.svg)](https://david-dm.org/prendus/assessml) [![devDependency Status](https://david-dm.org/prendus/assessml/dev-status.svg)](https://david-dm.org/prendus/assessml?type=dev)
 
 # AssessML (Assessment Markup Language)
 
