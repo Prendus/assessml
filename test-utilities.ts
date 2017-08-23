@@ -5,15 +5,15 @@ const jsc = require('jsverify');
 
 const arbContent = jsc.record({
     type: jsc.constant('CONTENT'),
-    content: jsc.pair(jsc.nestring, jsc.nestring).smap((x: any) => {
-        return x[0].replace(/\[/g, 'd').replace(/\]/g, 'd'); //do not allow ast types to be created in arbitrary content, otherwise it isn't content
+    content: jsc.pair(jsc.nestring, jsc.nestring).smap((x: any) => { //TODO figure out the correct way to use smap
+        return x[0].replace(/\[/g, 'd').replace(/\]/g, 'd').replace(/</g, '&lt;').replace(/>/g, '&gt;'); //do not allow ast types to be created in arbitrary content, otherwise it isn't content. Also, escape HTML brackets like in the compiler
     })
 });
 
 const arbVariable = jsc.record({
     type: jsc.constant('VARIABLE'),
-    varName: jsc.pair(jsc.constant('var'), jsc.nestring).smap((x: any) => { //TODO Figure out the correct way to use smap. I need to make the second function the inverse of the first
-        return `${x[0]}${x[1].replace(/\]/g, 'd')}`; //the variable will never have a ] in it because of the Regex...make sure to replace it with something or you could get an empty string
+    varName: jsc.pair(jsc.constant('var'), jsc.nat).smap((x: any) => { //TODO Figure out the correct way to use smap. I need to make the second function the inverse of the first
+        return `${x[0]}${x[1]}`; //the variable will never have a ] in it because of the Regex...make sure to replace it with something or you could get an empty string
     }, (x: any) => {
         return x;
     }),
