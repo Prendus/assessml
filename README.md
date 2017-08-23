@@ -12,6 +12,8 @@ npm install assessml
 
 ## Use
 
+The elements are written in TypeScript, and there is no build process. You will have to implement your own build process to consume them. We use [Zwitterion](https://github.com/lastmjs/zwitterion).
+
 ```javascript
 import {generateAST, compileToHTML, compileToAssessML} from './node_modules/assessml/assessml';
 
@@ -89,7 +91,7 @@ npm install
 Run test cases in terminal:
 
 ```bash
-npm run test
+npm run test-auto
 ```
 
 Run test cases with debug window:
