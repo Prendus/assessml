@@ -2,19 +2,8 @@
 
 <html>
     <head>
-        <base href="../">
-        <script src="node_modules/systemjs/dist/system.js"></script>
-        <script>
-            System.config({
-                packages: {
-                    '': {
-                        defaultExtension: 'js'
-                    }
-                }
-            });
-        </script>
-        <link rel="import" href="node_modules/guesswork/test-runner.html">
-        <link rel="import" href="test/prendus-assessml-test/prendus-assessml-test.html">
+        <link rel="import" href="../node_modules/guesswork/test-runner.html">
+        <script type="module" src="prendus-assessml-test/prendus-assessml-test.ts"></script>
     </head>
 
     <body>

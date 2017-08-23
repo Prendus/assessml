@@ -3,11 +3,8 @@
   "version": "0.2.8",
   "description": "AssessML (Assessment Markup Language) is a concise and flexible declarative language for educational assessments. This repository contains the language specification and JavaScript implementations of various language tools (AST generator, compilers, etc).",
   "scripts": {
-    "test": "xvfb-run electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --auto-run",
-    "test-window": "electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --window",
-    "build-static": "zwitterion --build-static",
-    "prepublishOnly": "npm run build-static",
-    "postpublish": "rm -rf dist"
+    "test": "xvfb-run -a electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --auto-run",
+    "test-window": "electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --window"
   },
   "typings": "./assessml.d.ts",
   "repository": {
@@ -22,9 +19,8 @@
   "homepage": "https://github.com/Prendus/assessml#readme",
   "devDependencies": {
     "deep-equal": "^1.0.1",
-    "guesswork": "^0.1.3",
-    "scram-engine": "^0.6.6",
-    "zwitterion": "^0.12.2"
+    "guesswork": "^0.3.1",
+    "scram-engine": "^0.6.17"
   },
   "dependencies": {}
 }
