@@ -113,9 +113,7 @@ export function getAstObjects(ast: AST, type: 'VARIABLE' | 'INPUT' | 'ESSAY' | '
     });
 }
 
-function buildAST(rawSource: string, ast: AST, generateVarValue: (varName: string) => number, numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AST {
-    const source = rawSource.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
+function buildAST(source: string, ast: AST, generateVarValue: (varName: string) => number, numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AST {
     const variableRegex: RegExp = /\[var((.|\n|\r)+?)\]/;
     const inputRegex: RegExp = /\[input\]/;
     const essayRegex: RegExp = /\[essay\]/;
