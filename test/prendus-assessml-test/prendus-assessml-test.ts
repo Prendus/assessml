@@ -1,6 +1,7 @@
 import {compileToAssessML, compileToHTML, parse} from '../../assessml';
 import {AST, ASTObject, Variable} from '../../assessml.d';
-import {normalizeVariables, flattenContentObjects, verifyHTML, generateVarValue, arbAST, resetNums} from '../../test-utilities';
+import {flattenContentObjects, verifyHTML, arbAST, resetNums} from '../../test-utilities';
+import {normalizeVariables, generateVarValue} from '../../utilities';
 
 const deepEqual = require('deep-equal');
 
