@@ -1,4 +1,4 @@
-interface AST {
+export interface AST {
     type: 'AST';
     ast: (Content | Variable | Input | Essay | Check | Radio | Drag | Drop)[];
 }
