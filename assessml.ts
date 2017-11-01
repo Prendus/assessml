@@ -1,7 +1,7 @@
-import {AST, ASTObject, Variable, Input, Essay, Content, Check, Radio, Drag, Drop} from './assessml.d';
+import {AST, ASTObject, Variable, Input, Essay, Content, Check, Radio, Drag, Drop, Image} from './assessml.d';
 
-export function compileToHTML(source: AST | string, generateVarValue: (varName: string) => number): string {
-    const ast: AST = typeof source === 'string' ? parse(source, generateVarValue) : source;
+export function compileToHTML(source: AST | string, generateVarValue: (varName: string) => number, generateImageSrc: (varName: string) => string): string {
+    const ast: AST = typeof source === 'string' ? parse(source, generateVarValue, generateImageSrc) : source;
     const radioGroupName: string = createUUID();
 
     return ast.ast.reduce((result: string, astObject: ASTObject) => {
@@ -26,14 +26,14 @@ export function compileToHTML(source: AST | string, generateVarValue: (varName: 
             return `${result}<input id="${astObject.varName}" type="checkbox" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
                 type: 'AST',
                 ast: astObject.content
-            }, generateVarValue)}`;
+            }, generateVarValue, generateImageSrc)}`;
         }
 
         if (astObject.type === 'RADIO') {
             return `${result}<input id="${astObject.varName}" type="radio" name="${radioGroupName}" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
                 type: 'AST',
                 ast: astObject.content
-            }, generateVarValue)}`;
+            }, generateVarValue, generateImageSrc)}`;
         }
 
         if (astObject.type === 'DRAG') {
@@ -44,12 +44,16 @@ export function compileToHTML(source: AST | string, generateVarValue: (varName: 
             return `${result}DROP NOT IMPLEMENTED`;
         }
 
+        if (astObject.type === 'IMAGE') {
+            return `${result}<img id="${astObject.varName}" src="${astObject.src}">`;
+        }
+
         return result;
     }, '');
 }
 
-export function compileToAssessML(source: AST | string, generateVarValue: (varName: string) => any): string {
-    const ast: AST = typeof source === 'string' ? parse(source, generateVarValue) : source;
+export function compileToAssessML(source: AST | string, generateVarValue: (varName: string) => number, generateImageSrc: (varName: string) => string): string {
+    const ast: AST = typeof source === 'string' ? parse(source, generateVarValue, generateImageSrc) : source;
 
     return ast.ast.reduce((result: string, astObject: ASTObject) => {
 
@@ -73,14 +77,14 @@ export function compileToAssessML(source: AST | string, generateVarValue: (varNa
             return `${result}[x]${compileToAssessML({
                 type: 'AST',
                 ast: astObject.content
-            }, generateVarValue)}[x]`;
+            }, generateVarValue, generateImageSrc)}[x]`;
         }
 
         if (astObject.type === 'RADIO') {
             return `${result}[*]${compileToAssessML({
                 type: 'AST',
                 ast: astObject.content
-            }, generateVarValue)}[*]`;
+            }, generateVarValue, generateImageSrc)}[*]`;
         }
 
         if (astObject.type === 'DRAG') {
@@ -91,19 +95,23 @@ export function compileToAssessML(source: AST | string, generateVarValue: (varNa
             return `${result}DROP NOT IMPLEMENTED`;
         }
 
+        if (astObject.type === 'IMAGE') {
+            return `${result}[${astObject.varName}]`;
+        }
+
         return result;
     }, '');
 }
 
-export function parse(source: string, generateVarValue: (varName: string) => any) {
+export function parse(source: string, generateVarValue: (varName: string) => number, generateImageSrc: (varName: string) => string) {
     return buildAST(source, {
         type: 'AST',
         ast: []
-    }, generateVarValue, 0, 0, 0, 0, 0, 0);
+    }, generateVarValue, generateImageSrc, 0, 0, 0, 0, 0, 0);
 }
 
 //TODO make sure that the nested variables are found
-export function getAstObjects(ast: AST, type: 'VARIABLE' | 'INPUT' | 'ESSAY' | 'CONTENT' | 'CHECK' | 'RADIO' | 'DRAG' | 'DROP'): ASTObject[] {
+export function getAstObjects(ast: AST, type: 'VARIABLE' | 'INPUT' | 'ESSAY' | 'CONTENT' | 'CHECK' | 'RADIO' | 'DRAG' | 'DROP' | 'IMAGE'): ASTObject[] {
     // const nestedAstObjects: (Check | Radio | Drag | Drop)[] = <(Check | Radio | Drag | Drop)[]> ast.ast.filter((astObject: Variable | Input | Essay | Content | Check | Radio | Drag | Drop) => {
     //     return astObject.type === 'CHECK' || astObject.type === 'RADIO' || astObject.type === 'DRAG' || astObject.type === 'DROP';
     // });
@@ -113,7 +121,7 @@ export function getAstObjects(ast: AST, type: 'VARIABLE' | 'INPUT' | 'ESSAY' | '
     });
 }
 
-function buildAST(source: string, ast: AST, generateVarValue: (varName: string) => number, numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AST {
+function buildAST(source: string, ast: AST, generateVarValue: (varName: string) => number, generateImageSrc: (varName: string) => string, numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AST {
     const variableRegex: RegExp = /\[var((.|\n|\r)+?)\]/;
     const inputRegex: RegExp = /\[input\]/;
     const essayRegex: RegExp = /\[essay\]/;
@@ -121,7 +129,8 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
     const radioRegex: RegExp = /\[\*\]((.|\n|\r)+?)\[\*\]/;
     const dragRegex: RegExp = /\[drag\]((.|\n|\r)+?)\[drag\]/;
     const dropRegex: RegExp = /\[drop\]((.|\n|\r)+?)\[drop\]/;
-    const contentRegex: RegExp = new RegExp(`((.|\n|\r)+?)((${variableRegex.source}|${inputRegex.source}|${essayRegex.source}|${checkRegex.source}|${radioRegex.source}|${dragRegex.source}|${dropRegex.source})|$)`);
+    const imageRegex: RegExp = /\[img((.|\n|\r)+?)\]/;
+    const contentRegex: RegExp = new RegExp(`((.|\n|\r)+?)((${variableRegex.source}|${inputRegex.source}|${essayRegex.source}|${checkRegex.source}|${radioRegex.source}|${dragRegex.source}|${dropRegex.source}|${imageRegex.source})|$)`);
 
     if (source.search(variableRegex) === 0) {
         const match = source.match(variableRegex) || [];
@@ -139,7 +148,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, variable]
-        }, generateVarValue, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops);
+        }, generateVarValue, generateImageSrc, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops);
     }
 
     if (source.search(inputRegex) === 0) {
@@ -153,7 +162,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, input]
-        }, generateVarValue, numInputs + 1, numEssays, numChecks, numRadios, numDrags, numDrops);
+        }, generateVarValue, generateImageSrc, numInputs + 1, numEssays, numChecks, numRadios, numDrags, numDrops);
     }
 
     if (source.search(essayRegex) === 0) {
@@ -167,7 +176,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, essay]
-        }, generateVarValue, numInputs, numEssays + 1, numChecks, numRadios, numDrags, numDrops);
+        }, generateVarValue, generateImageSrc, numInputs, numEssays + 1, numChecks, numRadios, numDrags, numDrops);
     }
 
     if (source.search(checkRegex) === 0) {
@@ -180,13 +189,13 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
             content: <(Content | Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
-            }, generateVarValue, 0, 0, 0, 0, 0, 0).ast
+            }, generateVarValue, generateImageSrc, 0, 0, 0, 0, 0, 0).ast
         };
 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, check]
-        }, generateVarValue, numInputs, numEssays, numChecks + 1, numRadios, numDrags, numDrops);
+        }, generateVarValue, generateImageSrc, numInputs, numEssays, numChecks + 1, numRadios, numDrags, numDrops);
     }
 
     if (source.search(radioRegex) === 0) {
@@ -199,13 +208,13 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
             content: <(Content | Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
-            }, generateVarValue, 0, 0, 0, 0, 0, 0).ast
+            }, generateVarValue, generateImageSrc, 0, 0, 0, 0, 0, 0).ast
         };
 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, radio]
-        }, generateVarValue, numInputs, numEssays, numChecks, numRadios + 1, numDrags, numDrops);
+        }, generateVarValue, generateImageSrc, numInputs, numEssays, numChecks, numRadios + 1, numDrags, numDrops);
     }
 
     if (source.search(dragRegex) === 0) {
@@ -218,13 +227,13 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
             content: <(Content | Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
-            }, generateVarValue, 0, 0, 0, 0, 0, 0).ast
+            }, generateVarValue, generateImageSrc, 0, 0, 0, 0, 0, 0).ast
         };
 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, drag]
-        }, generateVarValue, numInputs, numEssays, numChecks, numRadios, numDrags + 1, numDrops);
+        }, generateVarValue, generateImageSrc, numInputs, numEssays, numChecks, numRadios, numDrags + 1, numDrops);
     }
 
     if (source.search(dropRegex) === 0) {
@@ -237,13 +246,29 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
             content: <(Content | Variable)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
-            }, generateVarValue, 0, 0, 0, 0, 0, 0).ast
+            }, generateVarValue, generateImageSrc, 0, 0, 0, 0, 0, 0).ast
         };
 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, drop]
-        }, generateVarValue, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops + 1);
+        }, generateVarValue, generateImageSrc, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops + 1);
+    }
+
+    if (source.search(imageRegex) === 0) {
+        const match = source.match(imageRegex) || [];
+        const matchedContent = match[0];
+        const varName = matchedContent.replace('[', '').replace(']', '');
+        const image: Image = {
+            type: 'IMAGE',
+            varName,
+            src: generateImageSrc(varName)
+        };
+
+        return buildAST(source.replace(matchedContent, ''), {
+            ...ast,
+            ast: [...ast.ast, image]
+        }, generateVarValue, generateImageSrc, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops);
     }
 
     if (source.search(contentRegex) === 0) {
@@ -257,7 +282,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, content]
-        }, generateVarValue, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops);
+        }, generateVarValue, generateImageSrc, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops);
     }
 
     return ast;
@@ -280,4 +305,9 @@ function createUUID(): string {
 function getVariableValue(ast: AST, varName: string): number {
     const variables: Variable[] = <Variable[]> ast.ast.filter((astObject: ASTObject) => astObject.type === 'VARIABLE' && astObject.varName === varName);
     return variables.length > 0 ? variables[0].value : NaN;
+}
+
+export function getImageSrc(ast: AST, varName: string): string {
+    const images: Image[] = <Image[]> ast.ast.filter((astObject: ASTObject) => astObject.type === 'IMAGE' && astObject.varName === varName);
+    return images.length > 0 ? images[0].src : '';
 }

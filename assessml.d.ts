@@ -1,9 +1,9 @@
 export interface AST {
     type: 'AST';
-    ast: (Content | Variable | Input | Essay | Check | Radio | Drag | Drop)[];
+    ast: (Content | Variable | Input | Essay | Check | Radio | Drag | Drop | Image)[];
 }
 
-export type ASTObject = Content | Variable | Input | Essay | Check | Radio | Drag | Drop;
+export type ASTObject = Content | Variable | Input | Essay | Check | Radio | Drag | Drop | Image;
 
 export interface Check {
     type: 'CHECK';
@@ -48,4 +48,10 @@ export interface Variable {
     type: 'VARIABLE';
     varName: string;
     value: number;
+}
+
+export interface Image {
+    type: 'IMAGE';
+    varName: string;
+    src: string;
 }

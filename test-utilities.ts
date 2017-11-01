@@ -63,9 +63,19 @@ const arbRadio = jsc.record({
     content: jsc.tuple([arbContent])//TODO once we support variables in here this will need to change
 });
 
+const arbImage = jsc.record({
+    type: jsc.constant('IMAGE'),
+    varName: jsc.pair(jsc.constant('img'), jsc.nat).smap((x: any) => { //TODO Figure out the correct way to use smap. I need to make the second function the inverse of the first
+        return `${x[0]}${x[1]}`; //the variable will never have a ] in it because of the Regex...make sure to replace it with something or you could get an empty string
+    }, (x: any) => {
+        return x;
+    }),
+    src: jsc.nestring
+});
+
 export const arbAST = jsc.record({
     type: jsc.constant('AST'),
-    ast: jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbCheck, arbRadio]))
+    ast: jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbCheck, arbRadio, arbImage]))
 });
 
 // combine any content elements that are adjacent. Look at the previous astObject, if it is of type CONTENT and the current element is of type CONTENT, then remove the previous one and put yourself in, combinging your values
@@ -139,6 +149,13 @@ export function verifyHTML(ast: AST, htmlString: string) {
 
             if (result.indexOf(radioString) === 0) {
                 return result.replace(radioString, '');
+            }
+        }
+
+        if (astObject.type === 'IMAGE') {
+            const imageString = `<img id="${astObject.varName}" src="${astObject.src}">`;
+            if (result.indexOf(imageString) === 0) {
+                return result.replace(imageString, '');
             }
         }
 
