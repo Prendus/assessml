@@ -110,15 +110,22 @@ export function parse(source: string, generateVarValue: (varName: string) => num
     }, generateVarValue, generateImageSrc, 0, 0, 0, 0, 0, 0);
 }
 
-//TODO make sure that the nested variables are found
 export function getAstObjects(ast: AST, type: 'VARIABLE' | 'INPUT' | 'ESSAY' | 'CONTENT' | 'CHECK' | 'RADIO' | 'DRAG' | 'DROP' | 'IMAGE'): ASTObject[] {
-    // const nestedAstObjects: (Check | Radio | Drag | Drop)[] = <(Check | Radio | Drag | Drop)[]> ast.ast.filter((astObject: Variable | Input | Essay | Content | Check | Radio | Drag | Drop) => {
-    //     return astObject.type === 'CHECK' || astObject.type === 'RADIO' || astObject.type === 'DRAG' || astObject.type === 'DROP';
-    // });
-
-    return ast.ast.filter((astObject) => {
+    const topLevelAstObjects = ast.ast.filter((astObject: ASTObject) => {
         return astObject.type === type;
     });
+
+    const nestedAstObjects = ast.ast.reduce((result: ASTObject[], astObject: ASTObject) => {
+        if (astObject.type === 'CHECK' || astObject.type === 'RADIO') {
+            return [...result, ...astObject.content.filter((astObject: Variable | Content) => {
+                return astObject.type === type;
+            })];
+        }
+
+        return result;
+    }, []);
+
+    return [...topLevelAstObjects, ...nestedAstObjects];
 }
 
 function buildAST(source: string, ast: AST, generateVarValue: (varName: string) => number | string, generateImageSrc: (varName: string) => string, numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AST {
