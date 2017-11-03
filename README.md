@@ -272,6 +272,7 @@ answer = (
 <Radio> := [*]<ArbitraryVariableOrContent>[*]
 <Drag> := [drag]<ArbitraryVariableOrContent>[drag]
 <Drop> := [drop]<ArbitraryVariableOrContent>[drop]
+<Image> := [img<Content>]
 <ArbitraryVariableOrContent> := <ArbitraryVariableOrContent><Variable><ArbitraryVariableOrContent> | <ArbitraryVariableOrContent><Content><ArbitraryVariableOrContent> | <Empty>
 <Empty> := '' (the empty string)
 ```
@@ -361,5 +362,15 @@ interface Drop {
   type: 'DROP';
   varName: string;
   content: (Variable | Content)[];
+}
+```
+
+#### Image
+
+```typescript
+interface Image {
+  type: 'IMAGE';
+  varName: string;
+  src: string;
 }
 ```
