@@ -363,3 +363,13 @@ interface Drop {
   content: (Variable | Content)[];
 }
 ```
+
+#### Image
+
+```typescript
+interface Image {
+  type: 'IMAGE';
+  varName: string;
+  src: string;
+}
+```
