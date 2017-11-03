@@ -272,6 +272,7 @@ answer = (
 <Radio> := [*]<ArbitraryVariableOrContent>[*]
 <Drag> := [drag]<ArbitraryVariableOrContent>[drag]
 <Drop> := [drop]<ArbitraryVariableOrContent>[drop]
+<Image> := [img<Content>]
 <ArbitraryVariableOrContent> := <ArbitraryVariableOrContent><Variable><ArbitraryVariableOrContent> | <ArbitraryVariableOrContent><Content><ArbitraryVariableOrContent> | <Empty>
 <Empty> := '' (the empty string)
 ```
