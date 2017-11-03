@@ -1,4 +1,4 @@
-import {AST, ASTObject, Variable} from './assessml.d';
+import {AST, ASTObject, Variable, Content} from './assessml.d';
 import {compileToHTML} from './assessml';
 import {generateVarValue} from './utilities';
 
@@ -49,7 +49,7 @@ const arbCheck = jsc.record({
             return `check${numChecks++}`;
         }
     }),
-    content: jsc.tuple([arbContent]) //TODO once we support variables in here this will need to change
+    content: jsc.array(jsc.oneof([arbContent, arbVariable]))
 });
 
 let numRadios = 1;
@@ -60,7 +60,7 @@ const arbRadio = jsc.record({
             return `radio${numRadios++}`;
         }
     }),
-    content: jsc.tuple([arbContent])//TODO once we support variables in here this will need to change
+    content: jsc.array(jsc.oneof([arbContent, arbVariable]))
 });
 
 const arbImage = jsc.record({
@@ -82,20 +82,43 @@ export const arbAST = jsc.record({
 export function flattenContentObjects(ast: AST) {
     return {
         ...ast,
-        ast: ast.ast.reduce((result, astObject: ASTObject, index: number) => {
+        ast: ast.ast.reduce((result: ASTObject[], astObject: ASTObject, index: number) => {
             if (astObject.type === 'CONTENT') {
-                const previousAstObject = ast.ast[index - 1];
-                if (previousAstObject && previousAstObject.type === 'CONTENT') {
-                    return [...result.slice(0, -1), {
-                        ...astObject,
-                        content: `${previousAstObject.content}${astObject.content}`
-                    }];
-                }
+                return flattenContent(ast, astObject, result, index);
+            }
+
+            if (astObject.type === 'RADIO' || astObject.type === 'CHECK') {
+                return [...result, {
+                    ...astObject,
+                    content: astObject.content.reduce((result: (Content | Variable)[], contentOrVariableAstObject: Content | Variable, index: number) => {
+                        if (contentOrVariableAstObject.type === 'CONTENT') {
+                            return flattenContent({
+                                type: 'AST',
+                                ast: astObject.content
+                            }, contentOrVariableAstObject, result, index);
+                        }
+
+                        return [...result, contentOrVariableAstObject];
+                    }, [])
+                }];
             }
 
             return [...result, astObject];
         }, [])
     };
+}
+
+function flattenContent(ast: AST, contentAstObject: Content, result: ASTObject[], index: number) {
+    const previousAstObject = ast.ast[index - 1];
+    if (previousAstObject && previousAstObject.type === 'CONTENT') {
+        return [...result.slice(0, -1), {
+            ...contentAstObject,
+            content: `${previousAstObject.content}${contentAstObject.content}`
+        }];
+    }
+    else {
+        return [...result, contentAstObject];
+    }
 }
 
 // Go through the htmlString and match based on the current astObject. If there is a match, remove it from the string and keep going. You should end up with an empty string at the end

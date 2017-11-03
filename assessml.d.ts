@@ -1,6 +1,6 @@
 export interface AST {
     type: 'AST';
-    ast: (Content | Variable | Input | Essay | Check | Radio | Drag | Drop | Image)[];
+    ast: ASTObject[];
 }
 
 export type ASTObject = Content | Variable | Input | Essay | Check | Radio | Drag | Drop | Image;
@@ -47,7 +47,7 @@ export interface Radio {
 export interface Variable {
     type: 'VARIABLE';
     varName: string;
-    value: number;
+    value: number | string;
 }
 
 export interface Image {

@@ -1,6 +1,6 @@
 import {AST, ASTObject, Variable, Input, Essay, Content, Check, Radio, Drag, Drop, Image} from './assessml.d';
 
-export function compileToHTML(source: AST | string, generateVarValue: (varName: string) => number, generateImageSrc: (varName: string) => string): string {
+export function compileToHTML(source: AST | string, generateVarValue: (varName: string) => number | string, generateImageSrc: (varName: string) => string): string {
     const ast: AST = typeof source === 'string' ? parse(source, generateVarValue, generateImageSrc) : source;
     const radioGroupName: string = createUUID();
 
@@ -52,7 +52,7 @@ export function compileToHTML(source: AST | string, generateVarValue: (varName: 
     }, '');
 }
 
-export function compileToAssessML(source: AST | string, generateVarValue: (varName: string) => number, generateImageSrc: (varName: string) => string): string {
+export function compileToAssessML(source: AST | string, generateVarValue: (varName: string) => number | string, generateImageSrc: (varName: string) => string): string {
     const ast: AST = typeof source === 'string' ? parse(source, generateVarValue, generateImageSrc) : source;
 
     return ast.ast.reduce((result: string, astObject: ASTObject) => {
@@ -103,7 +103,7 @@ export function compileToAssessML(source: AST | string, generateVarValue: (varNa
     }, '');
 }
 
-export function parse(source: string, generateVarValue: (varName: string) => number, generateImageSrc: (varName: string) => string) {
+export function parse(source: string, generateVarValue: (varName: string) => number | string, generateImageSrc: (varName: string) => string) {
     return buildAST(source, {
         type: 'AST',
         ast: []
@@ -121,7 +121,7 @@ export function getAstObjects(ast: AST, type: 'VARIABLE' | 'INPUT' | 'ESSAY' | '
     });
 }
 
-function buildAST(source: string, ast: AST, generateVarValue: (varName: string) => number, generateImageSrc: (varName: string) => string, numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AST {
+function buildAST(source: string, ast: AST, generateVarValue: (varName: string) => number | string, generateImageSrc: (varName: string) => string, numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number): AST {
     const variableRegex: RegExp = /\[var((.|\n|\r)+?)\]/;
     const inputRegex: RegExp = /\[input\]/;
     const essayRegex: RegExp = /\[essay\]/;
@@ -138,7 +138,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         const varName = matchedContent.replace('[', '').replace(']', '');
         const existingVarValue = getVariableValue(ast, varName);
         const generatedVarValue = generateVarValue(varName);
-        const newVarValue = isNaN(existingVarValue) ? generatedVarValue : existingVarValue;
+        const newVarValue = existingVarValue === null ? generatedVarValue : existingVarValue;
         const variable: Variable = {
             type: 'VARIABLE',
             varName,
@@ -302,9 +302,9 @@ function createUUID(): string {
 	return uuid;
 }
 
-function getVariableValue(ast: AST, varName: string): number {
+function getVariableValue(ast: AST, varName: string): number | string | null {
     const variables: Variable[] = <Variable[]> ast.ast.filter((astObject: ASTObject) => astObject.type === 'VARIABLE' && astObject.varName === varName);
-    return variables.length > 0 ? variables[0].value : NaN;
+    return variables.length > 0 ? variables[0].value : null;
 }
 
 export function getImageSrc(ast: AST, varName: string): string {
