@@ -17,7 +17,7 @@ const arbVariable = jsc.record({
     }, (x: any) => {
         return x;
     }),
-    value: jsc.number
+    value: jsc.oneof([jsc.number, jsc.string])
 });
 
 let numInputs = 1;
@@ -122,8 +122,7 @@ function flattenContent(ast: AST, contentAstObject: Content, result: ASTObject[]
 
 // Go through the htmlString and match based on the current astObject. If there is a match, remove it from the string and keep going. You should end up with an empty string at the end
 export function verifyHTML(ast: AST, htmlString: string) {
-    return '' === ast.ast.reduce((result: string, astObject) => {
-
+    const result = ast.ast.reduce((result: string, astObject) => {
         if (astObject.type === 'CONTENT') {
             if (result.indexOf(astObject.content) === 0) {
                 return result.replace(astObject.content, '');
@@ -131,8 +130,9 @@ export function verifyHTML(ast: AST, htmlString: string) {
         }
 
         if (astObject.type === 'VARIABLE') {
-            if (result.indexOf(astObject.value.toString()) === 0) {
-                return result.replace(astObject.value.toString(), '');
+            const variableString = `<span>${astObject.value}</span>`;
+            if (result.indexOf(variableString) === 0) {
+                return result.replace(variableString, '');
             }
         }
 
@@ -175,7 +175,7 @@ export function verifyHTML(ast: AST, htmlString: string) {
         }
 
         if (astObject.type === 'IMAGE') {
-            const imageString = `<img id="${astObject.varName}" src="${astObject.src}">`;
+            const imageString = `<img src="${astObject.src}">`;
             if (result.indexOf(imageString) === 0) {
                 return result.replace(imageString, '');
             }
@@ -183,6 +183,8 @@ export function verifyHTML(ast: AST, htmlString: string) {
 
         return result;
     }, htmlString);
+
+    return result === '';
 }
 
 export function resetNums() {

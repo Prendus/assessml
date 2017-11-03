@@ -11,7 +11,7 @@ export function compileToHTML(source: AST | string, generateVarValue: (varName: 
         }
 
         if (astObject.type === 'VARIABLE') {
-            return `${result}${astObject.value}`;
+            return `${result}<span>${astObject.value}</span>`;
         }
 
         if (astObject.type === 'INPUT') {
@@ -45,7 +45,7 @@ export function compileToHTML(source: AST | string, generateVarValue: (varName: 
         }
 
         if (astObject.type === 'IMAGE') {
-            return `${result}<img id="${astObject.varName}" src="${astObject.src}">`;
+            return `${result}<img src="${astObject.src}">`;
         }
 
         return result;
@@ -302,9 +302,10 @@ export function createUUID(): string {
 	return uuid;
 }
 
-export function getImageSrc(ast: AST, varName: string): string {
+//TODO we'll have to modify this just like getVariableValue for nested images
+export function getImageSrc(ast: AST, varName: string): string | null {
     const images: Image[] = <Image[]> ast.ast.filter((astObject: ASTObject) => astObject.type === 'IMAGE' && astObject.varName === varName);
-    return images.length > 0 ? images[0].src : '';
+    return images.length > 0 ? images[0].src : null;
 }
 
 export function normalizeVariables(ast: AST): AST {
@@ -312,9 +313,10 @@ export function normalizeVariables(ast: AST): AST {
         ...ast,
         ast: ast.ast.map((astObject: ASTObject, index: number) => {
             if (astObject.type === 'VARIABLE') {
+                const variableValue = getVariableValue(ast, astObject.varName);
                 return {
                     ...astObject,
-                    value: getVariableValue(ast, astObject.varName) || astObject.value
+                    value: variableValue === null ? astObject.value : variableValue
                 };
             }
 
@@ -323,9 +325,10 @@ export function normalizeVariables(ast: AST): AST {
                     ...astObject,
                     content: astObject.content.map((variableOrContentAstObject: Variable | Content, index: number) => {
                         if (variableOrContentAstObject.type === 'VARIABLE') {
+                            const variableValue = getVariableValue(ast, variableOrContentAstObject.varName);
                             return {
                                 ...variableOrContentAstObject,
-                                value: getVariableValue(ast, variableOrContentAstObject.varName) || variableOrContentAstObject.value
+                                value: variableValue === null ? variableOrContentAstObject.value : variableValue
                             };
                         }
                         else {
@@ -334,6 +337,42 @@ export function normalizeVariables(ast: AST): AST {
                     })
                 };
             }
+
+            return astObject;
+        })
+    };
+}
+
+export function normalizeImages(ast: AST): AST {
+    return {
+        ...ast,
+        ast: ast.ast.map((astObject: ASTObject, index: number) => {
+            if (astObject.type === 'IMAGE') {
+                const imageSrc = getImageSrc(ast, astObject.varName);
+                return {
+                    ...astObject,
+                    src: imageSrc === null ? astObject.src : imageSrc
+                };
+            }
+
+            //TODO we'll need this if Radios and Checks can have images in them, and for the source tag
+            // if (astObject.type === 'RADIO' || astObject.type === 'CHECK') {
+            //     return {
+            //         ...astObject,
+            //         content: astObject.content.map((variableOrContentAstObject: Variable | Content, index: number) => {
+            //             if (variableOrContentAstObject.type === 'VARIABLE') {
+            //                 const variableValue = getVariableValue(ast, variableOrContentAstObject.varName);
+            //                 return {
+            //                     ...variableOrContentAstObject,
+            //                     value: variableValue === null ? variableOrContentAstObject.value : variableValue
+            //                 };
+            //             }
+            //             else {
+            //                 return variableOrContentAstObject;
+            //             }
+            //         })
+            //     };
+            // }
 
             return astObject;
         })
