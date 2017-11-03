@@ -125,10 +125,10 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
     const variableRegex: RegExp = /\[var((.|\n|\r)+?)\]/;
     const inputRegex: RegExp = /\[input\]/;
     const essayRegex: RegExp = /\[essay\]/;
-    const checkRegex: RegExp = /\[x\]((.|\n|\r)+?)\[x\]/;
-    const radioRegex: RegExp = /\[\*\]((.|\n|\r)+?)\[\*\]/;
-    const dragRegex: RegExp = /\[drag\]((.|\n|\r)+?)\[drag\]/;
-    const dropRegex: RegExp = /\[drop\]((.|\n|\r)+?)\[drop\]/;
+    const checkRegex: RegExp = /\[x\]((.|\n|\r)*?)\[x\]/;
+    const radioRegex: RegExp = /\[\*\]((.|\n|\r)*?)\[\*\]/;
+    const dragRegex: RegExp = /\[drag\]((.|\n|\r)*?)\[drag\]/;
+    const dropRegex: RegExp = /\[drop\]((.|\n|\r)*?)\[drop\]/;
     const imageRegex: RegExp = /\[img((.|\n|\r)+?)\]/;
     const contentRegex: RegExp = new RegExp(`((.|\n|\r)+?)((${variableRegex.source}|${inputRegex.source}|${essayRegex.source}|${checkRegex.source}|${radioRegex.source}|${dragRegex.source}|${dropRegex.source}|${imageRegex.source})|$)`);
 
@@ -288,7 +288,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
     return ast;
 }
 
-function createUUID(): string {
+export function createUUID(): string {
     //From persistence.js; Copyright (c) 2010 Zef Hemel <zef@zef.me> * * Permission is hereby granted, free of charge, to any person * obtaining a copy of this software and associated documentation * files (the "Software"), to deal in the Software without * restriction, including without limitation the rights to use, * copy, modify, merge, publish, distribute, sublicense, and/or sell * copies of the Software, and to permit persons to whom the * Software is furnished to do so, subject to the following * conditions: * * The above copyright notice and this permission notice shall be * included in all copies or substantial portions of the Software. * * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR * OTHER DEALINGS IN THE SOFTWARE.
 	var s: any[] = [];
 	var hexDigits = "0123456789ABCDEF";
@@ -302,12 +302,69 @@ function createUUID(): string {
 	return uuid;
 }
 
-function getVariableValue(ast: AST, varName: string): number | string | null {
-    const variables: Variable[] = <Variable[]> ast.ast.filter((astObject: ASTObject) => astObject.type === 'VARIABLE' && astObject.varName === varName);
-    return variables.length > 0 ? variables[0].value : null;
-}
-
 export function getImageSrc(ast: AST, varName: string): string {
     const images: Image[] = <Image[]> ast.ast.filter((astObject: ASTObject) => astObject.type === 'IMAGE' && astObject.varName === varName);
     return images.length > 0 ? images[0].src : '';
+}
+
+export function normalizeVariables(ast: AST): AST {
+    return {
+        ...ast,
+        ast: ast.ast.map((astObject: ASTObject, index: number) => {
+            if (astObject.type === 'VARIABLE') {
+                return {
+                    ...astObject,
+                    value: getVariableValue(ast, astObject.varName) || astObject.value
+                };
+            }
+
+            if (astObject.type === 'RADIO' || astObject.type === 'CHECK') {
+                return {
+                    ...astObject,
+                    content: astObject.content.map((variableOrContentAstObject: Variable | Content, index: number) => {
+                        if (variableOrContentAstObject.type === 'VARIABLE') {
+                            return {
+                                ...variableOrContentAstObject,
+                                value: getVariableValue(ast, variableOrContentAstObject.varName) || variableOrContentAstObject.value
+                            };
+                        }
+                        else {
+                            return variableOrContentAstObject;
+                        }
+                    })
+                };
+            }
+
+            return astObject;
+        })
+    };
+}
+
+export function generateVarValue(ast: AST, varName: string): number | string {
+    const existingVarValue = getVariableValue(ast, varName);
+    return existingVarValue === null ? generateRandomInteger(0, 100) : existingVarValue;
+}
+
+function getVariableValue(ast: AST, varName: string): number | string | null {
+    const variables: Variable[] = <Variable[]> ast.ast.reduce((result: Variable[], astObject: ASTObject) => {
+        if (astObject.type === 'VARIABLE' && astObject.varName === varName) {
+            return [...result, astObject];
+        }
+
+        if (astObject.type === 'RADIO' || astObject.type === 'CHECK') {
+            const variables: Variable[] = <Variable[]> astObject.content.filter((astObject: Variable | Content) => astObject.type === 'VARIABLE' && astObject.varName === varName);
+            if (variables.length > 0) {
+                return [...result, variables[0]];
+            }
+        }
+
+        return result;
+    }, []);
+
+    return variables.length > 0 ? variables[0].value : null;
+}
+
+function generateRandomInteger(min: number, max: number): number {
+    //returns a random integer between min (included) and max (included)
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }

@@ -1,6 +1,5 @@
 import {AST, ASTObject, Variable, Content} from './assessml.d';
-import {compileToHTML} from './assessml';
-import {generateVarValue} from './utilities';
+import {compileToHTML, generateVarValue} from './assessml';
 
 const jsc = require('jsverify');
 
@@ -155,7 +154,7 @@ export function verifyHTML(ast: AST, htmlString: string) {
             const checkString = `<input id="${astObject.varName}" type="checkbox" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
                 type: 'AST',
                 ast: astObject.content
-            }, (varName: string) => generateVarValue(ast, varName))}`
+            }, (varName: string) => generateVarValue(ast, varName), (varName: string) => '')}`
 
             if (result.indexOf(checkString) === 0) {
                 return result.replace(checkString, '');
@@ -168,7 +167,7 @@ export function verifyHTML(ast: AST, htmlString: string) {
             const radioString = `<input id="${astObject.varName}" type="radio" name="${radioGroupName}" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
                 type: 'AST',
                 ast: astObject.content
-            }, (varName: string) => generateVarValue(ast, varName))}`;
+            }, (varName: string) => generateVarValue(ast, varName), (varName: string) => '')}`;
 
             if (result.indexOf(radioString) === 0) {
                 return result.replace(radioString, '');
