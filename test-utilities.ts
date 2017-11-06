@@ -1,4 +1,4 @@
-import {AST, ASTObject, Variable, Content} from './assessml.d';
+import {AST, ASTObject, Variable, Content, Image} from './assessml.d';
 import {compileToHTML, generateVarValue} from './assessml';
 
 const jsc = require('jsverify');
@@ -72,9 +72,20 @@ const arbRadio = jsc.record({
     content: jsc.array(jsc.oneof([arbContent, arbVariable, arbImage]))
 });
 
+let numSolutions = 1;
+const arbSolution = jsc.record({
+    type: jsc.constant('SOLUTION'),
+    varName: jsc.bless({
+        generator: () => {
+            return `solution${numSolutions++}`;
+        }
+    }),
+    content: jsc.array(jsc.oneof([arbContent, arbVariable, arbImage]))
+});
+
 export const arbAST = jsc.record({
     type: jsc.constant('AST'),
-    ast: jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbCheck, arbRadio, arbImage]))
+    ast: jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbCheck, arbRadio, arbImage, arbSolution]))
 });
 
 // combine any content elements that are adjacent. Look at the previous astObject, if it is of type CONTENT and the current element is of type CONTENT, then remove the previous one and put yourself in, combinging your values
@@ -86,18 +97,18 @@ export function flattenContentObjects(ast: AST) {
                 return flattenContent(ast, astObject, result, index);
             }
 
-            if (astObject.type === 'RADIO' || astObject.type === 'CHECK') {
+            if (astObject.type === 'RADIO' || astObject.type === 'CHECK' || astObject.type === 'SOLUTION') {
                 return [...result, {
                     ...astObject,
-                    content: astObject.content.reduce((result: (Content | Variable)[], contentOrVariableAstObject: Content | Variable, index: number) => {
-                        if (contentOrVariableAstObject.type === 'CONTENT') {
+                    content: astObject.content.reduce((result: (Content | Variable | Image)[], contentOrVariableOrImageAstObject: Content | Variable | Image, index: number) => {
+                        if (contentOrVariableOrImageAstObject.type === 'CONTENT') {
                             return flattenContent({
                                 type: 'AST',
                                 ast: astObject.content
-                            }, contentOrVariableAstObject, result, index);
+                            }, contentOrVariableOrImageAstObject, result, index);
                         }
 
-                        return [...result, contentOrVariableAstObject];
+                        return [...result, contentOrVariableOrImageAstObject];
                     }, [])
                 }];
             }
@@ -181,6 +192,17 @@ export function verifyHTML(ast: AST, htmlString: string) {
             }
         }
 
+        if (astObject.type === 'SOLUTION') {
+            const solutionString = `<template id="${astObject.varName}">${compileToHTML({
+                type: 'AST',
+                ast: astObject.content
+            }, (varName: string) => generateVarValue(ast, varName), (varName: string) => '')}</template>`
+
+            if (result.indexOf(solutionString) === 0) {
+                return result.replace(solutionString, '');
+            }
+        }
+
         return result;
     }, htmlString);
 
@@ -192,4 +214,5 @@ export function resetNums() {
     numEssays = 1;
     numChecks = 1;
     numRadios = 1;
+    numSolutions = 1;
 }
