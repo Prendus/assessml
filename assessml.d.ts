@@ -8,7 +8,7 @@ export type ASTObject = Content | Variable | Input | Essay | Check | Radio | Dra
 export interface Check {
     type: 'CHECK';
     varName: string;
-    content: (Variable | Content)[];
+    content: (Variable | Content | Image)[];
 }
 
 export interface Content {
@@ -19,13 +19,13 @@ export interface Content {
 export interface Drag {
     type: 'DRAG';
     varName: string;
-    content: (Variable | Content)[];
+    content: (Variable | Content | Image)[];
 }
 
 export interface Drop {
     type: 'DROP';
     varName: string;
-    content: (Variable | Content)[];
+    content: (Variable | Content | Image)[];
 }
 
 export interface Essay {
@@ -41,7 +41,7 @@ export interface Input {
 export interface Radio {
     type: 'RADIO';
     varName: string;
-    content: (Variable | Content)[];
+    content: (Variable | Content | Image)[];
 }
 
 export interface Variable {

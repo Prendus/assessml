@@ -40,6 +40,16 @@ const arbEssay = jsc.record({
     })
 });
 
+const arbImage = jsc.record({
+    type: jsc.constant('IMAGE'),
+    varName: jsc.pair(jsc.constant('img'), jsc.nat).smap((x: any) => { //TODO Figure out the correct way to use smap. I need to make the second function the inverse of the first
+        return `${x[0]}${x[1]}`; //the variable will never have a ] in it because of the Regex...make sure to replace it with something or you could get an empty string
+    }, (x: any) => {
+        return x;
+    }),
+    src: jsc.nestring
+});
+
 let numChecks = 1;
 const arbCheck = jsc.record({
     type: jsc.constant('CHECK'),
@@ -48,7 +58,7 @@ const arbCheck = jsc.record({
             return `check${numChecks++}`;
         }
     }),
-    content: jsc.array(jsc.oneof([arbContent, arbVariable]))
+    content: jsc.array(jsc.oneof([arbContent, arbVariable, arbImage]))
 });
 
 let numRadios = 1;
@@ -59,17 +69,7 @@ const arbRadio = jsc.record({
             return `radio${numRadios++}`;
         }
     }),
-    content: jsc.array(jsc.oneof([arbContent, arbVariable]))
-});
-
-const arbImage = jsc.record({
-    type: jsc.constant('IMAGE'),
-    varName: jsc.pair(jsc.constant('img'), jsc.nat).smap((x: any) => { //TODO Figure out the correct way to use smap. I need to make the second function the inverse of the first
-        return `${x[0]}${x[1]}`; //the variable will never have a ] in it because of the Regex...make sure to replace it with something or you could get an empty string
-    }, (x: any) => {
-        return x;
-    }),
-    src: jsc.nestring
+    content: jsc.array(jsc.oneof([arbContent, arbVariable, arbImage]))
 });
 
 export const arbAST = jsc.record({

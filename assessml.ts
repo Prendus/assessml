@@ -193,7 +193,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         const check: Check = {
             type: 'CHECK',
             varName: `check${numChecks + 1}`,
-            content: <(Content | Variable)[]> buildAST(insideContent, {
+            content: <(Content | Variable | Image)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
             }, generateVarValue, generateImageSrc, 0, 0, 0, 0, 0, 0).ast
@@ -212,7 +212,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         const radio: Radio = {
             type: 'RADIO',
             varName: `radio${numRadios + 1}`,
-            content: <(Content | Variable)[]> buildAST(insideContent, {
+            content: <(Content | Variable | Image)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
             }, generateVarValue, generateImageSrc, 0, 0, 0, 0, 0, 0).ast
@@ -231,7 +231,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         const drag: Drag = {
             type: 'DRAG',
             varName: `drag${numDrags + 1}`,
-            content: <(Content | Variable)[]> buildAST(insideContent, {
+            content: <(Content | Variable | Image)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
             }, generateVarValue, generateImageSrc, 0, 0, 0, 0, 0, 0).ast
@@ -250,7 +250,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         const drop: Drop = {
             type: 'DROP',
             varName: `drop${numDrops + 1}`,
-            content: <(Content | Variable)[]> buildAST(insideContent, {
+            content: <(Content | Variable | Image)[]> buildAST(insideContent, {
                 type: 'AST',
                 ast: []
             }, generateVarValue, generateImageSrc, 0, 0, 0, 0, 0, 0).ast
@@ -309,12 +309,6 @@ export function createUUID(): string {
 	return uuid;
 }
 
-//TODO we'll have to modify this just like getVariableValue for nested images
-export function getImageSrc(ast: AST, varName: string): string | null {
-    const images: Image[] = <Image[]> ast.ast.filter((astObject: ASTObject) => astObject.type === 'IMAGE' && astObject.varName === varName);
-    return images.length > 0 ? images[0].src : null;
-}
-
 export function normalizeVariables(ast: AST): AST {
     return {
         ...ast,
@@ -330,16 +324,16 @@ export function normalizeVariables(ast: AST): AST {
             if (astObject.type === 'RADIO' || astObject.type === 'CHECK') {
                 return {
                     ...astObject,
-                    content: astObject.content.map((variableOrContentAstObject: Variable | Content, index: number) => {
-                        if (variableOrContentAstObject.type === 'VARIABLE') {
-                            const variableValue = getVariableValue(ast, variableOrContentAstObject.varName);
+                    content: astObject.content.map((variableOrContentOrImageAstObject: Variable | Content | Image, index: number) => {
+                        if (variableOrContentOrImageAstObject.type === 'VARIABLE') {
+                            const variableValue = getVariableValue(ast, variableOrContentOrImageAstObject.varName);
                             return {
-                                ...variableOrContentAstObject,
-                                value: variableValue === null ? variableOrContentAstObject.value : variableValue
+                                ...variableOrContentOrImageAstObject,
+                                value: variableValue === null ? variableOrContentOrImageAstObject.value : variableValue
                             };
                         }
                         else {
-                            return variableOrContentAstObject;
+                            return variableOrContentOrImageAstObject;
                         }
                     })
                 };
@@ -350,6 +344,7 @@ export function normalizeVariables(ast: AST): AST {
     };
 }
 
+//TODO we might only need this function for testing purposes...look into its use in prendus-question-elements
 export function normalizeImages(ast: AST): AST {
     return {
         ...ast,
@@ -362,24 +357,23 @@ export function normalizeImages(ast: AST): AST {
                 };
             }
 
-            //TODO we'll need this if Radios and Checks can have images in them, and for the source tag
-            // if (astObject.type === 'RADIO' || astObject.type === 'CHECK') {
-            //     return {
-            //         ...astObject,
-            //         content: astObject.content.map((variableOrContentAstObject: Variable | Content, index: number) => {
-            //             if (variableOrContentAstObject.type === 'VARIABLE') {
-            //                 const variableValue = getVariableValue(ast, variableOrContentAstObject.varName);
-            //                 return {
-            //                     ...variableOrContentAstObject,
-            //                     value: variableValue === null ? variableOrContentAstObject.value : variableValue
-            //                 };
-            //             }
-            //             else {
-            //                 return variableOrContentAstObject;
-            //             }
-            //         })
-            //     };
-            // }
+            if (astObject.type === 'RADIO' || astObject.type === 'CHECK') {
+                return {
+                    ...astObject,
+                    content: astObject.content.map((variableOrContentOrImageAstObject: Variable | Content | Image, index: number) => {
+                        if (variableOrContentOrImageAstObject.type === 'IMAGE') {
+                            const imageSrc = getImageSrc(ast, variableOrContentOrImageAstObject.varName);
+                            return {
+                                ...variableOrContentOrImageAstObject,
+                                src: imageSrc === null ? variableOrContentOrImageAstObject.src : imageSrc
+                            };
+                        }
+                        else {
+                            return variableOrContentOrImageAstObject;
+                        }
+                    })
+                };
+            }
 
             return astObject;
         })
@@ -391,6 +385,7 @@ export function generateVarValue(ast: AST, varName: string): number | string {
     return existingVarValue === null ? generateRandomInteger(0, 100) : existingVarValue;
 }
 
+//TODO this function is very similar to getImageSrc
 function getVariableValue(ast: AST, varName: string): number | string | null {
     const variables: Variable[] = <Variable[]> ast.ast.reduce((result: Variable[], astObject: ASTObject) => {
         if (astObject.type === 'VARIABLE' && astObject.varName === varName) {
@@ -408,6 +403,26 @@ function getVariableValue(ast: AST, varName: string): number | string | null {
     }, []);
 
     return variables.length > 0 ? variables[0].value : null;
+}
+
+//TODO this function is very similar to getVariableValue
+export function getImageSrc(ast: AST, varName: string): string | null {
+    const images: Image[] = <Image[]> ast.ast.reduce((result: Image[], astObject: ASTObject) => {
+        if (astObject.type === 'IMAGE' && astObject.varName === varName) {
+            return [...result, astObject];
+        }
+
+        if (astObject.type === 'RADIO' || astObject.type === 'CHECK') {
+            const images: Image[] = <Image[]> astObject.content.filter((astObject: Variable | Content | Image) => astObject.type === 'IMAGE' && astObject.varName === varName);
+            if (images.length > 0) {
+                return [...result, images[0]];
+            }
+        }
+
+        return result;
+    }, []);
+
+    return images.length > 0 ? images[0].src : null;
 }
 
 function generateRandomInteger(min: number, max: number): number {
