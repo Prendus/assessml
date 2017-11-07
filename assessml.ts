@@ -11,7 +11,7 @@ export function compileToHTML(source: AST | string, generateVarValue: (varName: 
         }
 
         if (astObject.type === 'VARIABLE') {
-            return `${result}<span>${astObject.value}</span>`;
+            return `${result}${astObject.value}`;
         }
 
         if (astObject.type === 'INPUT') {

@@ -141,7 +141,7 @@ export function verifyHTML(ast: AST, htmlString: string) {
         }
 
         if (astObject.type === 'VARIABLE') {
-            const variableString = `<span>${astObject.value}</span>`;
+            const variableString = `${astObject.value}`;
             if (result.indexOf(variableString) === 0) {
                 return result.replace(variableString, '');
             }
