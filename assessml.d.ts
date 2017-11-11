@@ -3,7 +3,7 @@ export interface AST {
     ast: ASTObject[];
 }
 
-export type ASTObject = Content | Variable | Input | Essay | Check | Radio | Drag | Drop | Image | Solution;
+export type ASTObject = Content | Variable | Input | Essay | Check | Radio | Drag | Drop | Image | Solution | Code;
 
 export interface Check {
     type: 'CHECK';
@@ -30,6 +30,11 @@ export interface Drop {
 
 export interface Essay {
     type: 'ESSAY';
+    varName: string;
+}
+
+export interface Code {
+    type: 'CODE';
     varName: string;
 }
 
