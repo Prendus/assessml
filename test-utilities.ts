@@ -40,6 +40,16 @@ const arbEssay = jsc.record({
     })
 });
 
+let numCodes = 1;
+const arbCode = jsc.record({
+    type: jsc.constant('CODE'),
+    varName: jsc.bless({
+        generator: () => {
+            return `code${numCodes++}`;
+        }
+    })
+});
+
 const arbImage = jsc.record({
     type: jsc.constant('IMAGE'),
     varName: jsc.pair(jsc.constant('img'), jsc.nat).smap((x: any) => { //TODO Figure out the correct way to use smap. I need to make the second function the inverse of the first
@@ -85,7 +95,7 @@ const arbSolution = jsc.record({
 
 export const arbAST = jsc.record({
     type: jsc.constant('AST'),
-    ast: jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbCheck, arbRadio, arbImage, arbSolution]))
+    ast: jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbCheck, arbRadio, arbImage, arbSolution, arbCode]))
 });
 
 // combine any content elements that are adjacent. Look at the previous astObject, if it is of type CONTENT and the current element is of type CONTENT, then remove the previous one and put yourself in, combinging your values
@@ -161,6 +171,13 @@ export function verifyHTML(ast: AST, htmlString: string) {
             }
         }
 
+        if (astObject.type === 'CODE') {
+            const codeString = `<juicy-ace-editor id="${astObject.varName}" theme="ace/theme/chrome" mode="ace/mode/javascript"></juicy-ace-editor>`;
+            if (result.indexOf(codeString) === 0) {
+                return result.replace(codeString, '');
+            }
+        }
+
         if (astObject.type === 'CHECK') {
             const checkString = `<input id="${astObject.varName}" type="checkbox" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
                 type: 'AST',
@@ -215,4 +232,5 @@ export function resetNums() {
     numChecks = 1;
     numRadios = 1;
     numSolutions = 1;
+    numCodes = 1;
 }
