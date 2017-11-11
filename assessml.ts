@@ -23,7 +23,7 @@ export function compileToHTML(source: AST | string, generateVarValue: (varName: 
         }
 
         if (astObject.type === 'CODE') {
-            return `${result}<juicy-ace-editor id="${astObject.varName}" theme="ace/theme/chrome" mode="ace/mode/javascript"></juicy-ace-editor>`;
+            return `${result}<juicy-ace-editor id="${astObject.varName}" theme="ace/theme/chrome" mode="ace/mode/javascript" style="height: 50vh" fontsize="25px"></juicy-ace-editor>`;
         }
 
         if (astObject.type === 'CHECK') {

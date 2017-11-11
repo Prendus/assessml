@@ -172,7 +172,7 @@ export function verifyHTML(ast: AST, htmlString: string) {
         }
 
         if (astObject.type === 'CODE') {
-            const codeString = `<juicy-ace-editor id="${astObject.varName}" theme="ace/theme/chrome" mode="ace/mode/javascript"></juicy-ace-editor>`;
+            const codeString = `<juicy-ace-editor id="${astObject.varName}" theme="ace/theme/chrome" mode="ace/mode/javascript" style="height: 50vh" fontsize="25px"></juicy-ace-editor>`;
             if (result.indexOf(codeString) === 0) {
                 return result.replace(codeString, '');
             }
