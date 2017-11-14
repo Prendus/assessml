@@ -60,6 +60,16 @@ const arbImage = jsc.record({
     src: jsc.nestring
 });
 
+const arbGraph = jsc.record({
+    type: jsc.constant('GRAPH'),
+    varName: jsc.pair(jsc.constant('graph'), jsc.nat).smap((x: any) => { //TODO Figure out the correct way to use smap. I need to make the second function the inverse of the first
+        return `${x[0]}${x[1]}`; //the variable will never have a ] in it because of the Regex...make sure to replace it with something or you could get an empty string
+    }, (x: any) => {
+        return x;
+    }),
+    equations: jsc.array(jsc.nestring) //TODO make arbitrary equation strings
+});
+
 let numChecks = 1;
 const arbCheck = jsc.record({
     type: jsc.constant('CHECK'),
@@ -95,7 +105,7 @@ const arbSolution = jsc.record({
 
 export const arbAST = jsc.record({
     type: jsc.constant('AST'),
-    ast: jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbCheck, arbRadio, arbImage, arbSolution, arbCode]))
+    ast: jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbCheck, arbRadio, arbImage, arbSolution, arbCode, arbGraph]))
 });
 
 // combine any content elements that are adjacent. Look at the previous astObject, if it is of type CONTENT and the current element is of type CONTENT, then remove the previous one and put yourself in, combinging your values
@@ -217,6 +227,13 @@ export function verifyHTML(ast: AST, htmlString: string) {
 
             if (result.indexOf(solutionString) === 0) {
                 return result.replace(solutionString, '');
+            }
+        }
+
+        if (astObject.type === 'GRAPH') {
+            const graphString = `<function-plot data="[${astObject.equations.reduce((result, equation) => `${result}{ fn: '${equation}' }`, '')},]"></function-plot>`;
+            if (result.indexOf(graphString) === 0) {
+                return result.replace(graphString, '');
             }
         }
 
