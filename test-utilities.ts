@@ -231,7 +231,7 @@ export function verifyHTML(ast: AST, htmlString: string) {
         }
 
         if (astObject.type === 'GRAPH') {
-            const graphString = `<function-plot data='[${astObject.equations.reduce((result, equation) => `${result}{ "fn": "${equation}" },`, '')}]'></function-plot>`;
+            const graphString = `<function-plot data='[${astObject.equations.reduce((result, equation, index) => `${result}${index !== 0 ? ',' : ''}{ "fn": "${equation}" }`, '')}]'></function-plot>`;
             if (result.indexOf(graphString) === 0) {
                 return result.replace(graphString, '');
             }
