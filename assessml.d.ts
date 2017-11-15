@@ -3,12 +3,12 @@ export interface AST {
     ast: ASTObject[];
 }
 
-export type ASTObject = Content | Variable | Input | Essay | Check | Radio | Drag | Drop | Image | Solution | Code;
+export type ASTObject = Content | Variable | Input | Essay | Check | Radio | Drag | Drop | Image | Solution | Code | Graph;
 
 export interface Check {
     type: 'CHECK';
     varName: string;
-    content: (Variable | Content | Image)[];
+    content: (Variable | Content | Image | Graph)[];
 }
 
 export interface Content {
@@ -19,13 +19,13 @@ export interface Content {
 export interface Drag {
     type: 'DRAG';
     varName: string;
-    content: (Variable | Content | Image)[];
+    content: (Variable | Content | Image | Graph)[];
 }
 
 export interface Drop {
     type: 'DROP';
     varName: string;
-    content: (Variable | Content | Image)[];
+    content: (Variable | Content | Image | Graph)[];
 }
 
 export interface Essay {
@@ -46,7 +46,7 @@ export interface Input {
 export interface Radio {
     type: 'RADIO';
     varName: string;
-    content: (Variable | Content | Image)[];
+    content: (Variable | Content | Image | Graph)[];
 }
 
 export interface Variable {
@@ -61,8 +61,14 @@ export interface Image {
     src: string;
 }
 
+export interface Graph {
+    type: 'GRAPH';
+    varName: string;
+    equations: string[];
+}
+
 export interface Solution {
     type: 'SOLUTION';
     varName: string;
-    content: (Variable | Content | Image)[];
+    content: (Variable | Content | Image | Graph)[];
 }

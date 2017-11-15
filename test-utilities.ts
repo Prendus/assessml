@@ -60,6 +60,16 @@ const arbImage = jsc.record({
     src: jsc.nestring
 });
 
+const arbGraph = jsc.record({
+    type: jsc.constant('GRAPH'),
+    varName: jsc.pair(jsc.constant('graph'), jsc.nat).smap((x: any) => { //TODO Figure out the correct way to use smap. I need to make the second function the inverse of the first
+        return `${x[0]}${x[1]}`; //the variable will never have a ] in it because of the Regex...make sure to replace it with something or you could get an empty string
+    }, (x: any) => {
+        return x;
+    }),
+    equations: jsc.array(jsc.nestring) //TODO make arbitrary equation strings
+});
+
 let numChecks = 1;
 const arbCheck = jsc.record({
     type: jsc.constant('CHECK'),
@@ -95,7 +105,7 @@ const arbSolution = jsc.record({
 
 export const arbAST = jsc.record({
     type: jsc.constant('AST'),
-    ast: jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbCheck, arbRadio, arbImage, arbSolution, arbCode]))
+    ast: jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbCheck, arbRadio, arbImage, arbSolution, arbCode, arbGraph]))
 });
 
 // combine any content elements that are adjacent. Look at the previous astObject, if it is of type CONTENT and the current element is of type CONTENT, then remove the previous one and put yourself in, combinging your values
@@ -182,7 +192,7 @@ export function verifyHTML(ast: AST, htmlString: string) {
             const checkString = `<input id="${astObject.varName}" type="checkbox" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
                 type: 'AST',
                 ast: astObject.content
-            }, (varName: string) => generateVarValue(ast, varName), (varName: string) => '')}`
+            }, (varName: string) => generateVarValue(ast, varName), (varName: string) => '', (varName: string) => [])}`
 
             if (result.indexOf(checkString) === 0) {
                 return result.replace(checkString, '');
@@ -195,7 +205,7 @@ export function verifyHTML(ast: AST, htmlString: string) {
             const radioString = `<input id="${astObject.varName}" type="radio" name="${radioGroupName}" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
                 type: 'AST',
                 ast: astObject.content
-            }, (varName: string) => generateVarValue(ast, varName), (varName: string) => '')}`;
+            }, (varName: string) => generateVarValue(ast, varName), (varName: string) => '', (varName: string) => [])}`;
 
             if (result.indexOf(radioString) === 0) {
                 return result.replace(radioString, '');
@@ -213,10 +223,17 @@ export function verifyHTML(ast: AST, htmlString: string) {
             const solutionString = `<template id="${astObject.varName}">${compileToHTML({
                 type: 'AST',
                 ast: astObject.content
-            }, (varName: string) => generateVarValue(ast, varName), (varName: string) => '')}</template>`
+            }, (varName: string) => generateVarValue(ast, varName), (varName: string) => '', (varName: string) => [])}</template>`
 
             if (result.indexOf(solutionString) === 0) {
                 return result.replace(solutionString, '');
+            }
+        }
+
+        if (astObject.type === 'GRAPH') {
+            const graphString = `<function-plot data='[${astObject.equations.reduce((result, equation) => `${result}{ "fn": "${equation}" },`, '')}]'></function-plot>`;
+            if (result.indexOf(graphString) === 0) {
+                return result.replace(graphString, '');
             }
         }
 
