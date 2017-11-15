@@ -60,7 +60,7 @@ export function compileToHTML(source: AST | string, generateVarValue: (varName: 
         }
 
         if (astObject.type === 'GRAPH') {
-            return `${result}<function-plot data='[${astObject.equations.reduce((result, equation) => `${result}{ "fn": "${equation}" },`, '')}]'></function-plot>`;
+            return `${result}<function-plot data='[${astObject.equations.reduce((result, equation, index) => `${result}${index !== 0 ? ',' : ''}{ "fn": "${equation}" }`, '')}]'></function-plot>`;
         }
 
         return result;
