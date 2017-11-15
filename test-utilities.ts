@@ -192,7 +192,7 @@ export function verifyHTML(ast: AST, htmlString: string) {
             const checkString = `<input id="${astObject.varName}" type="checkbox" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
                 type: 'AST',
                 ast: astObject.content
-            }, (varName: string) => generateVarValue(ast, varName), (varName: string) => '')}`
+            }, (varName: string) => generateVarValue(ast, varName), (varName: string) => '', (varName: string) => [])}`
 
             if (result.indexOf(checkString) === 0) {
                 return result.replace(checkString, '');
@@ -205,7 +205,7 @@ export function verifyHTML(ast: AST, htmlString: string) {
             const radioString = `<input id="${astObject.varName}" type="radio" name="${radioGroupName}" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
                 type: 'AST',
                 ast: astObject.content
-            }, (varName: string) => generateVarValue(ast, varName), (varName: string) => '')}`;
+            }, (varName: string) => generateVarValue(ast, varName), (varName: string) => '', (varName: string) => [])}`;
 
             if (result.indexOf(radioString) === 0) {
                 return result.replace(radioString, '');
@@ -223,7 +223,7 @@ export function verifyHTML(ast: AST, htmlString: string) {
             const solutionString = `<template id="${astObject.varName}">${compileToHTML({
                 type: 'AST',
                 ast: astObject.content
-            }, (varName: string) => generateVarValue(ast, varName), (varName: string) => '')}</template>`
+            }, (varName: string) => generateVarValue(ast, varName), (varName: string) => '', (varName: string) => [])}</template>`
 
             if (result.indexOf(solutionString) === 0) {
                 return result.replace(solutionString, '');
@@ -231,7 +231,7 @@ export function verifyHTML(ast: AST, htmlString: string) {
         }
 
         if (astObject.type === 'GRAPH') {
-            const graphString = `<function-plot data="[${astObject.equations.reduce((result, equation) => `${result}{ fn: '${equation}' }`, '')},]"></function-plot>`;
+            const graphString = `<function-plot data='[${astObject.equations.reduce((result, equation) => `${result}{ "fn": "${equation}" },`, '')}]'></function-plot>`;
             if (result.indexOf(graphString) === 0) {
                 return result.replace(graphString, '');
             }

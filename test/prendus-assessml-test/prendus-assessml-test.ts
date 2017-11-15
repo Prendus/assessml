@@ -24,29 +24,29 @@ class PrendusAssessMLTest extends HTMLElement {
          test('The compileToAssessML function should take an arbitrary AssessML string and return a correct AssessML string', [arbAST], (arbAST: AST) => {
              this.beforeTest();
              const flattenedAst = normalizeGraphs(normalizeImages(normalizeVariables(flattenContentObjects(arbAST))));
-             const assessMLString = compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName));
-             return assessMLString === compileToAssessML(assessMLString, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName));
+             const assessMLString = compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName), (varName) => getGraphEquations(flattenedAst, varName));
+             return assessMLString === compileToAssessML(assessMLString, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName), (varName) => getGraphEquations(flattenedAst, varName));
          });
 
          test('The compileToAssessML function should take an arbitrary AssessML AST and return a correct AssessML string', [arbAST], (arbAST: AST) => {
             this.beforeTest();
             const flattenedAst = normalizeGraphs(normalizeImages(normalizeVariables(flattenContentObjects(arbAST))));
-            const assessMLString = compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName));
-            return assessMLString === compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName));
+            const assessMLString = compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName), (varName) => getGraphEquations(flattenedAst, varName));
+            return assessMLString === compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName), (varName) => getGraphEquations(flattenedAst, varName));
          });
 
         test('The compileToHTML function should take an arbitrary AssessML AST and return a correct HTML string', [arbAST], (arbAST: AST) => {
             this.beforeTest();
             const flattenedAst = normalizeGraphs(normalizeImages(normalizeVariables(flattenContentObjects(arbAST))));
-            const htmlString = compileToHTML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName));
+            const htmlString = compileToHTML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName), (varName) => getGraphEquations(flattenedAst, varName));
             return verifyHTML(flattenedAst, htmlString);
         });
 
         test('The compileToHTML function should take an arbitrary AssessML string and return a correct HTML string', [arbAST], (arbAST: AST) => {
             this.beforeTest();
             const flattenedAst = normalizeGraphs(normalizeImages(normalizeVariables(flattenContentObjects(arbAST))));
-            const assessMLString = compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName));
-            const htmlString = compileToHTML(assessMLString, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName));
+            const assessMLString = compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName), (varName) => getGraphEquations(flattenedAst, varName));
+            const htmlString = compileToHTML(assessMLString, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName), (varName) => getGraphEquations(flattenedAst, varName));
             return verifyHTML(flattenedAst, htmlString);
         });
 

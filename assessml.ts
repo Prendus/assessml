@@ -60,7 +60,7 @@ export function compileToHTML(source: AST | string, generateVarValue: (varName: 
         }
 
         if (astObject.type === 'GRAPH') {
-            return `${result}<function-plot data="[${astObject.equations.reduce((result, equation) => `${result}{ fn: '${equation}' }`, '')},]"></function-plot>`;
+            return `${result}<function-plot data='[${astObject.equations.reduce((result, equation) => `${result}{ "fn": "${equation}" },`, '')}]'></function-plot>`;
         }
 
         return result;
@@ -550,7 +550,7 @@ export function getGraphEquations(ast: AST, varName: string): string[] {
         }
 
         if (astObject.type === 'RADIO' || astObject.type === 'CHECK' || astObject.type === 'SOLUTION') {
-            const grpahs: Graph[] = <Graph[]> astObject.content.filter((astObject: Variable | Content | Image | Graph) => astObject.type === 'GRAPH' && astObject.varName === varName);
+            const graphs: Graph[] = <Graph[]> astObject.content.filter((astObject: Variable | Content | Image | Graph) => astObject.type === 'GRAPH' && astObject.varName === varName);
             if (graphs.length > 0) {
                 return [...result, graphs[0]];
             }
