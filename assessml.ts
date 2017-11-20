@@ -1,4 +1,4 @@
-import {AST, ASTObject, Variable, Input, Essay, Content, Check, Radio, Drag, Drop, Image, Solution, Code, Graph} from './assessml.d';
+import {AST, ASTObject, ASTObjectType, Variable, Input, Essay, Content, Check, Radio, Drag, Drop, Image, Solution, Code, Graph, Shuffle} from './assessml.d';
 
 export function compileToHTML(source: AST | string, generateVarValue: (varName: string) => number | string, generateImageSrc: (varName: string) => string, generateGraphEquations: (varName: string) => string[]): string {
     const ast: AST = typeof source === 'string' ? parse(source, generateVarValue, generateImageSrc, generateGraphEquations) : source;
@@ -63,6 +63,13 @@ export function compileToHTML(source: AST | string, generateVarValue: (varName: 
             return `${result}<function-plot data='[${astObject.equations.reduce((result, equation, index) => `${result}${index !== 0 ? ',' : ''}{ "fn": "${equation}" }`, '')}]'></function-plot>`;
         }
 
+        if (astObject.type === 'SHUFFLE') {
+            return `${result}${compileToHTML({
+                type: 'AST',
+                ast: shuffleItems(astObject.content)
+            }, generateVarValue, generateImageSrc, generateGraphEquations)}`;
+        }
+
         return result;
     }, '');
 }
@@ -107,11 +114,17 @@ export function compileToAssessML(source: AST | string, generateVarValue: (varNa
         }
 
         if (astObject.type === 'DRAG') {
-            return `${result}DRAG NOT IMPLEMENTED`;
+            return `${result}[drag]${compileToAssessML({
+                type: 'AST',
+                ast: astObject.content
+            }, generateVarValue, generateImageSrc, generateGraphEquations)}[drag]`;
         }
 
         if (astObject.type === 'DROP') {
-            return `${result}DROP NOT IMPLEMENTED`;
+            return `${result}[drop]${compileToAssessML({
+                type: 'AST',
+                ast: astObject.content
+            }, generateVarValue, generateImageSrc, generateGraphEquations)}[drop]`;
         }
 
         if (astObject.type === 'IMAGE') {
@@ -129,6 +142,13 @@ export function compileToAssessML(source: AST | string, generateVarValue: (varNa
             return `${result}[${astObject.varName}]`;
         }
 
+        if (astObject.type === 'SHUFFLE') {
+            return `${result}[shuffle]${compileToAssessML({
+                type: 'AST',
+                ast: astObject.content
+            }, generateVarValue, generateImageSrc, generateGraphEquations)}[shuffle]`;
+        }
+
         return result;
     }, '');
 }
@@ -137,30 +157,13 @@ export function parse(source: string, generateVarValue: (varName: string) => num
     return buildAST(source, {
         type: 'AST',
         ast: []
-    }, generateVarValue, generateImageSrc, generateGraphEquations, 0, 0, 0, 0, 0, 0, 0, 0);
+    }, generateVarValue, generateImageSrc, generateGraphEquations, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 }
 
-export function getAstObjects(ast: AST, type: 'VARIABLE' | 'INPUT' | 'ESSAY' | 'CONTENT' | 'CHECK' | 'RADIO' | 'DRAG' | 'DROP' | 'IMAGE' | 'SOLUTION' | 'CODE'): ASTObject[] {
-    const topLevelAstObjects = ast.ast.filter((astObject: ASTObject) => {
-        return astObject.type === type;
-    });
-
-    const nestedAstObjects = ast.ast.reduce((result: ASTObject[], astObject: ASTObject) => {
-        if (astObject.type === 'CHECK' || astObject.type === 'RADIO' || astObject.type === 'SOLUTION') {
-            return [...result, ...astObject.content.filter((astObject: Variable | Content | Image) => {
-                return astObject.type === type;
-            })];
-        }
-
-        return result;
-    }, []);
-
-    return [...topLevelAstObjects, ...nestedAstObjects];
-}
-
-function buildAST(source: string, ast: AST, generateVarValue: (varName: string) => number | string, generateImageSrc: (varName: string) => string, generateGraphEquations: (varName: string) => string[], numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number, numSolutions: number, numCodes: number): AST {
+function buildAST(source: string, ast: AST, generateVarValue: (varName: string) => number | string, generateImageSrc: (varName: string) => string, generateGraphEquations: (varName: string) => string[], numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number, numSolutions: number, numCodes: number, numShuffles: number): AST {
     const variableRegex: RegExp = /\[var((.|\n|\r)+?)\]/;
     const inputRegex: RegExp = /\[input\]/;
+    const shuffleRegex: RegExp = /\[shuffle\]/;
     const essayRegex: RegExp = /\[essay\]/;
     const codeRegex: RegExp = /\[code\]/;
     const checkRegex: RegExp = /\[x\]((.|\n|\r)*?)\[x\]/;
@@ -170,7 +173,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
     const solutionRegex: RegExp = /\[solution\]((.|\n|\r)*?)\[solution\]/;
     const imageRegex: RegExp = /\[img((.|\n|\r)+?)\]/;
     const graphRegex: RegExp = /\[graph((.|\n|\r)+?)\]/;
-    const contentRegex: RegExp = new RegExp(`((.|\n|\r)+?)((${variableRegex.source}|${inputRegex.source}|${essayRegex.source}|${codeRegex.source}|${checkRegex.source}|${radioRegex.source}|${dragRegex.source}|${dropRegex.source}|${imageRegex.source}|${graphRegex.source}|${solutionRegex.source})|$)`);
+    const contentRegex: RegExp = new RegExp(`((.|\n|\r)+?)((${variableRegex.source}|${inputRegex.source}|${essayRegex.source}|${codeRegex.source}|${checkRegex.source}|${radioRegex.source}|${dragRegex.source}|${dropRegex.source}|${imageRegex.source}|${graphRegex.source}|${solutionRegex.source}|${shuffleRegex.source})|$)`);
 
     if (source.search(variableRegex) === 0) {
         const match = source.match(variableRegex) || [];
@@ -188,7 +191,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, variable]
-        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes);
+        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes, numShuffles);
     }
 
     if (source.search(inputRegex) === 0) {
@@ -202,7 +205,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, input]
-        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs + 1, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes);
+        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs + 1, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes, numShuffles);
     }
 
     if (source.search(essayRegex) === 0) {
@@ -216,7 +219,26 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, essay]
-        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays + 1, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes);
+        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays + 1, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes, numShuffles);
+    }
+
+    if (source.search(shuffleRegex) === 0) {
+        const match = source.match(shuffleRegex) || [];
+        const matchedContent = match[0];
+        const insideContent = match[1];
+        const shuffle: Shuffle = {
+            type: 'SHUFFLE',
+            varName: `shuffle${numShuffles + 1}`,
+            content: buildAST(insideContent, {
+                type: 'AST',
+                ast: []
+            }, generateVarValue, generateImageSrc, generateGraphEquations, 0, 0, 0, 0, 0, 0, 0, 0, 0).ast
+        };
+
+        return buildAST(source.replace(matchedContent, ''), {
+            ...ast,
+            ast: [...ast.ast, shuffle]
+        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs + 1, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes, numShuffles + 1);
     }
 
     if (source.search(codeRegex) === 0) {
@@ -230,7 +252,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, code]
-        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes + 1);
+        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes + 1, numShuffles);
     }
 
     if (source.search(checkRegex) === 0) {
@@ -240,16 +262,16 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         const check: Check = {
             type: 'CHECK',
             varName: `check${numChecks + 1}`,
-            content: <(Content | Variable | Image)[]> buildAST(insideContent, {
+            content: buildAST(insideContent, {
                 type: 'AST',
                 ast: []
-            }, generateVarValue, generateImageSrc, generateGraphEquations, 0, 0, 0, 0, 0, 0, 0, 0).ast
+            }, generateVarValue, generateImageSrc, generateGraphEquations, 0, 0, 0, 0, 0, 0, 0, 0, 0).ast
         };
 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, check]
-        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks + 1, numRadios, numDrags, numDrops, numSolutions, numCodes);
+        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks + 1, numRadios, numDrags, numDrops, numSolutions, numCodes, numShuffles);
     }
 
     if (source.search(radioRegex) === 0) {
@@ -259,16 +281,16 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         const radio: Radio = {
             type: 'RADIO',
             varName: `radio${numRadios + 1}`,
-            content: <(Content | Variable | Image)[]> buildAST(insideContent, {
+            content: buildAST(insideContent, {
                 type: 'AST',
                 ast: []
-            }, generateVarValue, generateImageSrc, generateGraphEquations, 0, 0, 0, 0, 0, 0, 0, 0).ast
+            }, generateVarValue, generateImageSrc, generateGraphEquations, 0, 0, 0, 0, 0, 0, 0, 0, 0).ast
         };
 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, radio]
-        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios + 1, numDrags, numDrops, numSolutions, numCodes);
+        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios + 1, numDrags, numDrops, numSolutions, numCodes, numShuffles);
     }
 
     if (source.search(dragRegex) === 0) {
@@ -278,16 +300,16 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         const drag: Drag = {
             type: 'DRAG',
             varName: `drag${numDrags + 1}`,
-            content: <(Content | Variable | Image)[]> buildAST(insideContent, {
+            content: buildAST(insideContent, {
                 type: 'AST',
                 ast: []
-            }, generateVarValue, generateImageSrc, generateGraphEquations, 0, 0, 0, 0, 0, 0, 0, 0).ast
+            }, generateVarValue, generateImageSrc, generateGraphEquations, 0, 0, 0, 0, 0, 0, 0, 0, 0).ast
         };
 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, drag]
-        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios, numDrags + 1, numDrops, numSolutions, numCodes);
+        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios, numDrags + 1, numDrops, numSolutions, numCodes, numShuffles);
     }
 
     if (source.search(dropRegex) === 0) {
@@ -297,16 +319,16 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         const drop: Drop = {
             type: 'DROP',
             varName: `drop${numDrops + 1}`,
-            content: <(Content | Variable | Image)[]> buildAST(insideContent, {
+            content: buildAST(insideContent, {
                 type: 'AST',
                 ast: []
-            }, generateVarValue, generateImageSrc, generateGraphEquations, 0, 0, 0, 0, 0, 0, 0, 0).ast
+            }, generateVarValue, generateImageSrc, generateGraphEquations, 0, 0, 0, 0, 0, 0, 0, 0, 0).ast
         };
 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, drop]
-        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops + 1, numSolutions, numCodes);
+        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops + 1, numSolutions, numCodes, numShuffles);
     }
 
     if (source.search(imageRegex) === 0) {
@@ -322,7 +344,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, image]
-        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes);
+        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes, numShuffles);
     }
 
     if (source.search(graphRegex) === 0) {
@@ -338,7 +360,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, graph]
-        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes);
+        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes, numShuffles);
     }
 
     if (source.search(solutionRegex) === 0) {
@@ -348,16 +370,16 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         const solution: Solution = {
             type: 'SOLUTION',
             varName: `solution${numSolutions + 1}`,
-            content: <(Content | Variable | Image)[]> buildAST(insideContent, {
+            content: buildAST(insideContent, {
                 type: 'AST',
                 ast: []
-            }, generateVarValue, generateImageSrc, generateGraphEquations, 0, 0, 0, 0, 0, 0, 0, 0).ast
+            }, generateVarValue, generateImageSrc, generateGraphEquations, 0, 0, 0, 0, 0, 0, 0, 0, 0).ast
         };
 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, solution]
-        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions + 1, numCodes);
+        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions + 1, numCodes, numShuffles);
     }
 
     if (source.search(contentRegex) === 0) {
@@ -371,7 +393,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, content]
-        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes);
+        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes, numShuffles);
     }
 
     return ast;
@@ -391,7 +413,32 @@ export function createUUID(): string {
 	return uuid;
 }
 
-export function normalizeVariables(ast: AST): AST {
+export function getAstObjects(ast: AST, type: ASTObjectType): ASTObject[] {
+    const topLevelAstObjects = ast.ast.filter((astObject: ASTObject) => {
+        return astObject.type === type;
+    });
+
+    const nestedAstObjects = ast.ast.reduce((result: ASTObject[], astObject: ASTObject) => {
+        if (
+            astObject.type === 'CHECK' ||
+            astObject.type === 'RADIO' ||
+            astObject.type === 'SOLUTION' ||
+            astObject.type === 'SHUFFLE' ||
+            astObject.type === 'DRAG' ||
+            astObject.type === 'DROP'
+        ) {
+            return [...result, ...getAstObjects({
+                type: 'AST',
+                ast: astObject.content
+            }, type)];
+        }
+        return result;
+    }, []);
+
+    return [...topLevelAstObjects, ...nestedAstObjects];
+}
+
+export function normalizeASTObjectPayloads(ast: AST): AST {
     return {
         ...ast,
         ast: ast.ast.map((astObject: ASTObject, index: number) => {
@@ -403,34 +450,6 @@ export function normalizeVariables(ast: AST): AST {
                 };
             }
 
-            if (astObject.type === 'RADIO' || astObject.type === 'CHECK' || astObject.type === 'SOLUTION') {
-                return {
-                    ...astObject,
-                    content: astObject.content.map((variableOrContentOrImageAstObject: Variable | Content | Image | Graph, index: number) => {
-                        if (variableOrContentOrImageAstObject.type === 'VARIABLE') {
-                            const variableValue = getVariableValue(ast, variableOrContentOrImageAstObject.varName);
-                            return {
-                                ...variableOrContentOrImageAstObject,
-                                value: variableValue === null ? variableOrContentOrImageAstObject.value : variableValue
-                            };
-                        }
-                        else {
-                            return variableOrContentOrImageAstObject;
-                        }
-                    })
-                };
-            }
-
-            return astObject;
-        })
-    };
-}
-
-//TODO we might only need this function for testing purposes...look into its use in prendus-question-elements
-export function normalizeImages(ast: AST): AST {
-    return {
-        ...ast,
-        ast: ast.ast.map((astObject: ASTObject, index: number) => {
             if (astObject.type === 'IMAGE') {
                 const imageSrc = getImageSrc(ast, astObject.varName);
                 return {
@@ -439,33 +458,6 @@ export function normalizeImages(ast: AST): AST {
                 };
             }
 
-            if (astObject.type === 'RADIO' || astObject.type === 'CHECK' || astObject.type === 'SOLUTION') {
-                return {
-                    ...astObject,
-                    content: astObject.content.map((variableOrContentOrImageAstObject: Variable | Content | Image | Graph, index: number) => {
-                        if (variableOrContentOrImageAstObject.type === 'IMAGE') {
-                            const imageSrc = getImageSrc(ast, variableOrContentOrImageAstObject.varName);
-                            return {
-                                ...variableOrContentOrImageAstObject,
-                                src: imageSrc === null ? variableOrContentOrImageAstObject.src : imageSrc
-                            };
-                        }
-                        else {
-                            return variableOrContentOrImageAstObject;
-                        }
-                    })
-                };
-            }
-
-            return astObject;
-        })
-    };
-}
-
-export function normalizeGraphs(ast: AST): AST {
-    return {
-        ...ast,
-        ast: ast.ast.map((astObject: ASTObject, index: number) => {
             if (astObject.type === 'GRAPH') {
                 const equations = getGraphEquations(ast, astObject.varName);
                 return {
@@ -474,21 +466,20 @@ export function normalizeGraphs(ast: AST): AST {
                 };
             }
 
-            if (astObject.type === 'RADIO' || astObject.type === 'CHECK' || astObject.type === 'SOLUTION') {
+            if (
+                astObject.type === 'RADIO' ||
+                astObject.type === 'CHECK' ||
+                astObject.type === 'SOLUTION' ||
+                astObject.type === 'SHUFFLE' ||
+                astObject.type === 'DRAG' ||
+                astObject.type === 'DROP'
+            ) {
                 return {
                     ...astObject,
-                    content: astObject.content.map((nestedAstObject: Variable | Content | Image | Graph, index: number) => {
-                        if (nestedAstObject.type === 'GRAPH') {
-                            const equations = getGraphEquations(ast, nestedAstObject.varName);
-                            return {
-                                ...nestedAstObject,
-                                equations
-                            };
-                        }
-                        else {
-                            return nestedAstObject;
-                        }
-                    })
+                    content: normalizeASTObjectPayloads({
+                        type: 'AST',
+                        ast: astObject.content
+                    }).ast
                 };
             }
 
@@ -565,4 +556,18 @@ export function getGraphEquations(ast: AST, varName: string): string[] {
 function generateRandomInteger(min: number, max: number): number {
     //returns a random integer between min (included) and max (included)
     return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// shuffles items and returns a new array. Based on the modern Fisher-Yates shuffle algorithm
+function shuffleItems(items: any[]) {
+  return items.reduce((result, item, index) => {
+    if (index === items.length - 1) {
+      return result;
+    }
+
+    const jindex = Math.floor(Math.random() * (items.length - 1 - index + 1)) + index;
+    [result[index], result[jindex]] = [result[jindex], result[index]];
+
+    return result;
+  }, items);
 }

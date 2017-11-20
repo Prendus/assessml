@@ -1,74 +1,81 @@
 export interface AST {
-    type: 'AST';
-    ast: ASTObject[];
+    readonly type: 'AST';
+    readonly ast: ASTObject[];
 }
 
-export type ASTObject = Content | Variable | Input | Essay | Check | Radio | Drag | Drop | Image | Solution | Code | Graph;
+export type ASTObject = Content | Variable | Input | Essay | Check | Radio | Drag | Drop | Image | Solution | Code | Graph | Shuffle;
+export type ASTObjectType = 'VARIABLE' | 'INPUT' | 'ESSAY' | 'CONTENT' | 'CHECK' | 'RADIO' | 'DRAG' | 'DROP' | 'IMAGE' | 'SOLUTION' | 'CODE' | 'SHUFFLE';
 
 export interface Check {
-    type: 'CHECK';
-    varName: string;
-    content: (Variable | Content | Image | Graph)[];
+    readonly type: 'CHECK';
+    readonly varName: string;
+    readonly content: ASTObject[];
 }
 
 export interface Content {
-    type: 'CONTENT';
-    content: string;
+    readonly type: 'CONTENT';
+    readonly content: string;
 }
 
 export interface Drag {
-    type: 'DRAG';
-    varName: string;
-    content: (Variable | Content | Image | Graph)[];
+    readonly type: 'DRAG';
+    readonly varName: string;
+    readonly content: ASTObject[];
 }
 
 export interface Drop {
-    type: 'DROP';
-    varName: string;
-    content: (Variable | Content | Image | Graph)[];
+    readonly type: 'DROP';
+    readonly varName: string;
+    readonly content: ASTObject[];
 }
 
 export interface Essay {
-    type: 'ESSAY';
-    varName: string;
+    readonly type: 'ESSAY';
+    readonly varName: string;
 }
 
 export interface Code {
-    type: 'CODE';
-    varName: string;
+    readonly type: 'CODE';
+    readonly varName: string;
 }
 
 export interface Input {
-    type: 'INPUT';
-    varName: string;
+    readonly type: 'INPUT';
+    readonly varName: string;
 }
 
 export interface Radio {
-    type: 'RADIO';
-    varName: string;
-    content: (Variable | Content | Image | Graph)[];
+    readonly type: 'RADIO';
+    readonly varName: string;
+    readonly content: ASTObject[];
 }
 
 export interface Variable {
-    type: 'VARIABLE';
-    varName: string;
-    value: number | string;
+    readonly type: 'VARIABLE';
+    readonly varName: string;
+    readonly value: number | string;
 }
 
 export interface Image {
-    type: 'IMAGE';
-    varName: string;
-    src: string;
+    readonly type: 'IMAGE';
+    readonly varName: string;
+    readonly src: string;
 }
 
 export interface Graph {
-    type: 'GRAPH';
-    varName: string;
-    equations: string[];
+    readonly type: 'GRAPH';
+    readonly varName: string;
+    readonly equations: string[];
 }
 
 export interface Solution {
-    type: 'SOLUTION';
-    varName: string;
-    content: (Variable | Content | Image | Graph)[];
+    readonly type: 'SOLUTION';
+    readonly varName: string;
+    readonly content: ASTObject[];
+}
+
+export interface Shuffle {
+    readonly type: 'SHUFFLE';
+    readonly varName: string;
+    readonly content: ASTObject[];
 }
