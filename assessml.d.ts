@@ -4,7 +4,7 @@ export interface AST {
 }
 
 export type ASTObject = Content | Variable | Input | Essay | Check | Radio | Drag | Drop | Image | Solution | Code | Graph | Shuffle;
-export type ASTObjectType = 'VARIABLE' | 'INPUT' | 'ESSAY' | 'CONTENT' | 'CHECK' | 'RADIO' | 'DRAG' | 'DROP' | 'IMAGE' | 'SOLUTION' | 'CODE' | 'SHUFFLE';
+export type ASTObjectType = 'VARIABLE' | 'INPUT' | 'ESSAY' | 'CONTENT' | 'CHECK' | 'RADIO' | 'DRAG' | 'DROP' | 'IMAGE' | 'SOLUTION' | 'CODE' | 'SHUFFLE' | 'GRAPH';
 
 export interface Check {
     readonly type: 'CHECK';
@@ -14,6 +14,7 @@ export interface Check {
 
 export interface Content {
     readonly type: 'CONTENT';
+    readonly varName: string;
     readonly content: string;
 }
 
