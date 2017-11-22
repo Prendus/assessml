@@ -1,4 +1,4 @@
-import {compileToAssessML, compileToHTML, parse, getImageSrc, getGraphEquations, normalizeVariables, normalizeImages, normalizeGraphs, generateVarValue} from '../../assessml';
+import {compileToAssessML, compileToHTML, parse, getASTObjectPayload, normalizeASTObjectPayloads, generateVarValue} from '../../assessml';
 import {AST, ASTObject, Variable} from '../../assessml.d';
 import {flattenContentObjects, verifyHTML, arbAST, resetNums} from '../../test-utilities';
 
@@ -14,43 +14,61 @@ class PrendusAssessMLTest extends HTMLElement {
     prepareTests(test: any) {
         test('The parse function should take an arbitrary AssessML string and return a correct AssessML AST', [arbAST], (arbAST: AST) => {
             this.beforeTest();
-            const flattenedAst = normalizeGraphs(normalizeImages(normalizeVariables(flattenContentObjects(arbAST))));
-            const parsedAst = parse(compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName), (varName) => getGraphEquations(flattenedAst, varName)), (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName), (varName) => getGraphEquations(flattenedAst, varName));
-            return deepEqual(flattenedAst, parsedAst, {
+            const flattenedAst = flattenContentObjects(arbAST);
+            const normalizedAST = normalizeASTObjectPayloads(flattenedAst, flattenedAst);
+            const parsedAst = parse(compileToAssessML(normalizedAST, (varName) => generateVarValue(normalizedAST, varName), (varName) => getASTObjectPayload(normalizedAST, 'IMAGE', varName), (varName) => getASTObjectPayload(normalizedAST, 'GRAPH', varName)), (varName) => generateVarValue(normalizedAST, varName), (varName) => getASTObjectPayload(normalizedAST, 'IMAGE', varName), (varName) => getASTObjectPayload(flattenedAst, 'GRAPH', varName));
+
+            const result = deepEqual(normalizedAST, parsedAst, {
                 strict: true
             });
+
+            return result;
         });
 
          test('The compileToAssessML function should take an arbitrary AssessML string and return a correct AssessML string', [arbAST], (arbAST: AST) => {
              this.beforeTest();
-             const flattenedAst = normalizeGraphs(normalizeImages(normalizeVariables(flattenContentObjects(arbAST))));
-             const assessMLString = compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName), (varName) => getGraphEquations(flattenedAst, varName));
-             return assessMLString === compileToAssessML(assessMLString, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName), (varName) => getGraphEquations(flattenedAst, varName));
+             const flattenedAst = flattenContentObjects(arbAST);
+             const normalizedAST = normalizeASTObjectPayloads(flattenedAst, flattenedAst);
+             const assessMLString = compileToAssessML(normalizedAST, (varName) => generateVarValue(normalizedAST, varName), (varName) => getASTObjectPayload(normalizedAST, 'IMAGE', varName), (varName) => getASTObjectPayload(normalizedAST, 'GRAPH', varName));
+
+             const result = assessMLString === compileToAssessML(assessMLString, (varName) => generateVarValue(normalizedAST, varName), (varName) => getASTObjectPayload(normalizedAST, 'IMAGE', varName), (varName) => getASTObjectPayload(normalizedAST, 'GRAPH', varName));
+
+             return result;
          });
 
          test('The compileToAssessML function should take an arbitrary AssessML AST and return a correct AssessML string', [arbAST], (arbAST: AST) => {
             this.beforeTest();
-            const flattenedAst = normalizeGraphs(normalizeImages(normalizeVariables(flattenContentObjects(arbAST))));
-            const assessMLString = compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName), (varName) => getGraphEquations(flattenedAst, varName));
-            return assessMLString === compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName), (varName) => getGraphEquations(flattenedAst, varName));
+            const flattenedAst = flattenContentObjects(arbAST);
+            const normalizedAST = normalizeASTObjectPayloads(flattenedAst, flattenedAst);
+            const assessMLString = compileToAssessML(normalizedAST, (varName) => generateVarValue(normalizedAST, varName), (varName) => getASTObjectPayload(normalizedAST, 'IMAGE', varName), (varName) => getASTObjectPayload(normalizedAST, 'GRAPH', varName));
+
+            const result = assessMLString === compileToAssessML(normalizedAST, (varName) => generateVarValue(normalizedAST, varName), (varName) => getASTObjectPayload(normalizedAST, 'IMAGE', varName), (varName) => getASTObjectPayload(normalizedAST, 'GRAPH', varName));
+
+            return result;
          });
 
         test('The compileToHTML function should take an arbitrary AssessML AST and return a correct HTML string', [arbAST], (arbAST: AST) => {
             this.beforeTest();
-            const flattenedAst = normalizeGraphs(normalizeImages(normalizeVariables(flattenContentObjects(arbAST))));
-            const htmlString = compileToHTML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName), (varName) => getGraphEquations(flattenedAst, varName));
-            return verifyHTML(flattenedAst, htmlString);
+            const flattenedAst = flattenContentObjects(arbAST);
+            const normalizedAST = normalizeASTObjectPayloads(flattenedAst, flattenedAst);
+            const htmlString = compileToHTML(normalizedAST, (varName) => generateVarValue(normalizedAST, varName), (varName) => getASTObjectPayload(normalizedAST, 'IMAGE', varName), (varName) => getASTObjectPayload(normalizedAST, 'GRAPH', varName));
+
+            const result = verifyHTML(normalizedAST, htmlString);
+
+            return result;
         });
 
         test('The compileToHTML function should take an arbitrary AssessML string and return a correct HTML string', [arbAST], (arbAST: AST) => {
             this.beforeTest();
-            const flattenedAst = normalizeGraphs(normalizeImages(normalizeVariables(flattenContentObjects(arbAST))));
-            const assessMLString = compileToAssessML(flattenedAst, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName), (varName) => getGraphEquations(flattenedAst, varName));
-            const htmlString = compileToHTML(assessMLString, (varName) => generateVarValue(flattenedAst, varName), (varName) => getImageSrc(flattenedAst, varName), (varName) => getGraphEquations(flattenedAst, varName));
-            return verifyHTML(flattenedAst, htmlString);
-        });
+            const flattenedAst = flattenContentObjects(arbAST);
+            const normalizedAST = normalizeASTObjectPayloads(flattenedAst, flattenedAst);
+            const assessMLString = compileToAssessML(normalizedAST, (varName) => generateVarValue(normalizedAST, varName), (varName) => getASTObjectPayload(normalizedAST, 'IMAGE', varName), (varName) => getASTObjectPayload(normalizedAST, 'GRAPH', varName));
+            const htmlString = compileToHTML(normalizedAST, (varName) => generateVarValue(normalizedAST, varName), (varName) => getASTObjectPayload(normalizedAST, 'IMAGE', varName), (varName) => getASTObjectPayload(normalizedAST, 'GRAPH', varName));
 
-        //TODO once getAstObjects gets more complicated, then you can test it
+            const result = verifyHTML(normalizedAST, htmlString);
+
+            return result;
+        });
     }
 }
 

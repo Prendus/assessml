@@ -5,6 +5,11 @@ const jsc = require('jsverify');
 
 const arbContent = jsc.record({
     type: jsc.constant('CONTENT'),
+    varName: jsc.bless({
+        generator: () => {
+            return `content`;
+        }
+    }),
     content: jsc.pair(jsc.nestring, jsc.nestring).smap((x: any) => { //TODO figure out the correct way to use smap
         return x[0].replace(/\[/g, 'd').replace(/\]/g, 'd').replace(/</g, '&lt;').replace(/>/g, '&gt;'); //do not allow ast types to be created in arbitrary content, otherwise it isn't content. Also, escape HTML brackets like in the compiler
     })
@@ -109,7 +114,7 @@ export const arbAST = jsc.record({
 });
 
 // combine any content elements that are adjacent. Look at the previous astObject, if it is of type CONTENT and the current element is of type CONTENT, then remove the previous one and put yourself in, combinging your values
-export function flattenContentObjects(ast: AST) {
+export function flattenContentObjects(ast: AST): AST {
     return {
         ...ast,
         ast: ast.ast.reduce((result: ASTObject[], astObject: ASTObject, index: number) => {
@@ -117,19 +122,20 @@ export function flattenContentObjects(ast: AST) {
                 return flattenContent(ast, astObject, result, index);
             }
 
-            if (astObject.type === 'RADIO' || astObject.type === 'CHECK' || astObject.type === 'SOLUTION') {
+            if (
+                astObject.type === 'RADIO' ||
+                astObject.type === 'CHECK' ||
+                astObject.type === 'SOLUTION' ||
+                astObject.type === 'SHUFFLE' ||
+                astObject.type === 'DRAG' ||
+                astObject.type === 'DROP'
+            ) {
                 return [...result, {
                     ...astObject,
-                    content: astObject.content.reduce((result: (Content | Variable | Image)[], contentOrVariableOrImageAstObject: Content | Variable | Image, index: number) => {
-                        if (contentOrVariableOrImageAstObject.type === 'CONTENT') {
-                            return flattenContent({
-                                type: 'AST',
-                                ast: astObject.content
-                            }, contentOrVariableOrImageAstObject, result, index);
-                        }
-
-                        return [...result, contentOrVariableOrImageAstObject];
-                    }, [])
+                    content: flattenContentObjects({
+                        type: 'AST',
+                        ast: astObject.content
+                    }).ast
                 }];
             }
 
@@ -250,4 +256,5 @@ export function resetNums() {
     numRadios = 1;
     numSolutions = 1;
     numCodes = 1;
+    // numShuffles = 1;
 }
