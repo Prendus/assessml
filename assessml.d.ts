@@ -79,6 +79,7 @@ export interface Shuffle {
     readonly type: 'SHUFFLE';
     readonly varName: string;
     readonly content: ASTObject[];
+    readonly shuffledIndeces: number[];
 }
 
 export interface BuildASTResult {

@@ -1,5 +1,5 @@
 import {AST, ASTObject, Variable, Content, Image} from './assessml.d';
-import {compileToHTML, generateVarValue} from './assessml';
+import {compileToHTML, generateVarValue, getASTObjectPayload, shuffleItems} from './assessml';
 
 const jsc = require('jsverify');
 
@@ -120,7 +120,22 @@ const arbSolution = jsc.record({
     })
 });
 
-const arbASTArray = jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbImage, arbCode, arbGraph, jsc.oneof(arbContent, arbCheck), jsc.oneof(arbContent, arbRadio),jsc.oneof(arbContent, arbSolution)]));
+let numShuffles = 1;
+const arbShuffle = jsc.record({
+    type: jsc.constant('SHUFFLE'),
+    varName: jsc.bless({
+        generator: () => {
+            return `shuffle${numShuffles++}`;
+        }
+    }),
+    content: jsc.bless({
+        generator: () => {
+            return jsc.sampler(arbASTArray)();
+        }
+    })
+});
+
+const arbASTArray = jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbImage, arbCode, arbGraph, jsc.oneof(arbContent, arbCheck), jsc.oneof(arbContent, arbRadio), jsc.oneof(arbContent, arbSolution), jsc.oneof(arbContent, arbShuffle)]));
 
 export const arbAST = jsc.record({
     type: jsc.constant('AST'),
@@ -257,6 +272,18 @@ export function verifyHTML(ast: AST, htmlString: string) {
             }
         }
 
+        if (astObject.type === 'SHUFFLE') {
+            //TODO Not sure this test is very useful. We are using the compileToHTML function in the implementation of the test for the compileToHTML function...albeit it is different because we're using it only on one piece of the AST instead of the entire AST
+            const shuffleString = compileToHTML({
+                type: 'AST',
+                ast: astObject.shuffledIndeces.map((index: number) => astObject.content[index])
+            }, (varName) => getASTObjectPayload(ast, 'VARIABLE', varName), (varName) => getASTObjectPayload(ast, 'IMAGE', varName), (varName) => getASTObjectPayload(ast, 'GRAPH', varName));
+
+            if (result.indexOf(shuffleString) === 0) {
+                return result.replace(shuffleString, '');
+            }
+        }
+
         return result;
     }, htmlString);
 
@@ -266,9 +293,47 @@ export function verifyHTML(ast: AST, htmlString: string) {
 export function resetNums() {
     numInputs = 1;
     numEssays = 1;
+    numCodes = 1;
     numChecks = 1;
     numRadios = 1;
     numSolutions = 1;
-    numCodes = 1;
-    // numShuffles = 1;
+    numShuffles = 1;
+}
+
+export function addShuffledIndeces(ast: AST): AST {
+    return {
+        ...ast,
+        ast: ast.ast.map((astObject: ASTObject) => {
+            if (
+                astObject.type === 'RADIO' ||
+                astObject.type === 'CHECK' ||
+                astObject.type === 'SOLUTION' ||
+                astObject.type === 'SHUFFLE' ||
+                astObject.type === 'DRAG' ||
+                astObject.type === 'DROP'
+            ) {
+                if (astObject.type === 'SHUFFLE') {
+                    return {
+                        ...astObject,
+                        content: addShuffledIndeces({
+                            type: 'AST',
+                            ast: astObject.content
+                        }).ast,
+                        shuffledIndeces: shuffleItems(new Array(astObject.content.length).map((x, index) => index))
+                    };
+                }
+                else {
+                    return {
+                        ...astObject,
+                        content: addShuffledIndeces({
+                            type: 'AST',
+                            ast: astObject.content
+                        }).ast
+                    };
+                }
+            }
+
+            return astObject;
+        })
+    };
 }

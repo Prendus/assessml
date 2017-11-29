@@ -21,40 +21,45 @@ import XRegExp from './node_modules/xregexp/src/index';
 
 export function compileToHTML(source: AST | string, generateVarValue: (varName: string) => number | string, generateImageSrc: (varName: string) => string, generateGraphEquations: (varName: string) => string[]): string {
     const ast: AST = typeof source === 'string' ? parse(source, generateVarValue, generateImageSrc, generateGraphEquations) : source;
-    return ast.ast.reduce((result: { htmlString: string; radioGroupName: string; }, astObject: ASTObject, index: number) => {
+    return ast.ast.reduce((result: { htmlString: string; radioGroupName: string; radioGroupNumber: number; }, astObject: ASTObject, index: number) => {
 
         if (astObject.type === 'CONTENT') {
             return {
                 htmlString: `${result.htmlString}${astObject.content}`,
-                radioGroupName: result.radioGroupName
+                radioGroupName: result.radioGroupName,
+                radioGroupNumber: result.radioGroupNumber
             }
         }
 
         if (astObject.type === 'VARIABLE') {
             return {
                 htmlString: `${result.htmlString}${astObject.value}`,
-                radioGroupName: result.radioGroupName
+                radioGroupName: result.radioGroupName,
+                radioGroupNumber: result.radioGroupNumber
             };
         }
 
         if (astObject.type === 'INPUT') {
             return {
                 htmlString: `${result.htmlString}<span id="${astObject.varName}" contenteditable="true" style="display: inline-block; min-width: 25px; min-height: 25px; padding: 5px; box-shadow: 0px 0px 1px black;"></span>`,
-                radioGroupName: result.radioGroupName
+                radioGroupName: result.radioGroupName,
+                radioGroupNumber: result.radioGroupNumber
             };
         }
 
         if (astObject.type === 'ESSAY') {
             return {
                 htmlString: `${result.htmlString}<textarea id="${astObject.varName}" style="width: 100%; height: 50vh;"></textarea>`,
-                radioGroupName: result.radioGroupName
+                radioGroupName: result.radioGroupName,
+                radioGroupNumber: result.radioGroupNumber
             };
         }
 
         if (astObject.type === 'CODE') {
             return {
                 htmlString: `${result.htmlString}<juicy-ace-editor id="${astObject.varName}" theme="ace/theme/chrome" mode="ace/mode/javascript" style="height: 50vh" fontsize="25px"></juicy-ace-editor>`,
-                radioGroupName: result.radioGroupName
+                radioGroupName: result.radioGroupName,
+                radioGroupNumber: result.radioGroupNumber
             };
         }
 
@@ -64,42 +69,47 @@ export function compileToHTML(source: AST | string, generateVarValue: (varName: 
                     type: 'AST',
                     ast: astObject.content
                 }, generateVarValue, generateImageSrc, generateGraphEquations)}`,
-                radioGroupName: result.radioGroupName
+                radioGroupName: result.radioGroupName,
+                radioGroupNumber: result.radioGroupNumber
             };
         }
 
         if (astObject.type === 'RADIO') {
             const previousASTObject = ast.ast[index - 1];
             const previousASTObjectType = previousASTObject ? previousASTObject.type : null;
-            const radioGroupName = previousASTObjectType === 'RADIO' ? result.radioGroupName : `${result.radioGroupName}${index}`;
+            const radioGroupName = previousASTObjectType === 'RADIO' ? result.radioGroupName : `${result.radioGroupName}${result.radioGroupNumber}`;
 
             return {
                 htmlString: `${result.htmlString}<input id="${astObject.varName}" type="radio" name="${radioGroupName}" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
                     type: 'AST',
                     ast: astObject.content
                 }, generateVarValue, generateImageSrc, generateGraphEquations)}`,
-                radioGroupName
+                radioGroupName,
+                radioGroupNumber: result.radioGroupNumber + 1
             };
         }
 
         if (astObject.type === 'DRAG') {
             return {
                 htmlString: `${result.htmlString}DRAG NOT IMPLEMENTED`,
-                radioGroupName: result.radioGroupName
+                radioGroupName: result.radioGroupName,
+                radioGroupNumber: result.radioGroupNumber
             };
         }
 
         if (astObject.type === 'DROP') {
             return {
                 htmlString: `${result.htmlString}DROP NOT IMPLEMENTED`,
-                radioGroupName: result.radioGroupName
+                radioGroupName: result.radioGroupName,
+                radioGroupNumber: result.radioGroupNumber
             };
         }
 
         if (astObject.type === 'IMAGE') {
             return {
                 htmlString: `${result.htmlString}<img src="${astObject.src}">`,
-                radioGroupName: result.radioGroupName
+                radioGroupName: result.radioGroupName,
+                radioGroupNumber: result.radioGroupNumber
             };
         }
 
@@ -109,14 +119,16 @@ export function compileToHTML(source: AST | string, generateVarValue: (varName: 
                     type: 'AST',
                     ast: astObject.content
                 }, generateVarValue, generateImageSrc, generateGraphEquations)}</template>`,
-                radioGroupName: result.radioGroupName
+                radioGroupName: result.radioGroupName,
+                radioGroupNumber: result.radioGroupNumber
             };
         }
 
         if (astObject.type === 'GRAPH') {
             return {
                 htmlString: `${result.htmlString}<function-plot data='[${astObject.equations.reduce((result, equation, index) => `${result}${index !== 0 ? ',' : ''}{ "fn": "${equation}" }`, '')}]'></function-plot>`,
-                radioGroupName: result.radioGroupName
+                radioGroupName: result.radioGroupName,
+                radioGroupNumber: result.radioGroupNumber
             };
         }
 
@@ -124,16 +136,18 @@ export function compileToHTML(source: AST | string, generateVarValue: (varName: 
             return {
                 htmlString: `${result.htmlString}${compileToHTML({
                     type: 'AST',
-                    ast: shuffleItems(astObject.content)
+                    ast: astObject.shuffledIndeces.map((index: number) => astObject.content[index])
                 }, generateVarValue, generateImageSrc, generateGraphEquations)}`,
-                radioGroupName: result.radioGroupName
+                radioGroupName: result.radioGroupName,
+                radioGroupNumber: result.radioGroupNumber
             };
         }
 
         return result;
     }, {
         htmlString: '',
-        radioGroupName: 'radio-group-'
+        radioGroupName: 'radio-group-',
+        radioGroupNumber: 0
     }).htmlString;
 }
 
@@ -287,25 +301,6 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays + 1, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes, numShuffles);
     }
 
-    // if (source.search(shuffleRegex) === 0) {
-    //     const match = source.match(shuffleRegex) || [];
-    //     const matchedContent = match[0];
-    //     const insideContent = match[1];
-    //     const shuffle: Shuffle = {
-    //         type: 'SHUFFLE',
-    //         varName: `shuffle${numShuffles + 1}`,
-    //         content: buildAST(insideContent, {
-    //             type: 'AST',
-    //             ast: []
-    //         }, generateVarValue, generateImageSrc, generateGraphEquations, 0, 0, 0, 0, 0, 0, 0, 0, 0).ast
-    //     };
-    //
-    //     return buildAST(source.replace(matchedContent, ''), {
-    //         ...ast,
-    //         ast: [...ast.ast, shuffle]
-    //     }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs + 1, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes, numShuffles + 1);
-    // }
-
     if (source.search(codeRegex) === 0) {
         const match = source.match(codeRegex) || [];
         const matchedContent = match[0];
@@ -374,6 +369,26 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         return buildAST(source.replace(matchedContent, ''), {
             ...ast,
             ast: [...ast.ast, solution]
+        }, generateVarValue, generateImageSrc, generateGraphEquations, contentAST.numInputs, contentAST.numEssays, contentAST.numChecks, contentAST.numRadios, contentAST.numDrags, contentAST.numDrops, contentAST.numSolutions, contentAST.numCodes, contentAST.numShuffles);
+    }
+
+    if (source.indexOf(`[shuffle start]${XRegExp.matchRecursive(source, '\\[shuffle start\\]', '\\[shuffle end\\]')[0]}[shuffle end]`) === 0) {
+        const insideContent = XRegExp.matchRecursive(source, '\\[shuffle start\\]', '\\[shuffle end\\]')[0];
+        const matchedContent = `[shuffle start]${insideContent}[shuffle end]`;
+        const contentAST: BuildASTResult = buildAST(insideContent, {
+            type: 'AST',
+            ast: []
+        }, generateVarValue, generateImageSrc, generateGraphEquations, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes, numShuffles + 1);
+        const shuffle: Shuffle = {
+            type: 'SHUFFLE',
+            varName: `shuffle${numShuffles + 1}`,
+            content: contentAST.ast.ast,
+            shuffledIndeces: shuffleItems(new Array(contentAST.ast.ast.length).map((x, index) => index))
+        };
+
+        return buildAST(source.replace(matchedContent, ''), {
+            ...ast,
+            ast: [...ast.ast, shuffle]
         }, generateVarValue, generateImageSrc, generateGraphEquations, contentAST.numInputs, contentAST.numEssays, contentAST.numChecks, contentAST.numRadios, contentAST.numDrags, contentAST.numDrops, contentAST.numSolutions, contentAST.numCodes, contentAST.numShuffles);
     }
 
@@ -599,7 +614,7 @@ function generateRandomInteger(min: number, max: number): number {
 }
 
 // shuffles items and returns a new array. Based on the modern Fisher-Yates shuffle algorithm
-function shuffleItems(items: any[]) {
+export function shuffleItems(items: any[]) {
   return items.reduce((result, item, index) => {
     if (index === items.length - 1) {
       return result;
