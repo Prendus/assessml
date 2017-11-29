@@ -80,3 +80,16 @@ export interface Shuffle {
     readonly varName: string;
     readonly content: ASTObject[];
 }
+
+export interface BuildASTResult {
+    readonly ast: AST;
+    readonly numInputs: number;
+    readonly numEssays: number;
+    readonly numChecks: number;
+    readonly numRadios: number;
+    readonly numDrags: number;
+    readonly numDrops: number;
+    readonly numSolutions: number;
+    readonly numCodes: number;
+    readonly numShuffles: number;
+}

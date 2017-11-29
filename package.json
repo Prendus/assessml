@@ -23,5 +23,7 @@
     "guesswork": "^0.3.1",
     "scram-engine": "^0.6.17"
   },
-  "dependencies": {}
+  "dependencies": {
+    "xregexp": "git+https://github.com/slevithan/xregexp.git"
+  }
 }

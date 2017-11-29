@@ -83,7 +83,11 @@ const arbCheck = jsc.record({
             return `check${numChecks++}`;
         }
     }),
-    content: jsc.array(jsc.oneof([arbContent, arbVariable, arbImage]))
+    content: jsc.bless({
+        generator: () => {
+            return jsc.sampler(arbASTArray)();
+        }
+    })
 });
 
 let numRadios = 1;
@@ -94,7 +98,11 @@ const arbRadio = jsc.record({
             return `radio${numRadios++}`;
         }
     }),
-    content: jsc.array(jsc.oneof([arbContent, arbVariable, arbImage]))
+    content: jsc.bless({
+        generator: () => {
+            return jsc.sampler(arbASTArray)();
+        }
+    })
 });
 
 let numSolutions = 1;
@@ -105,12 +113,18 @@ const arbSolution = jsc.record({
             return `solution${numSolutions++}`;
         }
     }),
-    content: jsc.array(jsc.oneof([arbContent, arbVariable, arbImage]))
+    content: jsc.bless({
+        generator: () => {
+            return jsc.sampler(arbASTArray)();
+        }
+    })
 });
+
+const arbASTArray = jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbImage, arbCode, arbGraph, jsc.oneof(arbContent, arbCheck), jsc.oneof(arbContent, arbSolution)]));
 
 export const arbAST = jsc.record({
     type: jsc.constant('AST'),
-    ast: jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbCheck, arbRadio, arbImage, arbSolution, arbCode, arbGraph]))
+    ast: arbASTArray
 });
 
 // combine any content elements that are adjacent. Look at the previous astObject, if it is of type CONTENT and the current element is of type CONTENT, then remove the previous one and put yourself in, combinging your values
