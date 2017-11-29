@@ -120,7 +120,7 @@ const arbSolution = jsc.record({
     })
 });
 
-const arbASTArray = jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbImage, arbCode, arbGraph, jsc.oneof(arbContent, arbCheck), jsc.oneof(arbContent, arbSolution)]));
+const arbASTArray = jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbImage, arbCode, arbGraph, jsc.oneof(arbContent, arbCheck), jsc.oneof(arbContent, arbRadio),jsc.oneof(arbContent, arbSolution)]));
 
 export const arbAST = jsc.record({
     type: jsc.constant('AST'),

@@ -21,76 +21,120 @@ import XRegExp from './node_modules/xregexp/src/index';
 
 export function compileToHTML(source: AST | string, generateVarValue: (varName: string) => number | string, generateImageSrc: (varName: string) => string, generateGraphEquations: (varName: string) => string[]): string {
     const ast: AST = typeof source === 'string' ? parse(source, generateVarValue, generateImageSrc, generateGraphEquations) : source;
-    const radioGroupName: string = createUUID();
-
-    return ast.ast.reduce((result: string, astObject: ASTObject) => {
+    return ast.ast.reduce((result: { htmlString: string; radioGroupName: string; }, astObject: ASTObject, index: number) => {
 
         if (astObject.type === 'CONTENT') {
-            return `${result}${astObject.content}`;
+            return {
+                htmlString: `${result.htmlString}${astObject.content}`,
+                radioGroupName: result.radioGroupName
+            }
         }
 
         if (astObject.type === 'VARIABLE') {
-            return `${result}${astObject.value}`;
+            return {
+                htmlString: `${result.htmlString}${astObject.value}`,
+                radioGroupName: result.radioGroupName
+            };
         }
 
         if (astObject.type === 'INPUT') {
-            return `${result}<span id="${astObject.varName}" contenteditable="true" style="display: inline-block; min-width: 25px; min-height: 25px; padding: 5px; box-shadow: 0px 0px 1px black;"></span>`
+            return {
+                htmlString: `${result.htmlString}<span id="${astObject.varName}" contenteditable="true" style="display: inline-block; min-width: 25px; min-height: 25px; padding: 5px; box-shadow: 0px 0px 1px black;"></span>`,
+                radioGroupName: result.radioGroupName
+            };
         }
 
         if (astObject.type === 'ESSAY') {
-            return `${result}<textarea id="${astObject.varName}" style="width: 100%; height: 50vh;"></textarea>`
+            return {
+                htmlString: `${result.htmlString}<textarea id="${astObject.varName}" style="width: 100%; height: 50vh;"></textarea>`,
+                radioGroupName: result.radioGroupName
+            };
         }
 
         if (astObject.type === 'CODE') {
-            return `${result}<juicy-ace-editor id="${astObject.varName}" theme="ace/theme/chrome" mode="ace/mode/javascript" style="height: 50vh" fontsize="25px"></juicy-ace-editor>`;
+            return {
+                htmlString: `${result.htmlString}<juicy-ace-editor id="${astObject.varName}" theme="ace/theme/chrome" mode="ace/mode/javascript" style="height: 50vh" fontsize="25px"></juicy-ace-editor>`,
+                radioGroupName: result.radioGroupName
+            };
         }
 
         if (astObject.type === 'CHECK') {
-            return `${result}<input id="${astObject.varName}" type="checkbox" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
-                type: 'AST',
-                ast: astObject.content
-            }, generateVarValue, generateImageSrc, generateGraphEquations)}`;
+            return {
+                htmlString: `${result.htmlString}<input id="${astObject.varName}" type="checkbox" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
+                    type: 'AST',
+                    ast: astObject.content
+                }, generateVarValue, generateImageSrc, generateGraphEquations)}`,
+                radioGroupName: result.radioGroupName
+            };
         }
 
         if (astObject.type === 'RADIO') {
-            return `${result}<input id="${astObject.varName}" type="radio" name="${radioGroupName}" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
-                type: 'AST',
-                ast: astObject.content
-            }, generateVarValue, generateImageSrc, generateGraphEquations)}`;
+            const previousASTObject = ast.ast[index - 1];
+            const previousASTObjectType = previousASTObject ? previousASTObject.type : null;
+            const radioGroupName = previousASTObjectType === 'RADIO' ? result.radioGroupName : `${result.radioGroupName}${index}`;
+
+            return {
+                htmlString: `${result.htmlString}<input id="${astObject.varName}" type="radio" name="${radioGroupName}" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
+                    type: 'AST',
+                    ast: astObject.content
+                }, generateVarValue, generateImageSrc, generateGraphEquations)}`,
+                radioGroupName
+            };
         }
 
         if (astObject.type === 'DRAG') {
-            return `${result}DRAG NOT IMPLEMENTED`;
+            return {
+                htmlString: `${result.htmlString}DRAG NOT IMPLEMENTED`,
+                radioGroupName: result.radioGroupName
+            };
         }
 
         if (astObject.type === 'DROP') {
-            return `${result}DROP NOT IMPLEMENTED`;
+            return {
+                htmlString: `${result.htmlString}DROP NOT IMPLEMENTED`,
+                radioGroupName: result.radioGroupName
+            };
         }
 
         if (astObject.type === 'IMAGE') {
-            return `${result}<img src="${astObject.src}">`;
+            return {
+                htmlString: `${result.htmlString}<img src="${astObject.src}">`,
+                radioGroupName: result.radioGroupName
+            };
         }
 
         if (astObject.type === 'SOLUTION') {
-            return `${result}<template id="${astObject.varName}">${compileToHTML({
-                type: 'AST',
-                ast: astObject.content
-            }, generateVarValue, generateImageSrc, generateGraphEquations)}</template>`;
+            return {
+                htmlString: `${result.htmlString}<template id="${astObject.varName}">${compileToHTML({
+                    type: 'AST',
+                    ast: astObject.content
+                }, generateVarValue, generateImageSrc, generateGraphEquations)}</template>`,
+                radioGroupName: result.radioGroupName
+            };
         }
 
         if (astObject.type === 'GRAPH') {
-            return `${result}<function-plot data='[${astObject.equations.reduce((result, equation, index) => `${result}${index !== 0 ? ',' : ''}{ "fn": "${equation}" }`, '')}]'></function-plot>`;
+            return {
+                htmlString: `${result.htmlString}<function-plot data='[${astObject.equations.reduce((result, equation, index) => `${result}${index !== 0 ? ',' : ''}{ "fn": "${equation}" }`, '')}]'></function-plot>`,
+                radioGroupName: result.radioGroupName
+            };
         }
 
         if (astObject.type === 'SHUFFLE') {
-            return `${result}${compileToHTML({
-                type: 'AST',
-                ast: shuffleItems(astObject.content)
-            }, generateVarValue, generateImageSrc, generateGraphEquations)}`;
+            return {
+                htmlString: `${result.htmlString}${compileToHTML({
+                    type: 'AST',
+                    ast: shuffleItems(astObject.content)
+                }, generateVarValue, generateImageSrc, generateGraphEquations)}`,
+                radioGroupName: result.radioGroupName
+            };
         }
 
         return result;
-    }, '');
+    }, {
+        htmlString: '',
+        radioGroupName: 'radio-group-'
+    }).htmlString;
 }
 
 export function compileToAssessML(source: AST | string, generateVarValue: (varName: string) => number | string, generateImageSrc: (varName: string) => string, generateGraphEquations: (varName: string) => string[]): string {
@@ -432,19 +476,19 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
     };
 }
 
-export function createUUID(): string {
-    //From persistence.js; Copyright (c) 2010 Zef Hemel <zef@zef.me> * * Permission is hereby granted, free of charge, to any person * obtaining a copy of this software and associated documentation * files (the "Software"), to deal in the Software without * restriction, including without limitation the rights to use, * copy, modify, merge, publish, distribute, sublicense, and/or sell * copies of the Software, and to permit persons to whom the * Software is furnished to do so, subject to the following * conditions: * * The above copyright notice and this permission notice shall be * included in all copies or substantial portions of the Software. * * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR * OTHER DEALINGS IN THE SOFTWARE.
-	var s: any[] = [];
-	var hexDigits = "0123456789ABCDEF";
-	for ( var i = 0; i < 32; i++) {
-		s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
-	}
-	s[12] = "4";
-	s[16] = hexDigits.substr((s[16] & 0x3) | 0x8, 1);
-
-	var uuid = s.join("");
-	return uuid;
-}
+// export function createUUID(): string {
+//     //From persistence.js; Copyright (c) 2010 Zef Hemel <zef@zef.me> * * Permission is hereby granted, free of charge, to any person * obtaining a copy of this software and associated documentation * files (the "Software"), to deal in the Software without * restriction, including without limitation the rights to use, * copy, modify, merge, publish, distribute, sublicense, and/or sell * copies of the Software, and to permit persons to whom the * Software is furnished to do so, subject to the following * conditions: * * The above copyright notice and this permission notice shall be * included in all copies or substantial portions of the Software. * * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR * OTHER DEALINGS IN THE SOFTWARE.
+// 	var s: any[] = [];
+// 	var hexDigits = "0123456789ABCDEF";
+// 	for ( var i = 0; i < 32; i++) {
+// 		s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+// 	}
+// 	s[12] = "4";
+// 	s[16] = hexDigits.substr((s[16] & 0x3) | 0x8, 1);
+//
+// 	var uuid = s.join("");
+// 	return uuid;
+// }
 
 export function getAstObjects(ast: AST, type: ASTObjectType): ASTObject[] {
     return ast.ast.reduce((result: ASTObject[], astObject: ASTObject) => {
