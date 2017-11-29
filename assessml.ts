@@ -17,7 +17,7 @@ import {
     Shuffle,
     BuildASTResult
 } from './assessml.d';
-import XRegExp from './node_modules/xregexp/src/index';
+import XRegExp from './xregexp/src/index';
 
 export function compileToHTML(source: AST | string, generateVarValue: (varName: string) => number | string, generateImageSrc: (varName: string) => string, generateGraphEquations: (varName: string) => string[]): string {
     const ast: AST = typeof source === 'string' ? parse(source, generateVarValue, generateImageSrc, generateGraphEquations) : source;
