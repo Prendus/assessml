@@ -76,8 +76,14 @@ export function compileToHTML(source: AST | string, generateVarValue: (varName: 
 
         if (astObject.type === 'RADIO') {
             const previousASTObject = ast.ast[index - 1];
-            const previousASTObjectType = previousASTObject ? previousASTObject.type : null;
-            const radioGroupName = previousASTObjectType === 'RADIO' ? result.radioGroupName : `${result.radioGroupName}${result.radioGroupNumber}`;
+            const thereIsARadioPreceeding = previousASTObject ? (
+                previousASTObject.type === 'CONTENT' && (
+                    previousASTObject.content.replace(/<p>|<\/p>|<span>|<\/span>|<br>/g, '') === ''
+                )
+            ) ||
+            previousASTObject.type === 'RADIO' :
+            false;
+            const radioGroupName = thereIsARadioPreceeding ? result.radioGroupName : `${result.radioGroupName}${result.radioGroupNumber}`;
 
             return {
                 htmlString: `${result.htmlString}<input id="${astObject.varName}" type="radio" name="${radioGroupName}" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
@@ -144,7 +150,10 @@ export function compileToHTML(source: AST | string, generateVarValue: (varName: 
                             };
                         }
 
-                        return result;
+                        return {
+                            ...result,
+                            ast: [...result.ast, innerASTObject]
+                        };
                     }, {
                         ast: [],
                         shuffledIndeces: astObject.shuffledIndeces

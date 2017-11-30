@@ -293,7 +293,7 @@ export function verifyHTML(ast: AST, htmlString: string) {
             //TODO we also aren't testing that the content objects stay in place
             const shuffleString = compileToHTML({
                     type: 'AST',
-                    ast: astObject.shuffledIndeces.map((index: number) => astObject.content[index])
+                    ast: [astObject]
                 },
                 (varName: string) => getASTObjectPayload(ast, 'VARIABLE', varName),
                 (varName: string) => getASTObjectPayload(ast, 'IMAGE', varName),
@@ -335,16 +335,18 @@ export function addShuffledIndeces(ast: AST): AST {
                 astObject.type === 'DROP'
             ) {
                 if (astObject.type === 'SHUFFLE') {
+                    const flattenedContentAST = flattenContentObjects({
+                        type: 'AST',
+                        ast: astObject.content
+                    }).ast;
+
                     return {
                         ...astObject,
                         content: addShuffledIndeces({
                             type: 'AST',
                             ast: astObject.content
                         }).ast,
-                        shuffledIndeces: shuffleItems(new Array(flattenContentObjects({
-                            type: 'AST',
-                            ast: astObject.content
-                        }).ast.filter(astObject => astObject.type !== 'CONTENT').length).fill(0).map((x, index) => index))
+                        shuffledIndeces: shuffleItems(new Array(flattenedContentAST.length).fill(0).map((x, index) => index).filter((index: number) => flattenedContentAST[index].type !== 'CONTENT'))
                     };
                 }
                 else {
