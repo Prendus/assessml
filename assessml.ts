@@ -514,15 +514,18 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
     };
 }
 
-export function getAstObjects(ast: AST, type: ASTObjectType): ASTObject[] {
+export function getAstObjects(ast: AST, type: ASTObjectType, typesToExclude?: ASTObjectType[]): ASTObject[] {
     return ast.ast.reduce((result: ASTObject[], astObject: ASTObject) => {
+        const shouldExcludeType = typesToExclude && typesToExclude.includes(astObject.type);
+
         if (
             astObject.type === 'CHECK' ||
             astObject.type === 'RADIO' ||
             astObject.type === 'SOLUTION' ||
             astObject.type === 'SHUFFLE' ||
             astObject.type === 'DRAG' ||
-            astObject.type === 'DROP'
+            astObject.type === 'DROP' &&
+            !shouldExcludeType
         ) {
             if (astObject.type === type) {
                 return [...result, astObject, ...getAstObjects({
@@ -538,7 +541,7 @@ export function getAstObjects(ast: AST, type: ASTObjectType): ASTObject[] {
             }
         }
 
-        if (astObject.type === type) {
+        if (astObject.type === type && !shouldExcludeType) {
             return [...result, astObject];
         }
 
