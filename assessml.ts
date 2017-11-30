@@ -397,7 +397,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
             type: 'SHUFFLE',
             varName,
             content: contentAST.ast.ast,
-            shuffledIndeces: existingShuffledIndeces !== null ? existingShuffledIndeces : shuffleItems(new Array(contentAST.ast.ast.filter(astObject => astObject.type !== 'CONTENT').length).fill(0).map((x, index) => index))
+            shuffledIndeces: existingShuffledIndeces !== null ? existingShuffledIndeces : shuffleItems(new Array(contentAST.ast.ast.length).fill(0).map((x, index) => index).filter((index: number) => contentAST.ast.ast[index].type !== 'CONTENT'))
         };
 
         return buildAST(source.replace(matchedContent, ''), {
