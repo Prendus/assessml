@@ -290,6 +290,7 @@ export function verifyHTML(ast: AST, htmlString: string) {
         if (astObject.type === 'SHUFFLE') {
             //TODO Not sure this test is very useful. We are using the compileToHTML function in the implementation of the test for the compileToHTML function...albeit it is different because we're using it only on one piece of the AST instead of the entire AST
             //TODO this is not testing that the randomness works
+            //TODO we also aren't testing that the content objects stay in place
             const shuffleString = compileToHTML({
                     type: 'AST',
                     ast: astObject.shuffledIndeces.map((index: number) => astObject.content[index])
@@ -343,7 +344,7 @@ export function addShuffledIndeces(ast: AST): AST {
                         shuffledIndeces: shuffleItems(new Array(flattenContentObjects({
                             type: 'AST',
                             ast: astObject.content
-                        }).ast.length).fill(0).map((x, index) => index))
+                        }).ast.filter(astObject => astObject.type !== 'CONTENT').length).fill(0).map((x, index) => index))
                     };
                 }
                 else {

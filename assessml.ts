@@ -136,7 +136,19 @@ export function compileToHTML(source: AST | string, generateVarValue: (varName: 
             return {
                 htmlString: `${result.htmlString}${compileToHTML({
                     type: 'AST',
-                    ast: astObject.shuffledIndeces.map((index: number) => astObject.content[index])
+                    ast: astObject.content.reduce((result, innerASTObject: ASTObject) => {
+                        if (innerASTObject.type !== 'CONTENT') {
+                            return {
+                                ast: [...result.ast, astObject.content[result.shuffledIndeces[0]]],
+                                shuffledIndeces: result.shuffledIndeces.slice(1)
+                            };
+                        }
+
+                        return result;
+                    }, {
+                        ast: [],
+                        shuffledIndeces: astObject.shuffledIndeces
+                    }).ast
                 }, generateVarValue, generateImageSrc, generateGraphEquations, generateShuffledIndeces)}`,
                 radioGroupName: result.radioGroupName,
                 radioGroupNumber: result.radioGroupNumber
@@ -385,7 +397,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
             type: 'SHUFFLE',
             varName,
             content: contentAST.ast.ast,
-            shuffledIndeces: existingShuffledIndeces !== null ? existingShuffledIndeces : shuffleItems(new Array(contentAST.ast.ast.length).fill(0).map((x, index) => index))
+            shuffledIndeces: existingShuffledIndeces !== null ? existingShuffledIndeces : shuffleItems(new Array(contentAST.ast.ast.filter(astObject => astObject.type !== 'CONTENT').length).fill(0).map((x, index) => index))
         };
 
         return buildAST(source.replace(matchedContent, ''), {
