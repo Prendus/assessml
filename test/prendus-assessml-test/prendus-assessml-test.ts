@@ -17,7 +17,19 @@ class PrendusAssessMLTest extends HTMLElement {
             const shuffledAst = addShuffledIndeces(arbAST);
             const flattenedAst = flattenContentObjects(shuffledAst);
             const normalizedAST = normalizeASTObjectPayloads(flattenedAst, flattenedAst);
-            const parsedAst = parse(compileToAssessML(normalizedAST, (varName) => generateVarValue(normalizedAST, varName), (varName) => getASTObjectPayload(normalizedAST, 'IMAGE', varName), (varName) => getASTObjectPayload(normalizedAST, 'GRAPH', varName)), (varName) => generateVarValue(normalizedAST, varName), (varName) => getASTObjectPayload(normalizedAST, 'IMAGE', varName), (varName) => getASTObjectPayload(flattenedAst, 'GRAPH', varName));
+            const parsedAst = parse(
+                compileToAssessML(
+                    normalizedAST,
+                    (varName: string) => generateVarValue(normalizedAST, varName),
+                    (varName: string) => getASTObjectPayload(normalizedAST, 'IMAGE', varName),
+                    (varName: string) => getASTObjectPayload(normalizedAST, 'GRAPH', varName),
+                    (varName: string) => getASTObjectPayload(normalizedAST, 'SHUFFLE', varName)
+                ),
+                (varName: string) => generateVarValue(normalizedAST, varName),
+                (varName: string) => getASTObjectPayload(normalizedAST, 'IMAGE', varName),
+                (varName: string) => getASTObjectPayload(flattenedAst, 'GRAPH', varName),
+                (varName: string) => getASTObjectPayload(normalizedAST, 'SHUFFLE', varName)
+            );
 
             const result = deepEqual(normalizedAST, parsedAst, {
                 strict: true
@@ -31,9 +43,21 @@ class PrendusAssessMLTest extends HTMLElement {
              const shuffledAst = addShuffledIndeces(arbAST);
              const flattenedAst = flattenContentObjects(shuffledAst);
              const normalizedAST = normalizeASTObjectPayloads(flattenedAst, flattenedAst);
-             const assessMLString = compileToAssessML(normalizedAST, (varName) => generateVarValue(normalizedAST, varName), (varName) => getASTObjectPayload(normalizedAST, 'IMAGE', varName), (varName) => getASTObjectPayload(normalizedAST, 'GRAPH', varName));
+             const assessMLString = compileToAssessML(
+                 normalizedAST,
+                 (varName: string) => generateVarValue(normalizedAST, varName),
+                 (varName: string) => getASTObjectPayload(normalizedAST, 'IMAGE', varName),
+                 (varName: string) => getASTObjectPayload(normalizedAST, 'GRAPH', varName),
+                 (varName: string) => getASTObjectPayload(normalizedAST, 'SHUFFLE', varName)
+             );
 
-             const result = assessMLString === compileToAssessML(assessMLString, (varName) => generateVarValue(normalizedAST, varName), (varName) => getASTObjectPayload(normalizedAST, 'IMAGE', varName), (varName) => getASTObjectPayload(normalizedAST, 'GRAPH', varName));
+             const result = assessMLString === compileToAssessML(
+                 assessMLString,
+                 (varName: string) => generateVarValue(normalizedAST, varName),
+                 (varName: string) => getASTObjectPayload(normalizedAST, 'IMAGE', varName),
+                 (varName: string) => getASTObjectPayload(normalizedAST, 'GRAPH', varName),
+                 (varName: string) => getASTObjectPayload(normalizedAST, 'SHUFFLE', varName)
+             );
 
              return result;
          });
@@ -43,9 +67,20 @@ class PrendusAssessMLTest extends HTMLElement {
             const shuffledAst = addShuffledIndeces(arbAST);
             const flattenedAst = flattenContentObjects(shuffledAst);
             const normalizedAST = normalizeASTObjectPayloads(flattenedAst, flattenedAst);
-            const assessMLString = compileToAssessML(normalizedAST, (varName) => generateVarValue(normalizedAST, varName), (varName) => getASTObjectPayload(normalizedAST, 'IMAGE', varName), (varName) => getASTObjectPayload(normalizedAST, 'GRAPH', varName));
+            const assessMLString = compileToAssessML(normalizedAST,
+                (varName: string) => generateVarValue(normalizedAST, varName),
+                (varName: string) => getASTObjectPayload(normalizedAST, 'IMAGE', varName),
+                (varName: string) => getASTObjectPayload(normalizedAST, 'GRAPH', varName),
+                (varName: string) => getASTObjectPayload(normalizedAST, 'SHUFFLE', varName)
+            );
 
-            const result = assessMLString === compileToAssessML(normalizedAST, (varName) => generateVarValue(normalizedAST, varName), (varName) => getASTObjectPayload(normalizedAST, 'IMAGE', varName), (varName) => getASTObjectPayload(normalizedAST, 'GRAPH', varName));
+            const result = assessMLString === compileToAssessML(
+                normalizedAST,
+                (varName: string) => generateVarValue(normalizedAST, varName),
+                (varName: string) => getASTObjectPayload(normalizedAST, 'IMAGE', varName),
+                (varName: string) => getASTObjectPayload(normalizedAST, 'GRAPH', varName),
+                (varName: string) => getASTObjectPayload(normalizedAST, 'SHUFFLE', varName)
+            );
 
             return result;
          });
@@ -55,11 +90,23 @@ class PrendusAssessMLTest extends HTMLElement {
             const shuffledAst = addShuffledIndeces(arbAST);
             const flattenedAst = flattenContentObjects(shuffledAst);
             const normalizedAST = normalizeASTObjectPayloads(flattenedAst, flattenedAst);
-            const htmlString = compileToHTML(normalizedAST, (varName) => generateVarValue(normalizedAST, varName), (varName) => getASTObjectPayload(normalizedAST, 'IMAGE', varName), (varName) => getASTObjectPayload(normalizedAST, 'GRAPH', varName));
 
-            const result = verifyHTML(normalizedAST, htmlString);
+            try {
+                const htmlString = compileToHTML(
+                    normalizedAST,
+                    (varName: string) => generateVarValue(normalizedAST, varName),
+                    (varName: string) => getASTObjectPayload(normalizedAST, 'IMAGE', varName),
+                    (varName: string) => getASTObjectPayload(normalizedAST, 'GRAPH', varName),
+                    (varName: string) => getASTObjectPayload(normalizedAST, 'SHUFFLE', varName)
+                );
 
-            return result;
+                const result = verifyHTML(normalizedAST, htmlString);
+
+                return result;
+            }
+            catch(error) {
+                console.log(normalizedAST);
+            }
         });
 
         test('The compileToHTML function should take an arbitrary AssessML string and return a correct HTML string', [arbAST], (arbAST: AST) => {
@@ -67,8 +114,20 @@ class PrendusAssessMLTest extends HTMLElement {
             const shuffledAst = addShuffledIndeces(arbAST);
             const flattenedAst = flattenContentObjects(shuffledAst);
             const normalizedAST = normalizeASTObjectPayloads(flattenedAst, flattenedAst);
-            const assessMLString = compileToAssessML(normalizedAST, (varName) => generateVarValue(normalizedAST, varName), (varName) => getASTObjectPayload(normalizedAST, 'IMAGE', varName), (varName) => getASTObjectPayload(normalizedAST, 'GRAPH', varName));
-            const htmlString = compileToHTML(normalizedAST, (varName) => generateVarValue(normalizedAST, varName), (varName) => getASTObjectPayload(normalizedAST, 'IMAGE', varName), (varName) => getASTObjectPayload(normalizedAST, 'GRAPH', varName));
+            const assessMLString = compileToAssessML(
+                normalizedAST,
+                (varName: string) => generateVarValue(normalizedAST, varName),
+                (varName: string) => getASTObjectPayload(normalizedAST, 'IMAGE', varName),
+                (varName: string) => getASTObjectPayload(normalizedAST, 'GRAPH', varName),
+                (varName: string) => getASTObjectPayload(normalizedAST, 'SHUFFLE', varName)
+            );
+            const htmlString = compileToHTML(
+                normalizedAST,
+                (varName: string) => generateVarValue(normalizedAST, varName),
+                (varName: string) => getASTObjectPayload(normalizedAST, 'IMAGE', varName),
+                (varName: string) => getASTObjectPayload(normalizedAST, 'GRAPH', varName),
+                (varName: string) => getASTObjectPayload(normalizedAST, 'SHUFFLE', varName)
+            );
 
             const result = verifyHTML(normalizedAST, htmlString);
 

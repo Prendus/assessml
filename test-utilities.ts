@@ -223,45 +223,10 @@ export function verifyHTML(ast: AST, htmlString: string) {
             }
         }
 
-        if (astObject.type === 'CHECK') {
-            const checkString = `<input id="${astObject.varName}" type="checkbox" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
-                type: 'AST',
-                ast: astObject.content
-            }, (varName: string) => generateVarValue(ast, varName), (varName: string) => '', (varName: string) => [])}`
-
-            if (result.indexOf(checkString) === 0) {
-                return result.replace(checkString, '');
-            }
-        }
-
-        if (astObject.type === 'RADIO') {
-            const radioGroupNameMatch = result.match(/name="((.|\n|\r)+?)"/);
-            const radioGroupName = radioGroupNameMatch ? radioGroupNameMatch[1] : '';
-            const radioString = `<input id="${astObject.varName}" type="radio" name="${radioGroupName}" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
-                type: 'AST',
-                ast: astObject.content
-            }, (varName: string) => generateVarValue(ast, varName), (varName: string) => '', (varName: string) => [])}`;
-
-            if (result.indexOf(radioString) === 0) {
-                return result.replace(radioString, '');
-            }
-        }
-
         if (astObject.type === 'IMAGE') {
             const imageString = `<img src="${astObject.src}">`;
             if (result.indexOf(imageString) === 0) {
                 return result.replace(imageString, '');
-            }
-        }
-
-        if (astObject.type === 'SOLUTION') {
-            const solutionString = `<template id="${astObject.varName}">${compileToHTML({
-                type: 'AST',
-                ast: astObject.content
-            }, (varName: string) => generateVarValue(ast, varName), (varName: string) => '', (varName: string) => [])}</template>`
-
-            if (result.indexOf(solutionString) === 0) {
-                return result.replace(solutionString, '');
             }
         }
 
@@ -272,12 +237,68 @@ export function verifyHTML(ast: AST, htmlString: string) {
             }
         }
 
+        if (astObject.type === 'CHECK') {
+            const checkString = `<input id="${astObject.varName}" type="checkbox" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
+                    type: 'AST',
+                    ast: astObject.content
+                },
+                (varName: string) => getASTObjectPayload(ast, 'VARIABLE', varName),
+                (varName: string) => getASTObjectPayload(ast, 'IMAGE', varName),
+                (varName: string) => getASTObjectPayload(ast, 'GRAPH', varName),
+                (varName: string) => getASTObjectPayload(ast, 'SHUFFLE', varName)
+            )}`;
+
+            if (result.indexOf(checkString) === 0) {
+                return result.replace(checkString, '');
+            }
+        }
+
+        if (astObject.type === 'RADIO') {
+            const radioGroupNameMatch = result.match(/name="((.|\n|\r)+?)"/);
+            const radioGroupName = radioGroupNameMatch ? radioGroupNameMatch[1] : '';
+            const radioString = `<input id="${astObject.varName}" type="radio" name="${radioGroupName}" style="width: calc(40px - 1vw); height: calc(40px - 1vw);">${compileToHTML({
+                    type: 'AST',
+                    ast: astObject.content
+                },
+                (varName: string) => getASTObjectPayload(ast, 'VARIABLE', varName),
+                (varName: string) => getASTObjectPayload(ast, 'IMAGE', varName),
+                (varName: string) => getASTObjectPayload(ast, 'GRAPH', varName),
+                (varName: string) => getASTObjectPayload(ast, 'SHUFFLE', varName)
+            )}`;
+
+            if (result.indexOf(radioString) === 0) {
+                return result.replace(radioString, '');
+            }
+        }
+
+        if (astObject.type === 'SOLUTION') {
+            const solutionString = `<template id="${astObject.varName}">${compileToHTML({
+                    type: 'AST',
+                    ast: astObject.content
+                },
+                (varName: string) => getASTObjectPayload(ast, 'VARIABLE', varName),
+                (varName: string) => getASTObjectPayload(ast, 'IMAGE', varName),
+                (varName: string) => getASTObjectPayload(ast, 'GRAPH', varName),
+                (varName: string) => getASTObjectPayload(ast, 'SHUFFLE', varName)
+            )}</template>`
+
+            if (result.indexOf(solutionString) === 0) {
+                return result.replace(solutionString, '');
+            }
+        }
+
         if (astObject.type === 'SHUFFLE') {
             //TODO Not sure this test is very useful. We are using the compileToHTML function in the implementation of the test for the compileToHTML function...albeit it is different because we're using it only on one piece of the AST instead of the entire AST
+            //TODO this is not testing that the randomness works
             const shuffleString = compileToHTML({
-                type: 'AST',
-                ast: astObject.shuffledIndeces.map((index: number) => astObject.content[index])
-            }, (varName) => getASTObjectPayload(ast, 'VARIABLE', varName), (varName) => getASTObjectPayload(ast, 'IMAGE', varName), (varName) => getASTObjectPayload(ast, 'GRAPH', varName));
+                    type: 'AST',
+                    ast: astObject.shuffledIndeces.map((index: number) => astObject.content[index])
+                },
+                (varName: string) => getASTObjectPayload(ast, 'VARIABLE', varName),
+                (varName: string) => getASTObjectPayload(ast, 'IMAGE', varName),
+                (varName: string) => getASTObjectPayload(ast, 'GRAPH', varName),
+                (varName: string) => getASTObjectPayload(ast, 'SHUFFLE', varName)
+            );
 
             if (result.indexOf(shuffleString) === 0) {
                 return result.replace(shuffleString, '');
@@ -319,7 +340,10 @@ export function addShuffledIndeces(ast: AST): AST {
                             type: 'AST',
                             ast: astObject.content
                         }).ast,
-                        shuffledIndeces: shuffleItems(new Array(astObject.content.length).map((x, index) => index))
+                        shuffledIndeces: shuffleItems(new Array(flattenContentObjects({
+                            type: 'AST',
+                            ast: astObject.content
+                        }).ast.length).fill(0).map((x, index) => index))
                     };
                 }
                 else {
