@@ -519,12 +519,14 @@ export function getAstObjects(ast: AST, type: ASTObjectType, typesToExclude?: AS
         const shouldExcludeType = typesToExclude && typesToExclude.includes(astObject.type);
 
         if (
-            astObject.type === 'CHECK' ||
-            astObject.type === 'RADIO' ||
-            astObject.type === 'SOLUTION' ||
-            astObject.type === 'SHUFFLE' ||
-            astObject.type === 'DRAG' ||
-            astObject.type === 'DROP' &&
+            (
+                astObject.type === 'CHECK' ||
+                astObject.type === 'RADIO' ||
+                astObject.type === 'SOLUTION' ||
+                astObject.type === 'SHUFFLE' ||
+                astObject.type === 'DRAG' ||
+                astObject.type === 'DROP'
+            ) &&
             !shouldExcludeType
         ) {
             if (astObject.type === type) {
