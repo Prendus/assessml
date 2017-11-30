@@ -531,13 +531,13 @@ export function getAstObjects(ast: AST, type: ASTObjectType, typesToExclude?: AS
                 return [...result, astObject, ...getAstObjects({
                     type: 'AST',
                     ast: astObject.content
-                }, type)];
+                }, type, typesToExclude)];
             }
             else {
                 return [...result, ...getAstObjects({
                     type: 'AST',
                     ast: astObject.content
-                }, type)];
+                }, type, typesToExclude)];
             }
         }
 
