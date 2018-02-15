@@ -113,7 +113,7 @@ export function compileToHTML(source: AST | string, generateVarValue: (varName: 
 
         if (astObject.type === 'IMAGE') {
             return {
-                htmlString: `${result.htmlString}<img src="${astObject.src}">`,
+                htmlString: `${result.htmlString}<img style="height: auto; max-width: 50vw" src="${astObject.src}">`,
                 radioGroupName: result.radioGroupName,
                 radioGroupNumber: result.radioGroupNumber
             };

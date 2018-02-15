@@ -224,7 +224,7 @@ export function verifyHTML(ast: AST, htmlString: string) {
         }
 
         if (astObject.type === 'IMAGE') {
-            const imageString = `<img src="${astObject.src}">`;
+            const imageString = `<img style="height: auto; max-width: 50vw" src="${astObject.src}">`;
             if (result.indexOf(imageString) === 0) {
                 return result.replace(imageString, '');
             }
