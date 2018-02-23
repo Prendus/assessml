@@ -17,14 +17,15 @@ class PrendusAssessMLTest extends HTMLElement {
             const shuffledAst = addShuffledIndeces(arbAST);
             const flattenedAst = flattenContentObjects(shuffledAst);
             const normalizedAST = normalizeASTObjectPayloads(flattenedAst, flattenedAst);
+            const assessML = compileToAssessML(
+                normalizedAST,
+                (varName: string) => generateVarValue(normalizedAST, varName),
+                (varName: string) => getASTObjectPayload(normalizedAST, 'IMAGE', varName),
+                (varName: string) => getASTObjectPayload(normalizedAST, 'GRAPH', varName),
+                (varName: string) => getASTObjectPayload(normalizedAST, 'SHUFFLE', varName)
+            );
             const parsedAst = parse(
-                compileToAssessML(
-                    normalizedAST,
-                    (varName: string) => generateVarValue(normalizedAST, varName),
-                    (varName: string) => getASTObjectPayload(normalizedAST, 'IMAGE', varName),
-                    (varName: string) => getASTObjectPayload(normalizedAST, 'GRAPH', varName),
-                    (varName: string) => getASTObjectPayload(normalizedAST, 'SHUFFLE', varName)
-                ),
+                assessML,
                 (varName: string) => generateVarValue(normalizedAST, varName),
                 (varName: string) => getASTObjectPayload(normalizedAST, 'IMAGE', varName),
                 (varName: string) => getASTObjectPayload(flattenedAst, 'GRAPH', varName),

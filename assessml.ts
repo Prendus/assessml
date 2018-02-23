@@ -94,21 +94,21 @@ export function compileToHTML(source: AST | string, generateVarValue: (varName: 
             };
         }
 
-        if (astObject.type === 'DRAG') {
-            return {
-                htmlString: `${result.htmlString}DRAG NOT IMPLEMENTED`,
-                radioGroupName: result.radioGroupName,
-                radioGroupNumber: result.radioGroupNumber
-            };
-        }
-
-        if (astObject.type === 'DROP') {
-            return {
-                htmlString: `${result.htmlString}DROP NOT IMPLEMENTED`,
-                radioGroupName: result.radioGroupName,
-                radioGroupNumber: result.radioGroupNumber
-            };
-        }
+        // if (astObject.type === 'DRAG') {
+        //     return {
+        //         htmlString: `${result.htmlString}DRAG NOT IMPLEMENTED`,
+        //         radioGroupName: result.radioGroupName,
+        //         radioGroupNumber: result.radioGroupNumber
+        //     };
+        // }
+        //
+        // if (astObject.type === 'DROP') {
+        //     return {
+        //         htmlString: `${result.htmlString}DROP NOT IMPLEMENTED`,
+        //         radioGroupName: result.radioGroupName,
+        //         radioGroupNumber: result.radioGroupNumber
+        //     };
+        // }
 
         if (astObject.type === 'IMAGE') {
             return {
@@ -208,19 +208,19 @@ export function compileToAssessML(source: AST | string, generateVarValue: (varNa
             }, generateVarValue, generateImageSrc, generateGraphEquations, generateShuffledIndeces)}[${astObject.varName}]`;
         }
 
-        if (astObject.type === 'DRAG') {
-            return `${result}[drag start]${compileToAssessML({
-                type: 'AST',
-                ast: astObject.content
-            }, generateVarValue, generateImageSrc, generateGraphEquations, generateShuffledIndeces)}[drag end]`;
-        }
-
-        if (astObject.type === 'DROP') {
-            return `${result}[drop]${compileToAssessML({
-                type: 'AST',
-                ast: astObject.content
-            }, generateVarValue, generateImageSrc, generateGraphEquations, generateShuffledIndeces)}`;
-        }
+        // if (astObject.type === 'DRAG') {
+        //     return `${result}[drag start]${compileToAssessML({
+        //         type: 'AST',
+        //         ast: astObject.content
+        //     }, generateVarValue, generateImageSrc, generateGraphEquations, generateShuffledIndeces)}[drag end]`;
+        // }
+        //
+        // if (astObject.type === 'DROP') {
+        //     return `${result}[drop]${compileToAssessML({
+        //         type: 'AST',
+        //         ast: astObject.content
+        //     }, generateVarValue, generateImageSrc, generateGraphEquations, generateShuffledIndeces)}`;
+        // }
 
         if (astObject.type === 'IMAGE') {
             return `${result}[${astObject.varName}]`;
@@ -243,7 +243,6 @@ export function parse(source: string, generateVarValue: (varName: string) => num
 
 function buildAST(source: string, ast: AST, generateVarValue: (varName: string) => number | string, generateImageSrc: (varName: string) => string, generateGraphEquations: (varName: string) => string[], generateShuffledIndeces: (varName: string) => number[], numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number, numSolutions: number, numCodes: number, numShuffles: number): BuildASTResult {
     const radioVarName = `radio${numRadios + 1}`;
-    const checkVarName = `check${numChecks + 1}`;
     const shuffleVarName = `shuffle${numShuffles + 1}`;
     const solutionVarName = `solution${numSolutions + 1}`;
 
@@ -251,13 +250,14 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
     const inputRegex: RegExp = /\[input\]/;
     const essayRegex: RegExp = /\[essay\]/;
     const codeRegex: RegExp = /\[code\]/;
+    const checkStartRegex: RegExp = /\[check((.|\n|\r)+?)\]/;
+    const checkRegex: RegExp = /\[check((.|\n|\r)+?)\]((.|\n|\r)*?)\[check\1\]/;
     const radioRegex: RegExp = new RegExp(`\\[${radioVarName}\\]((.|\\n|\\r)*?)\\[${radioVarName}\\]`);
-    const checkRegex: RegExp = new RegExp(`\\[${checkVarName}\\]((.|\\n|\\r)*?)\\[${checkVarName}\\]`);
     const shuffleRegex: RegExp = new RegExp(`\\[${shuffleVarName}\\]((.|\\n|\\r)*?)\\[${shuffleVarName}\\]`);
     const solutionRegex: RegExp = new RegExp(`\\[${solutionVarName}\\]((.|\\n|\\r)*?)\\[${solutionVarName}\\]`);
     const imageRegex: RegExp = /\[img((.|\n|\r)+?)\]/;
     const graphRegex: RegExp = /\[graph((.|\n|\r)+?)\]/;
-    const contentRegex: RegExp = new RegExp(`((.|\n|\r)+?)((${variableRegex.source}|${inputRegex.source}|${essayRegex.source}|${codeRegex.source}|${checkRegex.source}|${radioRegex.source}|${imageRegex.source}|${graphRegex.source}|${solutionRegex.source}|${shuffleRegex.source})|$)`);
+    const contentRegex: RegExp = new RegExp(`((.|\n|\r)+?)((${variableRegex.source}|${inputRegex.source}|${essayRegex.source}|${codeRegex.source}|${checkRegex.source}|${checkStartRegex.source}|${radioRegex.source}|${imageRegex.source}|${graphRegex.source}|${solutionRegex.source}|${shuffleRegex.source})|$)`);
 
     if (source.search(variableRegex) === 0) {
         const match = source.match(variableRegex) || [];
@@ -323,7 +323,8 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
     if (source.search(checkRegex) === 0) {
         const match = source.match(checkRegex) || [];
         const matchedContent = match[0];
-        const insideContent = match[1];
+        const variableSuffix = match[1];
+        const insideContent = match[3];
 
         const contentAST: BuildASTResult = buildAST(insideContent, {
             type: 'AST',
@@ -331,7 +332,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         }, generateVarValue, generateImageSrc, generateGraphEquations, generateShuffledIndeces, numInputs, numEssays, numChecks + 1, numRadios, numDrags, numDrops, numSolutions, numCodes, numShuffles);
         const check: Check = {
             type: 'CHECK',
-            varName: checkVarName,
+            varName: `check${variableSuffix}`,
             content: contentAST.ast.ast
         };
 
