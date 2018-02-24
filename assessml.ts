@@ -242,22 +242,21 @@ export function parse(source: string, generateVarValue: (varName: string) => num
 }
 
 function buildAST(source: string, ast: AST, generateVarValue: (varName: string) => number | string, generateImageSrc: (varName: string) => string, generateGraphEquations: (varName: string) => string[], generateShuffledIndeces: (varName: string) => number[], numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number, numSolutions: number, numCodes: number, numShuffles: number): BuildASTResult {
-    const radioVarName = `radio${numRadios + 1}`;
-    const shuffleVarName = `shuffle${numShuffles + 1}`;
-    const solutionVarName = `solution${numSolutions + 1}`;
-
     const variableRegex: RegExp = /\[var((.|\n|\r)+?)\]/;
     const inputRegex: RegExp = /\[input\]/;
     const essayRegex: RegExp = /\[essay\]/;
     const codeRegex: RegExp = /\[code\]/;
     const checkStartRegex: RegExp = /\[check((.|\n|\r)+?)\]/;
     const checkRegex: RegExp = /\[check((.|\n|\r)+?)\]((.|\n|\r)*?)\[check\1\]/;
-    const radioRegex: RegExp = new RegExp(`\\[${radioVarName}\\]((.|\\n|\\r)*?)\\[${radioVarName}\\]`);
-    const shuffleRegex: RegExp = new RegExp(`\\[${shuffleVarName}\\]((.|\\n|\\r)*?)\\[${shuffleVarName}\\]`);
-    const solutionRegex: RegExp = new RegExp(`\\[${solutionVarName}\\]((.|\\n|\\r)*?)\\[${solutionVarName}\\]`);
+    const radioStartRegex: RegExp = /\[radio((.|\n|\r)+?)\]/;
+    const radioRegex: RegExp = /\[radio((.|\n|\r)+?)\]((.|\n|\r)*?)\[radio\1\]/;
+    const shuffleStartRegex: RegExp = /\[shuffle((.|\n|\r)+?)\]/;
+    const shuffleRegex: RegExp = /\[shuffle((.|\n|\r)+?)\]((.|\n|\r)*?)\[shuffle\1\]/;
+    const solutionStartRegex: RegExp = /\[solution((.|\n|\r)+?)\]/;
+    const solutionRegex: RegExp = /\[solution((.|\n|\r)+?)\]((.|\n|\r)*?)\[solution\1\]/;
     const imageRegex: RegExp = /\[img((.|\n|\r)+?)\]/;
     const graphRegex: RegExp = /\[graph((.|\n|\r)+?)\]/;
-    const contentRegex: RegExp = new RegExp(`((.|\n|\r)+?)((${variableRegex.source}|${inputRegex.source}|${essayRegex.source}|${codeRegex.source}|${checkRegex.source}|${checkStartRegex.source}|${radioRegex.source}|${imageRegex.source}|${graphRegex.source}|${solutionRegex.source}|${shuffleRegex.source})|$)`);
+    const contentRegex: RegExp = new RegExp(`((.|\n|\r)+?)((${variableRegex.source}|${inputRegex.source}|${essayRegex.source}|${codeRegex.source}|${checkRegex.source}|${checkStartRegex.source}|${radioRegex.source}|${radioStartRegex.source}|${imageRegex.source}|${graphRegex.source}|${solutionRegex.source}|${solutionStartRegex.source}|${shuffleRegex.source}|${shuffleStartRegex.source})|$)`);
 
     if (source.search(variableRegex) === 0) {
         const match = source.match(variableRegex) || [];
@@ -325,6 +324,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         const matchedContent = match[0];
         const variableSuffix = match[1];
         const insideContent = match[3];
+        const varName = `check${variableSuffix}`;
 
         const contentAST: BuildASTResult = buildAST(insideContent, {
             type: 'AST',
@@ -332,7 +332,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         }, generateVarValue, generateImageSrc, generateGraphEquations, generateShuffledIndeces, numInputs, numEssays, numChecks + 1, numRadios, numDrags, numDrops, numSolutions, numCodes, numShuffles);
         const check: Check = {
             type: 'CHECK',
-            varName: `check${variableSuffix}`,
+            varName,
             content: contentAST.ast.ast
         };
 
@@ -345,7 +345,9 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
     if (source.search(radioRegex) === 0) {
         const match = source.match(radioRegex) || [];
         const matchedContent = match[0];
-        const insideContent = match[1];
+        const variableSuffix = match[1];
+        const insideContent = match[3];
+        const varName = `radio${variableSuffix}`;
 
         const contentAST: BuildASTResult = buildAST(insideContent, {
             type: 'AST',
@@ -353,7 +355,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         }, generateVarValue, generateImageSrc, generateGraphEquations, generateShuffledIndeces, numInputs, numEssays, numChecks, numRadios + 1, numDrags, numDrops, numSolutions, numCodes, numShuffles);
         const radio: Radio = {
             type: 'RADIO',
-            varName: radioVarName,
+            varName,
             content: contentAST.ast.ast
         };
 
@@ -366,7 +368,9 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
     if (source.search(solutionRegex) === 0) {
         const match = source.match(solutionRegex) || [];
         const matchedContent = match[0];
-        const insideContent = match[1];
+        const variableSuffix = match[1];
+        const insideContent = match[3];
+        const varName = `solution${variableSuffix}`;
 
         const contentAST: BuildASTResult = buildAST(insideContent, {
             type: 'AST',
@@ -374,7 +378,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
         }, generateVarValue, generateImageSrc, generateGraphEquations, generateShuffledIndeces, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions + 1, numCodes, numShuffles);
         const solution: Solution = {
             type: 'SOLUTION',
-            varName: solutionVarName,
+            varName,
             content: contentAST.ast.ast
         };
 
@@ -387,16 +391,18 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
     if (source.search(shuffleRegex) === 0) {
         const match = source.match(shuffleRegex) || [];
         const matchedContent = match[0];
-        const insideContent = match[1];
+        const variableSuffix = match[1];
+        const insideContent = match[3];
+        const varName = `shuffle${variableSuffix}`;
 
         const contentAST: BuildASTResult = buildAST(insideContent, {
             type: 'AST',
             ast: []
         }, generateVarValue, generateImageSrc, generateGraphEquations, generateShuffledIndeces, numInputs, numEssays, numChecks, numRadios, numDrags, numDrops, numSolutions, numCodes, numShuffles + 1);
-        const existingShuffledIndeces = generateShuffledIndeces(shuffleVarName);
+        const existingShuffledIndeces = generateShuffledIndeces(varName);
         const shuffle: Shuffle = {
             type: 'SHUFFLE',
-            varName: shuffleVarName,
+            varName,
             content: contentAST.ast.ast,
             shuffledIndeces: existingShuffledIndeces !== null ? existingShuffledIndeces : shuffleItems(new Array(contentAST.ast.ast.length).fill(0).map((x, index) => index).filter((index: number) => contentAST.ast.ast[index].type !== 'CONTENT'))
         };

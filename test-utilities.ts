@@ -97,7 +97,9 @@ const arbRadio = jsc.record({
     type: jsc.constant('RADIO'),
     varName: jsc.bless({
         generator: () => {
-            return `radio${numRadios++}`;
+            //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
+            //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
+            return `radio${createUUID()}`;
         }
     }),
     content: jsc.bless({
@@ -112,7 +114,9 @@ const arbSolution = jsc.record({
     type: jsc.constant('SOLUTION'),
     varName: jsc.bless({
         generator: () => {
-            return `solution${numSolutions++}`;
+            //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
+            //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
+            return `solution${createUUID()}`;
         }
     }),
     content: jsc.bless({
@@ -127,7 +131,9 @@ const arbShuffle = jsc.record({
     type: jsc.constant('SHUFFLE'),
     varName: jsc.bless({
         generator: () => {
-            return `shuffle${numShuffles++}`;
+            //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
+            //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
+            return `shuffle${createUUID()}`;
         }
     }),
     content: jsc.bless({
@@ -137,7 +143,7 @@ const arbShuffle = jsc.record({
     })
 });
 
-const arbASTArray = jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbImage, arbCode, arbGraph, jsc.oneof(arbContent, arbCheck)/*, jsc.oneof(arbContent, arbRadio), jsc.oneof(arbContent, arbSolution), jsc.oneof(arbContent, arbShuffle)*/]));
+const arbASTArray = jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbImage, arbCode, arbGraph, jsc.oneof(arbContent, arbCheck), jsc.oneof(arbContent, arbRadio), jsc.oneof(arbContent, arbSolution), jsc.oneof(arbContent, arbShuffle)]));
 
 export const arbAST = jsc.record({
     type: jsc.constant('AST'),
