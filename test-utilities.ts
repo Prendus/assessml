@@ -17,65 +17,73 @@ const arbContent = jsc.record({
 
 const arbVariable = jsc.record({
     type: jsc.constant('VARIABLE'),
-    varName: jsc.pair(jsc.constant('var'), jsc.nat).smap((x: any) => { //TODO Figure out the correct way to use smap. I need to make the second function the inverse of the first
-        return `${x[0]}${x[1]}`; //the variable will never have a ] in it because of the Regex...make sure to replace it with something or you could get an empty string
-    }, (x: any) => {
-        return x;
+    varName: jsc.bless({
+        generator: () => {
+            //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
+            //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
+            return `var${createUUID()}`;
+        }
     }),
     value: jsc.oneof([jsc.number, jsc.string])
 });
 
-let numInputs = 1;
 const arbInput = jsc.record({
     type: jsc.constant('INPUT'),
     varName: jsc.bless({
         generator: () => {
-            return `input${numInputs++}`;
+            //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
+            //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
+            return `input${createUUID()}`;
         }
     })
 });
 
-let numEssays = 1;
 const arbEssay = jsc.record({
     type: jsc.constant('ESSAY'),
     varName: jsc.bless({
         generator: () => {
-            return `essay${numEssays++}`;
+            //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
+            //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
+            return `essay${createUUID()}`;
         }
     })
 });
 
-let numCodes = 1;
 const arbCode = jsc.record({
     type: jsc.constant('CODE'),
     varName: jsc.bless({
         generator: () => {
-            return `code${numCodes++}`;
+            //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
+            //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
+            return `code${createUUID()}`;
         }
     })
 });
 
 const arbImage = jsc.record({
     type: jsc.constant('IMAGE'),
-    varName: jsc.pair(jsc.constant('img'), jsc.nat).smap((x: any) => { //TODO Figure out the correct way to use smap. I need to make the second function the inverse of the first
-        return `${x[0]}${x[1]}`; //the variable will never have a ] in it because of the Regex...make sure to replace it with something or you could get an empty string
-    }, (x: any) => {
-        return x;
+    varName: jsc.bless({
+        generator: () => {
+            //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
+            //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
+            return `img${createUUID()}`;
+        }
     }),
     src: jsc.nestring
 });
 
 const arbGraph = jsc.record({
     type: jsc.constant('GRAPH'),
-    varName: jsc.pair(jsc.constant('graph'), jsc.nat).smap((x: any) => { //TODO Figure out the correct way to use smap. I need to make the second function the inverse of the first
-        return `${x[0]}${x[1]}`; //the variable will never have a ] in it because of the Regex...make sure to replace it with something or you could get an empty string
-    }, (x: any) => {
-        return x;
+    varName: jsc.bless({
+        generator: () => {
+            //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
+            //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
+            return `graph${createUUID()}`;
+        }
     }),
     equations: jsc.array(jsc.nestring) //TODO make arbitrary equation strings
 });
 
-let numChecks = 1;
 const arbCheck = jsc.record({
     type: jsc.constant('CHECK'),
     varName: jsc.bless({
@@ -92,7 +100,6 @@ const arbCheck = jsc.record({
     })
 });
 
-let numRadios = 1;
 const arbRadio = jsc.record({
     type: jsc.constant('RADIO'),
     varName: jsc.bless({
@@ -109,7 +116,6 @@ const arbRadio = jsc.record({
     })
 });
 
-let numSolutions = 1;
 const arbSolution = jsc.record({
     type: jsc.constant('SOLUTION'),
     varName: jsc.bless({
@@ -126,7 +132,6 @@ const arbSolution = jsc.record({
     })
 });
 
-let numShuffles = 1;
 const arbShuffle = jsc.record({
     type: jsc.constant('SHUFFLE'),
     varName: jsc.bless({
@@ -318,16 +323,6 @@ export function verifyHTML(ast: AST, htmlString: string) {
     }, htmlString);
 
     return result === '';
-}
-
-export function resetNums() {
-    numInputs = 1;
-    numEssays = 1;
-    numCodes = 1;
-    numChecks = 1;
-    numRadios = 1;
-    numSolutions = 1;
-    numShuffles = 1;
 }
 
 export function addShuffledIndeces(ast: AST): AST {

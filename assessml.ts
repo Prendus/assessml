@@ -180,54 +180,29 @@ export function compileToAssessML(source: AST | string, generateVarValue: (varNa
             return `${result}${astObject.content}`;
         }
 
-        if (astObject.type === 'VARIABLE') {
+        if (
+            astObject.type === 'VARIABLE' ||
+            astObject.type === 'INPUT' ||
+            astObject.type === 'ESSAY' ||
+            astObject.type === 'CODE' ||
+            astObject.type === 'IMAGE' ||
+            astObject.type === 'GRAPH'
+        ) {
             return `${result}[${astObject.varName}]`;
-        }
-
-        if (astObject.type === 'INPUT') {
-            return `${result}[input]`
-        }
-
-        if (astObject.type === 'ESSAY') {
-            return `${result}[essay]`
-        }
-
-        if (astObject.type === 'CODE') {
-            return `${result}[code]`
         }
 
         if (
             astObject.type === 'CHECK' ||
             astObject.type === 'RADIO' ||
             astObject.type === 'SHUFFLE' ||
-            astObject.type === 'SOLUTION'
+            astObject.type === 'SOLUTION' ||
+            astObject.type === 'DRAG' ||
+            astObject.type === 'DROP'
         ) {
             return `${result}[${astObject.varName}]${compileToAssessML({
                 type: 'AST',
                 ast: astObject.content
             }, generateVarValue, generateImageSrc, generateGraphEquations, generateShuffledIndeces)}[${astObject.varName}]`;
-        }
-
-        // if (astObject.type === 'DRAG') {
-        //     return `${result}[drag start]${compileToAssessML({
-        //         type: 'AST',
-        //         ast: astObject.content
-        //     }, generateVarValue, generateImageSrc, generateGraphEquations, generateShuffledIndeces)}[drag end]`;
-        // }
-        //
-        // if (astObject.type === 'DROP') {
-        //     return `${result}[drop]${compileToAssessML({
-        //         type: 'AST',
-        //         ast: astObject.content
-        //     }, generateVarValue, generateImageSrc, generateGraphEquations, generateShuffledIndeces)}`;
-        // }
-
-        if (astObject.type === 'IMAGE') {
-            return `${result}[${astObject.varName}]`;
-        }
-
-        if (astObject.type === 'GRAPH') {
-            return `${result}[${astObject.varName}]`;
         }
 
         return result;
@@ -243,9 +218,9 @@ export function parse(source: string, generateVarValue: (varName: string) => num
 
 function buildAST(source: string, ast: AST, generateVarValue: (varName: string) => number | string, generateImageSrc: (varName: string) => string, generateGraphEquations: (varName: string) => string[], generateShuffledIndeces: (varName: string) => number[], numInputs: number, numEssays: number, numChecks: number, numRadios: number, numDrags: number, numDrops: number, numSolutions: number, numCodes: number, numShuffles: number): BuildASTResult {
     const variableRegex: RegExp = /\[var((.|\n|\r)+?)\]/;
-    const inputRegex: RegExp = /\[input\]/;
-    const essayRegex: RegExp = /\[essay\]/;
-    const codeRegex: RegExp = /\[code\]/;
+    const inputRegex: RegExp = /\[input((.|\n|\r)+?)\]/;
+    const essayRegex: RegExp = /\[essay((.|\n|\r)+?)\]/;
+    const codeRegex: RegExp = /\[code((.|\n|\r)+?)\]/;
     const checkStartRegex: RegExp = /\[check((.|\n|\r)+?)\]/;
     const checkRegex: RegExp = /\[check((.|\n|\r)+?)\]((.|\n|\r)*?)\[check\1\]/;
     const radioStartRegex: RegExp = /\[radio((.|\n|\r)+?)\]/;
@@ -261,10 +236,13 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
     if (source.search(variableRegex) === 0) {
         const match = source.match(variableRegex) || [];
         const matchedContent = match[0];
-        const varName = matchedContent.replace('[', '').replace(']', '');
+        const varNameSuffix = match[1];
+        const varName = `var${varNameSuffix}`;
+
         const existingVarValue = <string | null> getASTObjectPayload(ast, 'VARIABLE', varName);
         const generatedVarValue = generateVarValue(varName);
         const newVarValue = existingVarValue === null ? generatedVarValue : existingVarValue;
+
         const variable: Variable = {
             type: 'VARIABLE',
             varName,
@@ -280,9 +258,12 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
     if (source.search(inputRegex) === 0) {
         const match = source.match(inputRegex) || [];
         const matchedContent = match[0];
+        const varNameSuffix = match[1];
+        const varName = `input${varNameSuffix}`;
+
         const input: Input = {
             type: 'INPUT',
-            varName: `input${numInputs + 1}`
+            varName
         };
 
         return buildAST(source.replace(matchedContent, ''), {
@@ -294,9 +275,12 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
     if (source.search(essayRegex) === 0) {
         const match = source.match(essayRegex) || [];
         const matchedContent = match[0];
+        const varNameSuffix = match[1];
+        const varName = `essay${varNameSuffix}`;
+
         const essay: Essay = {
             type: 'ESSAY',
-            varName: `essay${numEssays + 1}`
+            varName
         };
 
         return buildAST(source.replace(matchedContent, ''), {
@@ -308,9 +292,12 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
     if (source.search(codeRegex) === 0) {
         const match = source.match(codeRegex) || [];
         const matchedContent = match[0];
+        const varNameSuffix = match[1];
+        const varName = `code${varNameSuffix}`;
+
         const code: Code = {
             type: 'CODE',
-            varName: `code${numCodes + 1}`
+            varName
         };
 
         return buildAST(source.replace(matchedContent, ''), {
@@ -454,7 +441,9 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
     if (source.search(imageRegex) === 0) {
         const match = source.match(imageRegex) || [];
         const matchedContent = match[0];
-        const varName = matchedContent.replace('[', '').replace(']', '');
+        const varNameSuffix = match[1];
+        const varName = `img${varNameSuffix}`;
+
         const image: Image = {
             type: 'IMAGE',
             varName,
@@ -470,7 +459,9 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
     if (source.search(graphRegex) === 0) {
         const match = source.match(graphRegex) || [];
         const matchedContent = match[0];
-        const varName = matchedContent.replace('[', '').replace(']', '');
+        const varNameSuffix = match[1];
+        const varName = `graph${varNameSuffix}`;
+
         const graph: Graph = {
             type: 'GRAPH',
             varName,
@@ -486,6 +477,7 @@ function buildAST(source: string, ast: AST, generateVarValue: (varName: string) 
     if (source.search(contentRegex) === 0) {
         const match = source.match(contentRegex) || [];
         const matchedContent = match[1];
+
         const content: Content = {
             type: 'CONTENT',
             varName: `content`,
