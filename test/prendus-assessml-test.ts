@@ -1,8 +1,7 @@
-import {compileToAssessML, compileToHTML, parse, getASTObjectPayload, normalizeASTObjectPayloads, generateVarValue} from '../../assessml';
-import {AST, ASTObject, Variable} from '../../assessml.d';
-import {flattenContentObjects, verifyHTML, arbAST, addShuffledIndeces} from '../../test-utilities';
-
-const deepEqual = require('deep-equal');
+import {compileToAssessML, compileToHTML, parse, getASTObjectPayload, normalizeASTObjectPayloads, generateVarValue} from '../assessml';
+import {AST, ASTObject, Variable} from '../assessml.d';
+import {flattenContentObjects, verifyHTML, arbAST, addShuffledIndeces} from '../test-utilities';
+import deepEqual from 'deep-equal-es-module';
 
 class PrendusAssessMLTest extends HTMLElement {
     static get is() { return 'prendus-assessml-test'; }

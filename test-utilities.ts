@@ -1,35 +1,34 @@
 import {AST, ASTObject, Variable, Content, Image} from './assessml.d';
 import {compileToHTML, generateVarValue, getASTObjectPayload, shuffleItems} from './assessml';
+import jsverify from 'jsverify-es-module';
 
-const jsc = require('jsverify');
-
-const arbContent = jsc.record({
-    type: jsc.constant('CONTENT'),
-    varName: jsc.bless({
+const arbContent = jsverify.record({
+    type: jsverify.constant('CONTENT'),
+    varName: jsverify.bless({
         generator: () => {
             return `content`;
         }
     }),
-    content: jsc.pair(jsc.nestring, jsc.nestring).smap((x: any) => { //TODO figure out the correct way to use smap
+    content: jsverify.pair(jsverify.nestring, jsverify.nestring).smap((x: any) => { //TODO figure out the correct way to use smap
         return x[0].replace(/\[/g, 'd').replace(/\]/g, 'd').replace(/</g, '&lt;').replace(/>/g, '&gt;'); //do not allow ast types to be created in arbitrary content, otherwise it isn't content. Also, escape HTML brackets like in the compiler
     })
 });
 
-const arbVariable = jsc.record({
-    type: jsc.constant('VARIABLE'),
-    varName: jsc.bless({
+const arbVariable = jsverify.record({
+    type: jsverify.constant('VARIABLE'),
+    varName: jsverify.bless({
         generator: () => {
             //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
             //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
             return `var${createUUID()}`;
         }
     }),
-    value: jsc.oneof([jsc.number, jsc.string])
+    value: jsverify.oneof([jsverify.number, jsverify.string])
 });
 
-const arbInput = jsc.record({
-    type: jsc.constant('INPUT'),
-    varName: jsc.bless({
+const arbInput = jsverify.record({
+    type: jsverify.constant('INPUT'),
+    varName: jsverify.bless({
         generator: () => {
             //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
             //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
@@ -38,9 +37,9 @@ const arbInput = jsc.record({
     })
 });
 
-const arbEssay = jsc.record({
-    type: jsc.constant('ESSAY'),
-    varName: jsc.bless({
+const arbEssay = jsverify.record({
+    type: jsverify.constant('ESSAY'),
+    varName: jsverify.bless({
         generator: () => {
             //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
             //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
@@ -49,9 +48,9 @@ const arbEssay = jsc.record({
     })
 });
 
-const arbCode = jsc.record({
-    type: jsc.constant('CODE'),
-    varName: jsc.bless({
+const arbCode = jsverify.record({
+    type: jsverify.constant('CODE'),
+    varName: jsverify.bless({
         generator: () => {
             //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
             //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
@@ -60,98 +59,98 @@ const arbCode = jsc.record({
     })
 });
 
-const arbImage = jsc.record({
-    type: jsc.constant('IMAGE'),
-    varName: jsc.bless({
+const arbImage = jsverify.record({
+    type: jsverify.constant('IMAGE'),
+    varName: jsverify.bless({
         generator: () => {
             //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
             //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
             return `img${createUUID()}`;
         }
     }),
-    src: jsc.nestring
+    src: jsverify.nestring
 });
 
-const arbGraph = jsc.record({
-    type: jsc.constant('GRAPH'),
-    varName: jsc.bless({
+const arbGraph = jsverify.record({
+    type: jsverify.constant('GRAPH'),
+    varName: jsverify.bless({
         generator: () => {
             //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
             //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
             return `graph${createUUID()}`;
         }
     }),
-    equations: jsc.array(jsc.nestring) //TODO make arbitrary equation strings
+    equations: jsverify.array(jsverify.nestring) //TODO make arbitrary equation strings
 });
 
-const arbCheck = jsc.record({
-    type: jsc.constant('CHECK'),
-    varName: jsc.bless({
+const arbCheck = jsverify.record({
+    type: jsverify.constant('CHECK'),
+    varName: jsverify.bless({
         generator: () => {
             //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
             //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
             return `check${createUUID()}`;
         }
     }),
-    content: jsc.bless({
+    content: jsverify.bless({
         generator: () => {
-            return jsc.sampler(arbASTArray)();
+            return jsverify.sampler(arbASTArray)();
         }
     })
 });
 
-const arbRadio = jsc.record({
-    type: jsc.constant('RADIO'),
-    varName: jsc.bless({
+const arbRadio = jsverify.record({
+    type: jsverify.constant('RADIO'),
+    varName: jsverify.bless({
         generator: () => {
             //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
             //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
             return `radio${createUUID()}`;
         }
     }),
-    content: jsc.bless({
+    content: jsverify.bless({
         generator: () => {
-            return jsc.sampler(arbASTArray)();
+            return jsverify.sampler(arbASTArray)();
         }
     })
 });
 
-const arbSolution = jsc.record({
-    type: jsc.constant('SOLUTION'),
-    varName: jsc.bless({
+const arbSolution = jsverify.record({
+    type: jsverify.constant('SOLUTION'),
+    varName: jsverify.bless({
         generator: () => {
             //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
             //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
             return `solution${createUUID()}`;
         }
     }),
-    content: jsc.bless({
+    content: jsverify.bless({
         generator: () => {
-            return jsc.sampler(arbASTArray)();
+            return jsverify.sampler(arbASTArray)();
         }
     })
 });
 
-const arbShuffle = jsc.record({
-    type: jsc.constant('SHUFFLE'),
-    varName: jsc.bless({
+const arbShuffle = jsverify.record({
+    type: jsverify.constant('SHUFFLE'),
+    varName: jsverify.bless({
         generator: () => {
             //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
             //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
             return `shuffle${createUUID()}`;
         }
     }),
-    content: jsc.bless({
+    content: jsverify.bless({
         generator: () => {
-            return jsc.sampler(arbASTArray)();
+            return jsverify.sampler(arbASTArray)();
         }
     })
 });
 
-const arbASTArray = jsc.array(jsc.oneof([arbContent, arbVariable, arbInput, arbEssay, arbImage, arbCode, arbGraph, jsc.oneof(arbContent, arbCheck), jsc.oneof(arbContent, arbRadio), jsc.oneof(arbContent, arbSolution), jsc.oneof(arbContent, arbShuffle)]));
+const arbASTArray = jsverify.array(jsverify.oneof([arbContent, arbVariable, arbInput, arbEssay, arbImage, arbCode, arbGraph, jsverify.oneof(arbContent, arbCheck), jsverify.oneof(arbContent, arbRadio), jsverify.oneof(arbContent, arbSolution), jsverify.oneof(arbContent, arbShuffle)]));
 
-export const arbAST = jsc.record({
-    type: jsc.constant('AST'),
+export const arbAST = jsverify.record({
+    type: jsverify.constant('AST'),
     ast: arbASTArray
 });
 
