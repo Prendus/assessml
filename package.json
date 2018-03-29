@@ -1,6 +1,6 @@
 {
   "name": "assessml",
-  "version": "0.12.1",
+  "version": "0.12.2",
   "description": "AssessML (Assessment Markup Language) is a concise and flexible declarative language for educational assessments. This repository contains the language specification and JavaScript implementations of various language tools (AST generator, compilers, etc).",
   "scripts": {
     "test": "guesswork chromium firefox --entry test/index.js",
