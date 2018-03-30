@@ -6,6 +6,7 @@
     "test": "guesswork chromium firefox --entry test/index.js",
     "test-manual": "guesswork --entry test/index.js"
   },
+  "main": "assessml.ts",
   "typings": "./assessml.d.ts",
   "author": "Jordan Last <jordan.michael.last@gmail.com>",
   "license": "MIT",
