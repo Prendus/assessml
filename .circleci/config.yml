@@ -19,7 +19,7 @@ jobs:
     build:
         working_directory: ~/assessml
         docker:
-            - image: circleci/node:8.9.4@sha256:24e35a687948c0a1addfa7e6145f5ae22fda663b457139380f3132e16be0ffb5
+            - image: circleci/node:8.11.1@sha256:844d7ccbba6a41d7b804f20d703229a34f91a6c98a1b160bece9cba54d3ae134
         steps:
             - checkout
             - run:
