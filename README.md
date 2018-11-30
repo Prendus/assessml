@@ -173,7 +173,7 @@ answer = (
 );
 ```
 
-Input tags create single-line inputs for users to enter short responses. Input names must start with `input` and end with any non-empty string. In the [assess-elements](https://github.com/lastmjs/assess-elements) assessment editor, input tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain the string entered by the user into the input.
+Input tags create small inputs for users to enter short responses. Input names must start with `input` and end with any non-empty string. In the [assess-elements](https://github.com/lastmjs/assess-elements) assessment editor, input tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain the string entered by the user into the input.
 
 #### Essay
 
