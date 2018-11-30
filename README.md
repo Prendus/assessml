@@ -222,11 +222,11 @@ answer = radio2 === true;
 
 Radio tags create radio buttons to the left of whatever is declared within the tags. Any text, including other AssessML tags, can go between radio tags. Radio names must start with `radio` and end with any non-empty string. In the [assess-elements](https://github.com/lastmjs/assess-elements) assessment editor, radio tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain boolean values representing the checked state of the radio buttons.
 
-#### Multiple Choice (checkboxes)
+#### Multiple select (checkboxes)
 
-[Basic live demo](https://www.prendus.com/question/cjg7hm4ysanc001208wyufca1/demo)
+[Basic live demo](https://www.prendus.com/question/cjg7i6q89b6z801154qf7cmzx/demo)
 
-[Advanced live demo](https://www.prendus.com/question/cjg7i2u5gb3e801382ly78oyp/demo)
+[Advanced live demo](https://www.prendus.com/question/cjg7iik10bd3301266hfj6qlb/demo)
 
 ##### AssessML (exercise text)
 
