@@ -349,7 +349,7 @@ First take 5, then take another 5, then add them together. Boom, you have 10.
 answer = input1 == 10;
 ```
 
-Solution tags allow a solution to be delivered with the exercise text. The solution is stored in an HTML template, thus not initially rendered. An assessment editor can display the contents of the template as desired. Solution names must start with `solution` and end with any non-empty string.
+Solution tags allow a solution to be delivered with the exercise text. The solution is stored in an HTML template, thus not initially rendered. An assessment editor can display the contents of the template as desired. Any text, including other AssessML tags, can go between solution tags. Solution names must start with `solution` and end with any non-empty string.
 
 ### BNF (Backus-Naur form) Grammar
 
