@@ -3,8 +3,8 @@ export interface AST {
     readonly ast: ASTObject[];
 }
 
-export type ASTObject = Content | Variable | Input | Essay | Check | Radio | Drag | Drop | Image | Solution | Code | Graph | Shuffle | Markdown;
-export type ASTObjectType = 'VARIABLE' | 'INPUT' | 'ESSAY' | 'CONTENT' | 'CHECK' | 'RADIO' | 'DRAG' | 'DROP' | 'IMAGE' | 'SOLUTION' | 'CODE' | 'SHUFFLE' | 'GRAPH' | 'MARKDOWN';
+export type ASTObject = Content | Variable | Input | Essay | Check | Radio | Drag | Drop | Image | Solution | Code | Graph | Shuffle | Pretty |Markdown;
+export type ASTObjectType = 'VARIABLE' | 'INPUT' | 'ESSAY' | 'CONTENT' | 'CHECK' | 'RADIO' | 'DRAG' | 'DROP' | 'IMAGE' | 'SOLUTION' | 'CODE' | 'SHUFFLE' | 'PRETTY' |'GRAPH' | 'MARKDOWN';
 
 export interface Check {
     readonly type: 'CHECK';
@@ -82,6 +82,12 @@ export interface Shuffle {
     readonly shuffledIndeces: number[];
 }
 
+export interface Pretty {
+    readonly type: 'PRETTY';
+    readonly varName: string;
+    readonly content: ASTObject[];
+}
+
 export interface Markdown {
     readonly type: 'MARKDOWN';
     readonly varName: string;
@@ -99,5 +105,6 @@ export interface BuildASTResult {
     readonly numSolutions: number;
     readonly numCodes: number;
     readonly numShuffles: number;
+    readonly numPrettys: number;
     readonly numMarkdowns: number;
 }

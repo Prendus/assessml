@@ -147,6 +147,22 @@ const arbMarkdown = jsverify.record({
     })
 });
 
+const arbPretty = jsverify.record({
+    type: jsverify.constant('PRETTY'),
+    varName: jsverify.bless({
+        generator: () => {
+            //TODO realistically the check prefix could have more characters than the UUID function allows. But we need to make sure they are unique
+            //TODO check var names being unique is a constraint that the user must follow. All nested tags must have unique variable names or the nesting will not work
+            return `pretty${createUUID()}`;
+        }
+    }),
+    content: jsverify.bless({
+        generator: () => {
+            return jsverify.sampler(arbASTArray)();
+        }
+    })
+});
+
 const arbShuffle = jsverify.record({
     type: jsverify.constant('SHUFFLE'),
     varName: jsverify.bless({
@@ -163,7 +179,7 @@ const arbShuffle = jsverify.record({
     })
 });
 
-const arbASTArray = jsverify.array(jsverify.oneof([arbContent, arbVariable, arbInput, arbEssay, arbImage, arbCode, arbGraph, jsverify.oneof(arbContent, arbCheck), jsverify.oneof(arbContent, arbRadio), jsverify.oneof(arbContent, arbSolution), jsverify.oneof(arbContent, arbShuffle), jsverify.oneof(arbContent, arbMarkdown)]));
+const arbASTArray = jsverify.array(jsverify.oneof([arbContent, arbVariable, arbInput, arbEssay, arbImage, arbCode, arbGraph, jsverify.oneof(arbContent, arbCheck), jsverify.oneof(arbContent, arbRadio), jsverify.oneof(arbContent, arbSolution), jsverify.oneof(arbContent, arbShuffle), jsverify.oneof(arbContent, arbMarkdown), jsverify.oneof(arbContent, arbPretty)]));
 
 export const arbAST = jsverify.record({
     type: jsverify.constant('AST'),
@@ -186,7 +202,8 @@ export function flattenContentObjects(ast: AST): AST {
                 astObject.type === 'SHUFFLE' ||
                 astObject.type === 'DRAG' ||
                 astObject.type === 'DROP' ||
-                astObject.type === 'MARKDOWN'
+                astObject.type === 'MARKDOWN' ||
+                astObject.type === 'PRETTY'
             ) {
                 return [...result, {
                     ...astObject,
@@ -332,6 +349,22 @@ export function verifyHTML(ast: AST, htmlString: string) {
             }
         }
 
+        if (astObject.type === 'PRETTY') {
+            const prettyString = `<code-sample><template>${compileToHTML({
+                    type: 'AST',
+                    ast: astObject.content
+                },
+                (varName: string) => getASTObjectPayload(ast, 'VARIABLE', varName),
+                (varName: string) => getASTObjectPayload(ast, 'IMAGE', varName),
+                (varName: string) => getASTObjectPayload(ast, 'GRAPH', varName),
+                (varName: string) => getASTObjectPayload(ast, 'SHUFFLE', varName)
+            )}</template></code-sample>`
+
+            if (result.indexOf(prettyString) === 0) {
+                return result.replace(prettyString, '');
+            }
+        }
+
         if (astObject.type === 'SHUFFLE') {
             //TODO Not sure this test is very useful. We are using the compileToHTML function in the implementation of the test for the compileToHTML function...albeit it is different because we're using it only on one piece of the AST instead of the entire AST
             //TODO this is not testing that the randomness works
@@ -368,7 +401,8 @@ export function addShuffledIndeces(ast: AST): AST {
                 astObject.type === 'SHUFFLE' ||
                 astObject.type === 'DRAG' ||
                 astObject.type === 'DROP' ||
-                astObject.type === 'MARKDOWN'
+                astObject.type === 'MARKDOWN' ||
+                astObject.type === 'PRETTY'
             ) {
                 if (astObject.type === 'SHUFFLE') {
                     const flattenedContentAST = flattenContentObjects({
