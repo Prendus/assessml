@@ -285,7 +285,25 @@ Image tags create images. Image names must start with `image` and end with any n
 
 ##### AssessML (exercise text)
 
+```
+Create a function named hello that returns the string 'world!';
+
+[code1]
+```
+
 ##### JavaScript (answer code)
+
+```javascript
+if (code1) {
+  eval(code1);
+  answer = hello() === 'world!';
+}
+else {
+  answer = false;
+}
+```
+
+Code tags create an interactive code editor. Code names must start with `code` and end with any non-empty string. Code tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain the string entered by the user into the code editor. The answer code can then `eval` the user code or perform static analysis to interact with and verify it. Be aware that `eval` can be a security vulnerability when executing untrusted code. [assess-elements](https://github.com/lastmjs/assess-elements) will and [secure-eval](https://github.com/Prendus/secure-eval) currently does provide means of mitigating `eval` risks.
 
 #### Shuffle
 
