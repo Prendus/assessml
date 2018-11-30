@@ -124,30 +124,10 @@ npm run test-manual
 
 Exercises created with AssessML have two components, which can be described as the exercise text and the answer code. The exercise text describes what the user will see, and is written with AssessML. The answer code gives the exercise its functionality, is where the final answer will need to be calculated, and is written in JavaScript. The following are examples of currently available AssessML tags, along with sample JavaScript functionality. 
 
-#### Essay
-
-[Basic live demo](https://www.prendus.com/question/cjg7ivcm4b36k0120t8tceqjc/demo)
-[Advanced live demo](https://www.prendus.com/question/cj4zyq5qbfjhs0121ced4hecl/demo)
-
-##### AssessML (exercise text)
-
-```
-Tell me about your feelings:
-
-[essay1]
-```
-
-##### JavaScript (answer code)
-
-```javascript
-answer = essay1.includes('happy');
-```
-
-Essay tags provide a large textarea for users to write essay responses. Any JavaScript functionality can be used in the answer code to determine if the question is answered correctly. In this example, we use a simple string function to check if the user has mentioned the word `happy` anywhere in the response. Essay names must start with `essay` and end with any non-empty string. Essay tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain the string entered by the user into the essay input.
-
 #### Variable
 
 [Basic live demo](https://www.prendus.com/question/cjg86joz35q4i0144ouidk5c5/demo)
+
 [Advanced live demo](https://www.prendus.com/question/cj9oy530qftpd0194ovo8g5z2/demo)
 
 ##### AssessML (exercise text)
@@ -169,9 +149,58 @@ answer = input1 == var1 + var2;
 
 Variable tags present variable strings or numbers to the user. The `compileToHTML` function takes a function as a parameter that will generate default initial values for variables. Variable names must start with `var` and end with any non-empty string. Variable tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain the string or number value of the variable. Minimum and maximum values, as well as decimal precision, can be set using JavaScript functions defined elsewhere.
 
+#### Fill in the blank
+
+[Basic live demo](https://www.prendus.com/question/cjg7im37lb2s50114aod9vpkd/demo)
+
+[Advanced live demo](https://www.prendus.com/question/cjg7iqz5nb4p70114nodd157x/demo)
+
+##### AssessML (exercise text)
+
+```
+Fill in the blanks:
+
+Sally was [input1] across the field when she realized that she [input2] into a stream of [input3] water.
+```
+
+##### JavaScript (answer code)
+
+```javascript
+answer = (
+  input1 === 'running' &&
+  input2 === 'ran' &&
+  input3 === 'running'
+);
+```
+
+Input tags create single-line inputs for users to enter short responses. Input names must start with `input` and end with any non-empty string. Input tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain the string entered by the user into the input.
+
+#### Essay
+
+[Basic live demo](https://www.prendus.com/question/cjg7ivcm4b36k0120t8tceqjc/demo)
+
+[Advanced live demo](https://www.prendus.com/question/cj4zyq5qbfjhs0121ced4hecl/demo)
+
+##### AssessML (exercise text)
+
+```
+Tell me about your feelings:
+
+[essay1]
+```
+
+##### JavaScript (answer code)
+
+```javascript
+answer = essay1.includes('happy');
+```
+
+Essay tags provide a large textarea for users to write essay responses. Any JavaScript functionality can be used in the answer code to determine if the question is answered correctly. In this example, we use a simple string function to check if the user has mentioned the word `happy` anywhere in the response. Essay names must start with `essay` and end with any non-empty string. Essay tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain the string entered by the user into the essay input.
+
 #### Multiple choice (radio buttons)
 
 [Basic live demo](https://www.prendus.com/question/cjg7hm4ysanc001208wyufca1/demo)
+
 [Advanced live demo](https://www.prendus.com/question/cjg7i2u5gb3e801382ly78oyp/demo)
 
 ##### AssessML (exercise text)
@@ -196,6 +225,7 @@ Radio tags create radio buttons to the left of whatever is declared within the t
 #### Multiple Choice (checkboxes)
 
 [Basic live demo](https://www.prendus.com/question/cjg7hm4ysanc001208wyufca1/demo)
+
 [Advanced live demo](https://www.prendus.com/question/cjg7i2u5gb3e801382ly78oyp/demo)
 
 ##### AssessML (exercise text)
@@ -211,7 +241,7 @@ Who were presidents of the United States of America?
 
 ##### JavaScript (answer code)
 
-```
+```javascript
 answer = (
   check1 === false &&
   check2 === false &&
@@ -222,30 +252,56 @@ answer = (
 
 Check tags create checkboxes to the left of whatever is declared within the tags. Any text, including other AssessML tags, can go between check tags. Check names must start with `check` and end with any non-empty string. Check tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain boolean values representing the checked state of the checkboxes.
 
-#### Fill in the blank
+#### Image
 
-[Basic live demo](https://www.prendus.com/question/cjg7im37lb2s50114aod9vpkd/demo)
-[Advanced live demo](https://www.prendus.com/question/cjg7iqz5nb4p70114nodd157x/demo)
+[Basic live demo](https://www.prendus.com/question/cjg86oncn5r780195ubdk450g/demo)
+
+[Advanced live demo](https://www.prendus.com/question/cj9t1lb4z774s01125a24euff/demo)
 
 ##### AssessML (exercise text)
 
 ```
-Fill in the blanks:
+What type of bird is this?
 
-Sally was [input1] across the field when she realized that she [input2] into a stream of [input3] water.
+[img1]
+
+[input1]
 ```
 
 ##### JavaScript (answer code)
 
-```
-answer = (
-  input1 === 'running' &&
-  input2 === 'ran' &&
-  input3 === 'running'
-);
-```
+```javascript
+img1.src = 'https://images.pexels.com/photos/48894/galah-rose-breasted-cockatoo-parrot-bird-48894.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260';
 
-Input tags create single-line inputs for users to enter short responses. Input names must start with `input` and end with any non-empty string. Input tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain the string entered by the user into the input.
+answer = input1 === 'cockatoo';
+```
+Image tags create images. Image names must start with `image` and end with any non-empty string. Image tags declared in the exercise text will create variables with equivalent names in the answer code. These variables have one property, `src`, that must be set to some kind of image URI, such as the URL to a remotely hosted image, or a data URI for an inline image.
+
+#### Code
+
+[Basic live demo](https://www.prendus.com/question/cjg863dp15hcd0102v4y5olus/demo)
+
+[Advanced live demo](https://www.prendus.com/question/cjg86aar45l5p0113463xjk69/demo)
+
+##### AssessML (exercise text)
+
+##### JavaScript (answer code)
+
+#### Shuffle
+
+##### AssessML (exercise text)
+
+##### JavaScript (answer code)
+
+#### Solution
+
+[Basic live demo](https://www.prendus.com/question/cjg87xs6r67n101215xzfirsu/demo)
+
+[Advanced live demo](https://www.prendus.com/question/cj9ujbolb9tp60186ejo0ztx3/demo)
+
+##### AssessML (exercise text)
+
+##### JavaScript (answer code)
 
 ### BNF (Backus-Naur form) Grammar
 
