@@ -2,7 +2,7 @@
 
 # AssessML (Assessment Markup Language)
 
-AssessML (Assessment Markup Language) is a concise and flexible declarative language for educational assessments. It is meant to be used with projects such as the [Assess Elements](https://github.com/lastmjs/assess-elements).This repository contains the language specification and JavaScript implementations of various language tools (AST generator, compilers, etc).
+AssessML (Assessment Markup Language) is a concise and flexible declarative language for educational assessments. It is meant to be used with assessment editors such as [assess-elements](https://github.com/lastmjs/assess-elements) to create a fully featured assessment experience. This repository contains the language specification and JavaScript implementations of various language tools (AST generator, compilers, etc).
 
 ## Installation
 
@@ -19,7 +19,7 @@ import {
   generateAST,
   compileToHTML,
   compileToAssessML
-} from './node_modules/assessml/assessml';
+} from 'assessml';
 
 // generate AST
 
@@ -76,7 +76,7 @@ import {
   Input,
   Radio,
   Variable
-} from 'assessml'; //if you use TypeScript
+} from 'assessml';
 ```
 
 ## Development
@@ -114,7 +114,7 @@ Run test cases manually in browser:
 npm run test-manual
 ```
 
-## Language Specification
+## Language specification
 
 * [Syntax examples](#syntax-examples)
 * [BNF](#bnf-backus-naur-form-grammar)
@@ -122,7 +122,7 @@ npm run test-manual
 
 ### Syntax examples
 
-Exercises created with AssessML have two components, which can be described as the exercise text and the answer code. The exercise text describes what the user will see, and is written with AssessML. The answer code gives the exercise its functionality, is where the final answer will need to be calculated, and is written in JavaScript. The following are examples of currently available AssessML tags, along with sample JavaScript functionality. 
+AssessML is meant to be used with an assessment editor to provide functionality such as answer checking. We will use [assess-elements](https://github.com/lastmjs/assess-elements) for our examples. Exercises created with [assess-elements](https://github.com/lastmjs/assess-elements) have two components, which can be described as the exercise text and the answer code. The exercise text describes what the user will see, and is written with AssessML. The answer code gives the exercise its functionality, is where the final answer will need to be calculated, and is written in JavaScript. The following are examples of currently available AssessML tags, along with sample JavaScript functionality. 
 
 #### Variable
 
@@ -147,7 +147,7 @@ var2 = randInt(26, 50);
 answer = input1 == var1 + var2;
 ```
 
-Variable tags present variable strings or numbers to the user. The `compileToHTML` function takes a function as a parameter that will generate default initial values for variables. Variable names must start with `var` and end with any non-empty string. Variable tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain the string or number value of the variable. Minimum and maximum values, as well as decimal precision, can be set using JavaScript functions defined elsewhere.
+Variable tags present variable strings or numbers to the user. The `compileToHTML` function takes a function as a parameter that will generate default initial values for variables. Variable names must start with `var` and end with any non-empty string. In the [assess-elements](https://github.com/lastmjs/assess-elements) assessment editor, variable tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain the string or number value of the variable. Minimum and maximum values, as well as decimal precision, can be set using JavaScript functions defined elsewhere.
 
 #### Fill in the blank
 
@@ -173,7 +173,7 @@ answer = (
 );
 ```
 
-Input tags create single-line inputs for users to enter short responses. Input names must start with `input` and end with any non-empty string. Input tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain the string entered by the user into the input.
+Input tags create single-line inputs for users to enter short responses. Input names must start with `input` and end with any non-empty string. In the [assess-elements](https://github.com/lastmjs/assess-elements) assessment editor, input tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain the string entered by the user into the input.
 
 #### Essay
 
@@ -195,7 +195,7 @@ Tell me about your feelings:
 answer = essay1.includes('happy');
 ```
 
-Essay tags provide a large textarea for users to write essay responses. Any JavaScript functionality can be used in the answer code to determine if the question is answered correctly. In this example, we use a simple string function to check if the user has mentioned the word `happy` anywhere in the response. Essay names must start with `essay` and end with any non-empty string. Essay tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain the string entered by the user into the essay input.
+Essay tags provide a large textarea for users to write essay responses. Any JavaScript functionality can be used in the answer code to determine if the question is answered correctly. In this example, we use a simple string function to check if the user has mentioned the word `happy` anywhere in the response. Essay names must start with `essay` and end with any non-empty string. In the [assess-elements](https://github.com/lastmjs/assess-elements) assessment editor, essay tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain the string entered by the user into the essay input.
 
 #### Multiple choice (radio buttons)
 
@@ -220,7 +220,7 @@ What color is the sky?
 answer = radio2 === true;
 ```
 
-Radio tags create radio buttons to the left of whatever is declared within the tags. Any text, including other AssessML tags, can go between radio tags. Radio names must start with `radio` and end with any non-empty string. Radio tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain boolean values representing the checked state of the radio buttons.
+Radio tags create radio buttons to the left of whatever is declared within the tags. Any text, including other AssessML tags, can go between radio tags. Radio names must start with `radio` and end with any non-empty string. In the [assess-elements](https://github.com/lastmjs/assess-elements) assessment editor, radio tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain boolean values representing the checked state of the radio buttons.
 
 #### Multiple Choice (checkboxes)
 
@@ -250,7 +250,7 @@ answer = (
 );
 ```
 
-Check tags create checkboxes to the left of whatever is declared within the tags. Any text, including other AssessML tags, can go between check tags. Check names must start with `check` and end with any non-empty string. Check tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain boolean values representing the checked state of the checkboxes.
+Check tags create checkboxes to the left of whatever is declared within the tags. Any text, including other AssessML tags, can go between check tags. Check names must start with `check` and end with any non-empty string. In the [assess-elements](https://github.com/lastmjs/assess-elements) assessment editor, check tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain boolean values representing the checked state of the checkboxes.
 
 #### Image
 
@@ -275,7 +275,7 @@ img1.src = 'https://images.pexels.com/photos/48894/galah-rose-breasted-cockatoo-
 
 answer = input1 === 'cockatoo';
 ```
-Image tags create images. Image names must start with `image` and end with any non-empty string. Image tags declared in the exercise text will create variables with equivalent names in the answer code. These variables have one property, `src`, that must be set to some kind of image URI, such as the URL to a remotely hosted image, or a data URI for an inline image.
+Image tags create images. Image names must start with `image` and end with any non-empty string. In the [assess-elements](https://github.com/lastmjs/assess-elements) assessment editor, image tags declared in the exercise text will create variables with equivalent names in the answer code. These variables have one property, `src`, that must be set to some kind of image URI, such as the URL to a remotely hosted image, or a data URI for an inline image.
 
 #### Code
 
@@ -303,7 +303,7 @@ else {
 }
 ```
 
-Code tags create an interactive code editor. Code names must start with `code` and end with any non-empty string. Code tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain the string entered by the user into the code editor. The answer code can then `eval` the user code or perform static analysis to interact with and verify it. Be aware that `eval` can be a security vulnerability when executing untrusted code. [assess-elements](https://github.com/lastmjs/assess-elements) will and [secure-eval](https://github.com/Prendus/secure-eval) currently does provide means of mitigating `eval` risks.
+Code tags create an interactive code editor. Code names must start with `code` and end with any non-empty string. In the [assess-elements](https://github.com/lastmjs/assess-elements) assessment editor, code tags declared in the exercise text will create variables with equivalent names in the answer code. These variables will contain the string entered by the user into the code editor. The answer code can then `eval` the user code or perform static analysis to interact with and verify it. Be aware that `eval` can be a security vulnerability when executing untrusted code. [assess-elements](https://github.com/lastmjs/assess-elements) will and [secure-eval](https://github.com/Prendus/secure-eval) currently does provide means of mitigating `eval` risks.
 
 #### Shuffle
 
@@ -335,7 +335,21 @@ Shuffle tags allow shuffling of their contents. For example, this makes it unnec
 
 ##### AssessML (exercise text)
 
+```
+What is the 5 + 5? [input1]
+
+[solution1]
+First take 5, then take another 5, then add them together. Boom, you have 10.
+[solution1]
+```
+
 ##### JavaScript (answer code)
+
+```javascript
+answer = input1 == 10;
+```
+
+Solution tags allow a solution to be delivered with the exercise text. The solution is stored in an HTML template, thus not initially rendered. An assessment editor can display the contents of the template as desired. Solution names must start with `solution` and end with any non-empty string.
 
 ### BNF (Backus-Naur form) Grammar
 
