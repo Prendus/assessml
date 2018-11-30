@@ -309,7 +309,23 @@ Code tags create an interactive code editor. Code names must start with `code` a
 
 ##### AssessML (exercise text)
 
+```
+Which of the following is a number?
+
+[shuffle1]
+  [radio1]1[radio1]
+  [radio2]Monkey[radio2]
+  [radio3]Fish[radio3]
+[shuffle1]
+```
+
 ##### JavaScript (answer code)
+
+```javascript
+answer = radio1 === true;
+```
+
+Shuffle tags allow shuffling of their contents. For example, this makes it unnecessary to worry about order of options when creating multiple choice or multiple select exercises for which you want an unpredictable order. Shuffle tags can have any valid combination of AssessML tags between them. Shuffle names must start with `shuffle` and end with any non-empty string.
 
 #### Solution
 
