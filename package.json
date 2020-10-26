@@ -12,7 +12,7 @@
   "license": "MIT",
   "devDependencies": {
     "@webcomponents/custom-elements": "1.2.0",
-    "@webcomponents/shadydom": "1.0.13",
+    "@webcomponents/shadydom": "1.8.0",
     "deep-equal-es-module": "0.0.0",
     "guesswork": "0.11.2"
   },
