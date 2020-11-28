@@ -11,7 +11,7 @@
   "author": "Jordan Last <jordan.michael.last@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "@webcomponents/custom-elements": "1.2.0",
+    "@webcomponents/custom-elements": "1.4.3",
     "@webcomponents/shadydom": "1.0.13",
     "deep-equal-es-module": "0.0.0",
     "guesswork": "0.11.2"
